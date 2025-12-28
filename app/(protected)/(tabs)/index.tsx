@@ -1,4 +1,5 @@
 import { useList } from "@/api/list/queries";
+import { ListSelect } from "@/components/list/list-select";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { Stack, useLocalSearchParams } from "expo-router";
@@ -52,7 +53,12 @@ export default function Home() {
 
   return (
     <>
-      <Stack.Screen options={{ headerTitle: "Grocery List" }} />
+      <Stack.Screen
+        options={{
+          headerTitle: "Grocery List",
+          headerLeft: () => <ListSelect />,
+        }}
+      />
       {renderContent()}
     </>
   );

@@ -1,6 +1,14 @@
 import { TablesInsert } from "@/lib/database.types";
 import { supabase } from "@/lib/supabase";
 
+export const getLists = async () => {
+  const { data, error } = await supabase.from("lists").select("*");
+  console.log(data);
+  console.log(error);
+  if (error) throw error;
+  return data;
+};
+
 export const getList = async (id: string) => {
   const { data, error } = await supabase.from("lists").select("*").eq("id", id).maybeSingle();
   console.log(data);

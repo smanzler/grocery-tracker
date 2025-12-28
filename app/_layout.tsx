@@ -2,11 +2,13 @@ import "@/global.css";
 
 import { queryClient } from "@/lib/query-client";
 import { NAV_THEME } from "@/lib/theme";
+import { useAuthStore } from "@/stores/auth-store";
 import { ThemeProvider } from "@react-navigation/native";
 import { PortalHost } from "@rn-primitives/portal";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { SplashScreen, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
 import { useUniwind } from "uniwind";
 
 export {
@@ -21,9 +23,32 @@ export default function RootLayout() {
     <ThemeProvider value={NAV_THEME[theme ?? "light"]}>
       <QueryClientProvider client={queryClient}>
         <StatusBar style={theme === "dark" ? "light" : "dark"} />
-        <Stack screenOptions={{ headerShown: false }} />
+        <RootLayoutNav />
         <PortalHost />
       </QueryClientProvider>
     </ThemeProvider>
+  );
+}
+
+function RootLayoutNav() {
+  const { isAuthenticated, initializing, initialize } = useAuthStore();
+
+  useEffect(() => {
+    initialize().then(() => {
+      SplashScreen.hideAsync();
+    });
+  }, [initialize]);
+
+  if (initializing) return null;
+
+  return (
+    <Stack>
+      <Stack.Protected guard={isAuthenticated}>
+        <Stack.Screen name="(protected)" options={{ headerShown: false }} />
+      </Stack.Protected>
+      <Stack.Protected guard={!isAuthenticated}>
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+      </Stack.Protected>
+    </Stack>
   );
 }
