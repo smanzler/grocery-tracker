@@ -34,71 +34,36 @@ export type Database = {
   }
   public: {
     Tables: {
-      list_items: {
+      household_roles: {
         Row: {
           created_at: string
+          household_id: string
           id: string
-          list_id: string
-          name: string | null
-          quantity: number
           user_id: string
         }
         Insert: {
           created_at?: string
+          household_id: string
           id?: string
-          list_id: string
-          name?: string | null
-          quantity?: number
           user_id: string
         }
         Update: {
           created_at?: string
+          household_id?: string
           id?: string
-          list_id?: string
-          name?: string | null
-          quantity?: number
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "list_items_list_id_fkey"
-            columns: ["list_id"]
+            foreignKeyName: "household_roles_household_id_fkey"
+            columns: ["household_id"]
             isOneToOne: false
-            referencedRelation: "lists"
+            referencedRelation: "households"
             referencedColumns: ["id"]
           },
         ]
       }
-      list_roles: {
-        Row: {
-          created_at: string
-          id: string
-          list_id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          list_id: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          list_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "list_roles_list_id_fkey"
-            columns: ["list_id"]
-            isOneToOne: false
-            referencedRelation: "lists"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      lists: {
+      households: {
         Row: {
           created_at: string
           id: string
@@ -122,12 +87,47 @@ export type Database = {
         }
         Relationships: []
       }
+      list_items: {
+        Row: {
+          created_at: string
+          household_id: string
+          id: string
+          name: string | null
+          quantity: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          household_id: string
+          id?: string
+          name?: string | null
+          quantity?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          household_id?: string
+          id?: string
+          name?: string | null
+          quantity?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "list_items_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      is_list_user: { Args: { p_list_id: string }; Returns: boolean }
+      is_household_user: { Args: { p_household_id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
