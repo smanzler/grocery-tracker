@@ -12,7 +12,7 @@ alter table "public"."household_roles" enable row level security;
 
   create table "public"."households" (
     "id" uuid not null default gen_random_uuid(),
-    "user_id" uuid not null,
+    "user_id" uuid not null default auth.uid(),
     "name" text,
     "image_url" text,
     "created_at" timestamp with time zone not null default now()
@@ -34,11 +34,11 @@ alter table "public"."households" enable row level security;
 
 alter table "public"."list_items" enable row level security;
 
-CREATE UNIQUE INDEX list_items_pkey ON public.list_items USING btree (id);
-
 CREATE UNIQUE INDEX household_roles_pkey ON public.household_roles USING btree (id);
 
 CREATE UNIQUE INDEX households_pkey ON public.households USING btree (id);
+
+CREATE UNIQUE INDEX list_items_pkey ON public.list_items USING btree (id);
 
 alter table "public"."household_roles" add constraint "household_roles_pkey" PRIMARY KEY using index "household_roles_pkey";
 
@@ -68,9 +68,35 @@ alter table "public"."list_items" validate constraint "list_items_user_id_fkey";
 
 set check_function_bodies = off;
 
+CREATE OR REPLACE FUNCTION public.create_household(p_name text, p_image_url text DEFAULT NULL::text)
+ RETURNS uuid
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+declare
+  v_user_id uuid := auth.uid();
+  v_household_id uuid;
+begin
+  if v_user_id is null then
+    raise exception 'Unauthorized';
+  end if;
+
+  insert into households (name, image_url, user_id)
+  values (p_name, p_image_url, v_user_id)
+  returning id into v_household_id;
+
+  insert into household_roles (household_id, user_id)
+  values (v_household_id, v_user_id);
+
+  return v_household_id;
+end;
+$function$
+;
+
 CREATE OR REPLACE FUNCTION public.is_household_user(p_household_id uuid)
  RETURNS boolean
  LANGUAGE sql
+ SECURITY DEFINER
 AS $function$
 select exists (
   select 1
@@ -217,32 +243,12 @@ with check (public.is_household_user(household_id));
 
 
 
-  create policy "Enable insert based on user_id"
-  on "public"."household_roles"
-  as permissive
-  for insert
-  to authenticated
-with check ((EXISTS ( SELECT 1
-   FROM public.households h
-  WHERE ((h.id = household_roles.household_id) AND (h.user_id = ( SELECT auth.uid() AS uid))))));
-
-
-
   create policy "Enable select based on role"
   on "public"."household_roles"
   as permissive
   for select
   to authenticated
 using (public.is_household_user(household_id));
-
-
-
-  create policy "Enable insert for users based on user_id"
-  on "public"."households"
-  as permissive
-  for insert
-  to authenticated
-with check ((( SELECT auth.uid() AS uid) = user_id));
 
 
 

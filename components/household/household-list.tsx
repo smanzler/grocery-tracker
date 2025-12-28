@@ -12,7 +12,9 @@ import { Icon } from "@/components/ui/icon";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { useHouseholdStore } from "@/stores/household-store";
+import { router } from "expo-router";
 import { HomeIcon, PlusIcon } from "lucide-react-native";
+import { ScrollView } from "react-native";
 import { useUniwind } from "uniwind";
 
 export const HouseholdList = () => {
@@ -39,7 +41,12 @@ export const HouseholdList = () => {
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Button>
+          <Button
+            onPress={() => {
+              console.log("create household");
+              router.push("/(protected)/(modals)/create-household");
+            }}
+          >
             <Text>Create Household</Text>
             <Icon as={PlusIcon} color={theme === "dark" ? "black" : "white"} />
           </Button>
@@ -48,9 +55,26 @@ export const HouseholdList = () => {
     );
   }
 
-  return data?.map((household) => (
-    <Button key={household.id} onPress={() => selectHousehold(household.id)}>
-      {household.name}
-    </Button>
-  ));
+  return (
+    <ScrollView className="px-6 py-4" contentContainerClassName="gap-2">
+      {data.map((household) => (
+        <Button
+          key={household.id}
+          variant="outline"
+          onPress={() => selectHousehold(household.id)}
+        >
+          <Text>{household.name}</Text>
+        </Button>
+      ))}
+      <Button
+        onPress={() => {
+          console.log("create household");
+          router.push("/(protected)/(modals)/create-household");
+        }}
+      >
+        <Text>Create Household</Text>
+        <Icon as={PlusIcon} color={theme === "dark" ? "black" : "white"} />
+      </Button>
+    </ScrollView>
+  );
 };
