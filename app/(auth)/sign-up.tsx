@@ -1,10 +1,10 @@
-import { Text } from "@/components/ui/text";
-import { View } from "react-native";
+import { SignUpForm } from "@/components/auth/signup-form";
+import { ScrollView } from "react-native";
 
 export default function SignUp() {
   return (
-    <View className="flex-1 items-center justify-center">
-      <Text className="text-2xl font-bold">Sign Up</Text>
-    </View>
+    <ScrollView className="flex-1 p-4" contentContainerClassName="items-center">
+      <SignUpForm />
+    </ScrollView>
   );
 }

@@ -3,8 +3,13 @@ import React from "react";
 
 const Layout = () => {
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index" />
+    <Stack
+      screenOptions={{
+        animation: "none",
+      }}
+    >
+      <Stack.Screen name="index" options={{ headerTitle: "Sign In" }} />
+      <Stack.Screen name="sign-up" options={{ headerTitle: "Sign Up" }} />
     </Stack>
   );
 };
