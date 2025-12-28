@@ -11,19 +11,41 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Text } from "@/components/ui/text";
+import { useAuthStore } from "@/stores/auth-store";
 import { router } from "expo-router";
 import * as React from "react";
-import { Pressable, type TextInput, View } from "react-native";
+import { Controller, useForm } from "react-hook-form";
+import { Alert, Pressable, type TextInput, View } from "react-native";
+
+type SignInFormData = {
+  email: string;
+  password: string;
+};
 
 export function SignInForm() {
+  const { signIn } = useAuthStore();
   const passwordInputRef = React.useRef<TextInput>(null);
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<SignInFormData>({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
   function onEmailSubmitEditing() {
     passwordInputRef.current?.focus();
   }
 
-  function onSubmit() {
-    // TODO: Submit form and navigate to protected screen if successful
+  async function onSubmit(data: SignInFormData) {
+    const { error } = await signIn(data.email, data.password);
+    if (error) {
+      Alert.alert("Error", error.message);
+    }
   }
 
   return (
@@ -40,16 +62,37 @@ export function SignInForm() {
         <View className="gap-6">
           <View className="gap-1.5">
             <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              placeholder="m@example.com"
-              keyboardType="email-address"
-              autoComplete="email"
-              autoCapitalize="none"
-              onSubmitEditing={onEmailSubmitEditing}
-              returnKeyType="next"
-              submitBehavior="submit"
+            <Controller
+              control={control}
+              name="email"
+              rules={{
+                required: "Email is required",
+                pattern: {
+                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                  message: "Invalid email address",
+                },
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  id="email"
+                  placeholder="m@example.com"
+                  keyboardType="email-address"
+                  autoComplete="email"
+                  autoCapitalize="none"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  onSubmitEditing={onEmailSubmitEditing}
+                  returnKeyType="next"
+                  submitBehavior="submit"
+                />
+              )}
             />
+            {errors.email && (
+              <Text className="text-destructive text-sm">
+                {errors.email.message}
+              </Text>
+            )}
           </View>
           <View className="gap-1.5">
             <View className="flex-row items-center">
@@ -67,16 +110,37 @@ export function SignInForm() {
                 </Text>
               </Button>
             </View>
-            <Input
-              ref={passwordInputRef}
-              id="password"
-              secureTextEntry
-              returnKeyType="send"
-              onSubmitEditing={onSubmit}
+            <Controller
+              control={control}
+              name="password"
+              rules={{
+                required: "Password is required",
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  ref={passwordInputRef}
+                  id="password"
+                  secureTextEntry
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  returnKeyType="send"
+                  onSubmitEditing={handleSubmit(onSubmit)}
+                />
+              )}
             />
+            {errors.password && (
+              <Text className="text-destructive text-sm">
+                {errors.password.message}
+              </Text>
+            )}
           </View>
-          <Button className="w-full" onPress={onSubmit}>
-            <Text>Continue</Text>
+          <Button
+            className="w-full"
+            onPress={handleSubmit(onSubmit)}
+            disabled={isSubmitting}
+          >
+            <Text>{isSubmitting ? "Signing in..." : "Continue"}</Text>
           </Button>
         </View>
         <View className="flex-row items-center justify-center gap-2">
