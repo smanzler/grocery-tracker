@@ -16,6 +16,7 @@
     "@react-navigation/elements": "^2.6.3",
     "@react-navigation/native": "^7.1.8",
     "@rn-primitives/portal": "^1.3.0",
+    "@rn-primitives/select": "^1.2.0",
     "@rn-primitives/slot": "^1.2.0",
     "@supabase/supabase-js": "^2.89.0",
     "@tanstack/react-query": "^5.90.13",
@@ -47,7 +48,8 @@
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18",
     "tailwindcss-animate": "^1.0.7",
-    "uniwind": "^1.2.2"
+    "uniwind": "^1.2.2",
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
