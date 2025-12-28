@@ -42,12 +42,12 @@ function RootLayoutNav() {
   if (initializing) return null;
 
   return (
-    <Stack>
+    <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={isAuthenticated}>
-        <Stack.Screen name="(protected)" options={{ headerShown: false }} />
+        <Stack.Screen name="(protected)" />
       </Stack.Protected>
       <Stack.Protected guard={!isAuthenticated}>
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        <Stack.Screen name="(auth)" />
       </Stack.Protected>
     </Stack>
   );
