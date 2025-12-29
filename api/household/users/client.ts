@@ -16,3 +16,11 @@ export const removeHouseholdUser = async (householdRoleId: string) => {
     .eq("id", householdRoleId);
   if (error) throw error;
 };
+
+export const isHouseholdMember = async (householdId: string) => {
+  const { data, error } = await supabase.rpc("is_household_user", {
+    p_household_id: householdId,
+  });
+  if (error) throw error;
+  return data;
+};

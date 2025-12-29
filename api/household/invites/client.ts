@@ -29,10 +29,10 @@ export const redeemHouseholdInvite = async (
   inviteToken: string,
   userId: string
 ) => {
-  const { error } = await supabase.rpc("redeem_household_invite", {
+  const { data, error } = await supabase.rpc("redeem_household_invite", {
     p_invite_token: inviteToken,
     p_user_id: userId,
   });
-  console.log(error);
   if (error) throw error;
+  return data;
 };

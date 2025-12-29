@@ -11,6 +11,8 @@ import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useAuthStore } from "@/stores/auth-store";
+import { useHouseholdStore } from "@/stores/household-store";
+import { router } from "expo-router";
 import { HousePlusIcon } from "lucide-react-native";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, ScrollView } from "react-native";
@@ -22,6 +24,7 @@ type JoinHouseholdFormData = {
 
 export default function JoinHousehold() {
   const { mutateAsync: redeemHouseholdInvite } = useRedeemHouseholdInvite();
+  const { selectHousehold } = useHouseholdStore();
   const { user } = useAuthStore();
   const { theme } = useUniwind();
 
@@ -41,10 +44,22 @@ export default function JoinHousehold() {
       return;
     }
 
-    await redeemHouseholdInvite({
-      inviteToken: data.inviteToken,
-      userId: user.id,
-    });
+    try {
+      const householdId = await redeemHouseholdInvite({
+        inviteToken: data.inviteToken,
+        userId: user.id,
+      });
+
+      router.back();
+      setTimeout(() => {
+        selectHousehold(householdId);
+      }, 0);
+    } catch (error) {
+      Alert.alert(
+        "Error",
+        error instanceof Error ? error.message : "Failed to join household"
+      );
+    }
   }
 
   return (

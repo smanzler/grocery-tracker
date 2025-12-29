@@ -21,7 +21,7 @@ const localStorageAdapter = {
 
 export const useHouseholdStore = create<HouseholdStoreState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       householdId: null,
       selectHousehold: (householdId: string | null) => {
         set({ householdId });

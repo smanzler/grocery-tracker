@@ -6,7 +6,7 @@
     "created_at" timestamp with time zone default now(),
     "expires_at" timestamp with time zone,
     "max_uses" smallint,
-    "used_count" smallint
+    "used_count" smallint not null default '0'::smallint
       );
 
 
@@ -219,8 +219,10 @@ $function$
 ;
 
 CREATE OR REPLACE FUNCTION public.redeem_household_invite(p_invite_token text, p_user_id uuid)
- RETURNS boolean
+ RETURNS uuid
  LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public', 'auth'
 AS $function$
 declare
   invite_record household_invites%rowtype;
@@ -243,21 +245,21 @@ begin
 
   if exists (
   select 1 
-  from household_members 
-  where household_id = invite_record.household_id 
-    and user_id = p_user_id
+  from household_users hu
+  where hu.household_id = invite_record.household_id 
+    and hu.user_id = p_user_id
   ) then
     raise exception 'User is already a member of this household';
   end if;
 
-  insert into household_members(household_id, user_id, joined_at)
-  values (invite_record.household_id, p_user_id, now());
+  insert into household_users(household_id, user_id)
+  values (invite_record.household_id, p_user_id);
 
   update household_invites
   set used_count = used_count + 1
   where id = invite_record.id;
 
-  return true;
+  return invite_record.household_id;
 end;
 $function$
 ;

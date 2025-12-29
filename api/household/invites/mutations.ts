@@ -44,5 +44,13 @@ export const useRedeemHouseholdInvite = () => {
       inviteToken: string;
       userId: string;
     }) => redeemHouseholdInvite(inviteToken, userId),
+    onSuccess: (householdId: string) => {
+      queryClient.invalidateQueries({
+        queryKey: ["households"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["is-household-member", householdId],
+      });
+    },
   });
 };
