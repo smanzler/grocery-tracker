@@ -5,7 +5,8 @@ import { createListItem, updateListItem } from "./client";
 
 export const useCreateListItem = (householdId: string) => {
   return useMutation({
-    mutationFn: (listItem: TablesInsert<"list_items">) => createListItem(listItem),
+    mutationFn: (listItem: TablesInsert<"list_items">) =>
+      createListItem(listItem),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["list-items", householdId] });
     },
@@ -14,7 +15,8 @@ export const useCreateListItem = (householdId: string) => {
 
 export const useUpdateListItem = (householdId: string) => {
   return useMutation({
-    mutationFn: (listItem: TablesUpdate<"list_items">) => updateListItem(listItem),
+    mutationFn: (listItem: TablesUpdate<"list_items">) =>
+      updateListItem(listItem),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["list-items", householdId] });
     },

@@ -1,8 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import {
-  getHousehold,
-  getHouseholds,
-} from "./client";
+import { getHousehold, getHouseholds } from "./client";
 
 export const useHouseholds = () => {
   return useQuery({

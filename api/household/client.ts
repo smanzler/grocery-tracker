@@ -9,7 +9,11 @@ export const getHouseholds = async () => {
 
 export const getHousehold = async (householdId?: string) => {
   if (!householdId) return null;
-  const { data, error } = await supabase.from("households").select("*").eq("id", householdId).single();
+  const { data, error } = await supabase
+    .from("households")
+    .select("*")
+    .eq("id", householdId)
+    .single();
   if (error) throw error;
   return data;
 };

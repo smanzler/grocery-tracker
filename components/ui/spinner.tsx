@@ -29,7 +29,7 @@ function Spinner({ className, ...props }: LucideProps) {
   }));
 
   return (
-    <Animated.View style={style}>
+    <Animated.View style={style} className="size-4">
       <Icon
         as={Loader2Icon}
         role="status"

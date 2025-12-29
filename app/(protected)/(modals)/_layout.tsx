@@ -17,6 +17,13 @@ export default function ModalsLayout() {
           headerLargeTitleEnabled: true,
         }}
       />
+      <Stack.Screen
+        name="join-household"
+        options={{
+          headerTitle: "Join Household",
+          headerLargeTitleEnabled: true,
+        }}
+      />
     </Stack>
   );
 }

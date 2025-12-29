@@ -3,7 +3,10 @@ import { supabase } from "@/lib/supabase";
 
 export const getListItems = async (householdId?: string) => {
   if (!householdId) throw new Error("Household ID is required");
-  const { data, error } = await supabase.from("list_items").select("*").eq("household_id", householdId);
+  const { data, error } = await supabase
+    .from("list_items")
+    .select("*")
+    .eq("household_id", householdId);
   if (error) throw error;
   return data;
 };
@@ -16,7 +19,10 @@ export const createListItem = async (listItem: TablesInsert<"list_items">) => {
 
 export const updateListItem = async (listItem: TablesUpdate<"list_items">) => {
   if (!listItem.id) throw new Error("List item ID is required");
-  const { data, error } = await supabase.from("list_items").update(listItem).eq("id", listItem.id);
+  const { data, error } = await supabase
+    .from("list_items")
+    .update(listItem)
+    .eq("id", listItem.id);
   if (error) throw error;
   return data;
 };

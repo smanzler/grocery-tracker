@@ -84,7 +84,7 @@ export const ProfileButton = () => {
         <DropdownMenuSeparator />
         <DropdownMenuItem variant="destructive" onPress={signOut}>
           <Text>Logout</Text>
-          <Icon className="size-4" as={LogOutIcon} />
+          <Icon className="size-4 text-destructive" as={LogOutIcon} />
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

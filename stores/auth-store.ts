@@ -83,7 +83,6 @@ export const useAuthStore = create<AuthStoreState>((set, get) => {
     async signOut() {
       set({ loading: true });
       try {
-
         await supabase.auth.signOut();
 
         useHouseholdStore.getState().selectHousehold(null);

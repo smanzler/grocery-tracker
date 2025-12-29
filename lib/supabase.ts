@@ -9,11 +9,15 @@ if (!supabaseUrl || !supabasePublishableKey) {
   throw new Error("Supabase URL or publishable key is not set");
 }
 
-export const supabase = createClient<Database>(supabaseUrl, supabasePublishableKey, {
-  auth: {
-    storage: localStorage,
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: false,
-  },
-});
+export const supabase = createClient<Database>(
+  supabaseUrl,
+  supabasePublishableKey,
+  {
+    auth: {
+      storage: localStorage,
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: false,
+    },
+  }
+);

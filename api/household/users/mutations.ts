@@ -4,7 +4,8 @@ import { removeHouseholdUser } from "./client";
 
 export const useRemoveHouseholdUser = () => {
   return useMutation({
-    mutationFn: (householdRoleId: string) => removeHouseholdUser(householdRoleId),
+    mutationFn: (householdRoleId: string) =>
+      removeHouseholdUser(householdRoleId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["household-users"] });
     },

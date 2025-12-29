@@ -1,11 +1,9 @@
 import { useCreateHouseholdInvite } from "@/api/household/invites/mutations";
 import { useUpdateHousehold } from "@/api/household/mutations";
 import { useHousehold } from "@/api/household/queries";
-import { useRemoveHouseholdUser } from "@/api/household/users/mutations";
-import { useHouseholdUsers } from "@/api/household/users/queries";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { HouseholdInvitesList } from "@/components/household/household-invites-list";
+import { HouseholdUsersList } from "@/components/household/household-users-list";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Field,
   FieldDescription,
@@ -17,15 +15,15 @@ import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
-import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
+import * as Clipboard from "expo-clipboard";
 import { router } from "expo-router";
-import { PlusIcon, Trash2Icon } from "lucide-react-native";
+import { PlusIcon } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, Pressable, ScrollView, View } from "react-native";
-import { useUniwind } from "uniwind";
 
 type EditHouseholdFormData = {
   name: string;
@@ -33,21 +31,13 @@ type EditHouseholdFormData = {
 };
 
 export default function EditHousehold() {
+  const [selectedTab, setSelectedTab] = useState("members");
   const { householdId } = useHouseholdStore();
-  const { user } = useAuthStore();
-  const { theme } = useUniwind();
   const { data: household, isLoading: isHouseholdLoading } = useHousehold(
-    householdId ?? undefined
-  );
-  const { data: householdUsers, isLoading: isUsersLoading } = useHouseholdUsers(
     householdId ?? undefined
   );
   const { mutateAsync: updateHousehold } = useUpdateHousehold();
   const { mutateAsync: createHouseholdInvite } = useCreateHouseholdInvite();
-  const { mutateAsync: removeHouseholdUser } = useRemoveHouseholdUser();
-
-  const [newUserEmail, setNewUserEmail] = useState("");
-  const [isAddingUser, setIsAddingUser] = useState(false);
 
   const {
     control,
@@ -93,59 +83,32 @@ export default function EditHousehold() {
     }
   }
 
-  async function handleAddUser() {
-    if (!householdId || !newUserEmail.trim()) {
-      Alert.alert("Error", "Please enter a user ID");
+  const handleCreateInvite = async () => {
+    if (!householdId) {
+      Alert.alert("Error", "No household selected");
       return;
     }
 
-    setIsAddingUser(true);
     try {
+      setSelectedTab("invites");
       const { inviteLink } = await createHouseholdInvite(householdId);
-      console.log(inviteLink);
-      Alert.alert("Success", "Invite created successfully");
+      Alert.alert("Success", "Invite created successfully", [
+        {
+          text: "Copy",
+          onPress: () => {
+            Clipboard.setStringAsync(inviteLink);
+            Alert.alert("Success", "Invite copied to clipboard");
+          },
+        },
+        { text: "Cancel", style: "cancel" },
+      ]);
     } catch (error) {
       Alert.alert(
         "Error",
         error instanceof Error ? error.message : "Failed to create invite"
       );
     }
-  }
-
-  async function handleRemoveUser(householdRoleId: string, userId: string) {
-    if (!user) {
-      Alert.alert("Error", "You must be logged in");
-      return;
-    }
-
-    if (userId === user.id) {
-      Alert.alert("Error", "You cannot remove yourself from the household");
-      return;
-    }
-
-    Alert.alert(
-      "Remove User",
-      "Are you sure you want to remove this user from the household?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Remove",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await removeHouseholdUser(householdRoleId);
-              Alert.alert("Success", "User removed from household");
-            } catch (error) {
-              Alert.alert(
-                "Error",
-                error instanceof Error ? error.message : "Failed to remove user"
-              );
-            }
-          },
-        },
-      ]
-    );
-  }
+  };
 
   if (isHouseholdLoading) {
     return (
@@ -235,85 +198,30 @@ export default function EditHousehold() {
 
       <Separator />
 
-      <View className="flex-col gap-4">
-        <Text className="text-xl font-semibold">Manage Users</Text>
+      <View className="flex-col gap-2">
+        <Text className="text-lg font-bold">Users</Text>
+        <Tabs value={selectedTab} onValueChange={setSelectedTab}>
+          <View className="flex-row items-center gap-2 justify-between">
+            <TabsList>
+              <TabsTrigger value="members">
+                <Text>Members</Text>
+              </TabsTrigger>
+              <TabsTrigger value="invites">
+                <Text>Invites</Text>
+              </TabsTrigger>
+            </TabsList>
+            <Pressable onPress={handleCreateInvite}>
+              <Icon as={PlusIcon} className="size-4" />
+            </Pressable>
+          </View>
+          <TabsContent className="mt-4" value="members">
+            <HouseholdUsersList />
+          </TabsContent>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Add User</CardTitle>
-          </CardHeader>
-          <CardContent className="flex-col gap-3">
-            <Input
-              placeholder="Enter user email"
-              value={newUserEmail}
-              onChangeText={setNewUserEmail}
-              autoCapitalize="none"
-            />
-            <Button
-              onPress={handleAddUser}
-              disabled={isAddingUser || !newUserEmail.trim()}
-            >
-              <Text>{isAddingUser ? "Adding..." : "Add User"}</Text>
-              <Icon
-                as={PlusIcon}
-                className="size-4"
-                color={theme === "dark" ? "black" : "white"}
-              />
-            </Button>
-          </CardContent>
-        </Card>
-
-        <View className="flex-col gap-2">
-          <Text className="text-lg font-medium">Household Members</Text>
-          {isUsersLoading ? (
-            <View className="py-4">
-              <Spinner />
-            </View>
-          ) : !householdUsers || householdUsers.length === 0 ? (
-            <Text className="text-muted-foreground">
-              No users in this household
-            </Text>
-          ) : (
-            householdUsers.map((householdUser) => {
-              const isCurrentUser = householdUser.user_id === user?.id;
-              return (
-                <View
-                  className="flex-row items-center gap-3 flex-1"
-                  key={householdUser.id}
-                >
-                  <Avatar alt={householdUser.user_id}>
-                    <AvatarFallback>
-                      <Text>
-                        {householdUser.user_id.slice(0, 2).toUpperCase()}
-                      </Text>
-                    </AvatarFallback>
-                  </Avatar>
-                  <View className="flex-1">
-                    <Text className="font-medium">
-                      {isCurrentUser ? "You" : "User"}
-                    </Text>
-                    <Text className="text-sm text-muted-foreground truncate line-clamp-1">
-                      Joined on{" "}
-                      {new Date(householdUser.created_at).toLocaleDateString()}
-                    </Text>
-                  </View>
-                  {!isCurrentUser && (
-                    <Pressable
-                      onPress={() =>
-                        handleRemoveUser(
-                          householdUser.id,
-                          householdUser.user_id
-                        )
-                      }
-                    >
-                      <Icon as={Trash2Icon} className="size-4" />
-                    </Pressable>
-                  )}
-                </View>
-              );
-            })
-          )}
-        </View>
+          <TabsContent className="mt-4" value="invites">
+            <HouseholdInvitesList />
+          </TabsContent>
+        </Tabs>
       </View>
     </ScrollView>
   );
