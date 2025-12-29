@@ -106,7 +106,9 @@ export const ListItemDialog = ({
                     value={value}
                     onChangeText={onChange}
                     onBlur={onBlur}
+                    onSubmitEditing={handleSubmit(handleFormSubmit)}
                     placeholder="Item name"
+                    autoFocus
                   />
                 )}
               />
@@ -127,6 +129,7 @@ export const ListItemDialog = ({
                     value={value}
                     onChangeText={onChange}
                     onBlur={onBlur}
+                    onSubmitEditing={handleSubmit(handleFormSubmit)}
                     placeholder="Quantity"
                     keyboardType="numeric"
                   />

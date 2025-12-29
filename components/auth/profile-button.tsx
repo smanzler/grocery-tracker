@@ -38,7 +38,7 @@ export const ProfileButton = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
-        <Avatar alt={user.email ?? ""}>
+        <Avatar alt={user.email ?? ""} className="size-8">
           <AvatarImage source={{ uri: user.user_metadata.avatar_url }} />
           <AvatarFallback>
             <Text>{user.email?.charAt(0)}</Text>

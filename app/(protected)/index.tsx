@@ -2,6 +2,7 @@ import { ProfileButton } from "@/components/auth/profile-button";
 import { HouseholdList } from "@/components/household/household-list";
 import { Header } from "@react-navigation/elements";
 import { Stack } from "expo-router";
+import { View } from "react-native";
 
 export default function Home() {
   return (
@@ -10,9 +11,11 @@ export default function Home() {
         options={{
           header: () => (
             <Header
-              title="Grocery List"
+              title="Households"
               headerLeft={() => <ProfileButton />}
+              headerRight={() => <View className="size-8" />}
               headerLeftContainerStyle={{ paddingLeft: 16 }}
+              headerRightContainerStyle={{ paddingRight: 16 }}
             />
           ),
         }}
