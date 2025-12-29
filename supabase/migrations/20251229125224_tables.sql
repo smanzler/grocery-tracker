@@ -318,6 +318,15 @@ using (public.is_household_user(id));
 
 
 
+  create policy "Enable update based on role"
+  on "public"."households"
+  as permissive
+  for update
+  to authenticated
+using (public.is_household_user(id));
+
+
+
   create policy "Enable delete based on role"
   on "public"."list_items"
   as permissive
