@@ -1,19 +1,19 @@
 import { useHousehold } from "@/api/household/queries";
-import { useAuthStore } from "@/stores/auth-store";
-import { useHouseholdStore } from "@/stores/household-store";
-import { router } from "expo-router";
-import { ArrowRightIcon, HomeIcon, UserIcon } from "lucide-react-native";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { Icon } from "../ui/icon";
-import { Spinner } from "../ui/spinner";
-import { Text } from "../ui/text";
+} from "@/components/ui/dropdown-menu";
+import { Icon } from "@/components/ui/icon";
+import { Spinner } from "@/components/ui/spinner";
+import { Text } from "@/components/ui/text";
+import { useAuthStore } from "@/stores/auth-store";
+import { useHouseholdStore } from "@/stores/household-store";
+import { router } from "expo-router";
+import { ArrowRightIcon, HomeIcon, UserIcon } from "lucide-react-native";
 
 export const ProfileButton = () => {
   const { user } = useAuthStore();

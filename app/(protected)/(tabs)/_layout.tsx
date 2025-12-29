@@ -12,6 +12,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => (
             <Refrigerator color={color} size={size} />
           ),
+          headerTitle: "Pantry",
         }}
       />
       <Tabs.Screen
@@ -19,6 +20,7 @@ export default function TabsLayout() {
         options={{
           title: "",
           tabBarIcon: ({ color, size }) => <List color={color} size={size} />,
+          headerTitle: "Grocery List",
         }}
       />
       <Tabs.Screen
@@ -28,6 +30,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => (
             <ShoppingCart color={color} size={size} />
           ),
+          headerTitle: "Ingredients",
         }}
       />
     </Tabs>
