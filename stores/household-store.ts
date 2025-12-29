@@ -4,7 +4,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 
 type HouseholdStoreState = {
   householdId: string | null;
-  selectHousehold: (householdId: string) => void;
+  selectHousehold: (householdId: string | null) => void;
 };
 
 const localStorageAdapter = {
@@ -23,7 +23,7 @@ export const useHouseholdStore = create<HouseholdStoreState>()(
   persist(
     (set, get) => ({
       householdId: null,
-      selectHousehold: (householdId: string) => {
+      selectHousehold: (householdId: string | null) => {
         set({ householdId });
       },
     }),

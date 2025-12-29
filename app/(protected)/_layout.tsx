@@ -6,10 +6,13 @@ export default function ProtectedLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={!householdId}>
-        <Stack.Screen name="index" options={{ headerShown: true }} />
+        <Stack.Screen
+          name="index"
+          options={{ headerShown: true, animation: "none" }}
+        />
       </Stack.Protected>
       <Stack.Protected guard={!!householdId}>
-        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="(tabs)" options={{ animation: "none" }} />
       </Stack.Protected>
 
       <Stack.Screen name="(modals)" options={{ presentation: "modal" }} />

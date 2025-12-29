@@ -7,6 +7,14 @@ export const getHouseholds = async () => {
   return data;
 };
 
+export const getHousehold = async (householdId?: string) => {
+  if (!householdId) return null;
+  const { data, error } = await supabase.from("households").select("*").eq("id", householdId).single();
+  console.log(data, error);
+  if (error) throw error;
+  return data;
+};
+
 export const createHousehold = async (name: string, image_url?: string) => {
   const { data, error } = await supabase.rpc("create_household", {
     p_name: name,
