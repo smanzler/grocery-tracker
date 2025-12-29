@@ -173,154 +173,152 @@ export default function EditHousehold() {
   }
 
   return (
-    <ScrollView className="flex-1">
-      <View className="flex-col gap-6 mt-8 px-6 pb-8">
-        <Text className="text-2xl font-bold">Edit Household</Text>
-
-        <FieldGroup>
-          <Field>
-            <FieldLabel>Household Name</FieldLabel>
-            <Controller
-              control={control}
-              name="name"
-              rules={{
-                required: "Household name is required",
-                minLength: {
-                  value: 1,
-                  message: "Household name must be at least 1 character",
-                },
-              }}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  placeholder="My Household"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  autoCapitalize="words"
-                />
-              )}
-            />
-            <FieldDescription>Enter the name of the household</FieldDescription>
-            <FieldError errors={errors.name ? [errors.name] : undefined} />
-          </Field>
-          <Field>
-            <FieldLabel>Household Image URL</FieldLabel>
-            <Controller
-              control={control}
-              name="image_url"
-              rules={{
-                pattern: {
-                  value: /^https?:\/\/.+/,
-                  message: "Please enter a valid URL",
-                },
-              }}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  placeholder="https://example.com/image.jpg"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  keyboardType="url"
-                  autoCapitalize="none"
-                />
-              )}
-            />
-            <FieldDescription>
-              Enter an image URL for the household (optional)
-            </FieldDescription>
-            <FieldError
-              errors={errors.image_url ? [errors.image_url] : undefined}
-            />
-          </Field>
-        </FieldGroup>
-
-        <Button onPress={handleSubmit(onSubmit)} disabled={isSubmitting}>
-          <Text>{isSubmitting ? "Saving..." : "Save Changes"}</Text>
-        </Button>
-
-        <Separator />
-
-        <View className="flex-col gap-4">
-          <Text className="text-xl font-semibold">Manage Users</Text>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Add User</CardTitle>
-            </CardHeader>
-            <CardContent className="flex-col gap-3">
+    <ScrollView
+      contentContainerClassName="gap-6"
+      className="p-4"
+      contentInsetAdjustmentBehavior="automatic"
+    >
+      <FieldGroup>
+        <Field>
+          <FieldLabel>Household Name</FieldLabel>
+          <Controller
+            control={control}
+            name="name"
+            rules={{
+              required: "Household name is required",
+              minLength: {
+                value: 1,
+                message: "Household name must be at least 1 character",
+              },
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
               <Input
-                placeholder="Enter user email"
-                value={newUserEmail}
-                onChangeText={setNewUserEmail}
+                placeholder="My Household"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                autoCapitalize="words"
+              />
+            )}
+          />
+          <FieldDescription>Enter the name of the household</FieldDescription>
+          <FieldError errors={errors.name ? [errors.name] : undefined} />
+        </Field>
+        <Field>
+          <FieldLabel>Household Image URL</FieldLabel>
+          <Controller
+            control={control}
+            name="image_url"
+            rules={{
+              pattern: {
+                value: /^https?:\/\/.+/,
+                message: "Please enter a valid URL",
+              },
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Input
+                placeholder="https://example.com/image.jpg"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                keyboardType="url"
                 autoCapitalize="none"
               />
-              <Button
-                onPress={handleAddUser}
-                disabled={isAddingUser || !newUserEmail.trim()}
-              >
-                <Text>{isAddingUser ? "Adding..." : "Add User"}</Text>
-                <Icon
-                  as={PlusIcon}
-                  className="size-4"
-                  color={theme === "dark" ? "black" : "white"}
-                />
-              </Button>
-            </CardContent>
-          </Card>
-
-          <View className="flex-col gap-2">
-            <Text className="text-lg font-medium">Household Members</Text>
-            {isUsersLoading ? (
-              <View className="py-4">
-                <Spinner />
-              </View>
-            ) : !householdUsers || householdUsers.length === 0 ? (
-              <Text className="text-muted-foreground">
-                No users in this household
-              </Text>
-            ) : (
-              householdUsers.map((householdUser) => {
-                const isCurrentUser = householdUser.user_id === user?.id;
-                return (
-                  <View
-                    className="flex-row items-center gap-3 flex-1"
-                    key={householdUser.id}
-                  >
-                    <Avatar alt={householdUser.user_id}>
-                      <AvatarFallback>
-                        <Text>
-                          {householdUser.user_id.slice(0, 2).toUpperCase()}
-                        </Text>
-                      </AvatarFallback>
-                    </Avatar>
-                    <View className="flex-1">
-                      <Text className="font-medium">
-                        {isCurrentUser ? "You" : "User"}
-                      </Text>
-                      <Text className="text-sm text-muted-foreground truncate line-clamp-1">
-                        Joined on{" "}
-                        {new Date(
-                          householdUser.created_at
-                        ).toLocaleDateString()}
-                      </Text>
-                    </View>
-                    {!isCurrentUser && (
-                      <Pressable
-                        onPress={() =>
-                          handleRemoveUser(
-                            householdUser.id,
-                            householdUser.user_id
-                          )
-                        }
-                      >
-                        <Icon as={Trash2Icon} className="size-4" />
-                      </Pressable>
-                    )}
-                  </View>
-                );
-              })
             )}
-          </View>
+          />
+          <FieldDescription>
+            Enter an image URL for the household (optional)
+          </FieldDescription>
+          <FieldError
+            errors={errors.image_url ? [errors.image_url] : undefined}
+          />
+        </Field>
+      </FieldGroup>
+
+      <Button onPress={handleSubmit(onSubmit)} disabled={isSubmitting}>
+        <Text>{isSubmitting ? "Saving..." : "Save Changes"}</Text>
+      </Button>
+
+      <Separator />
+
+      <View className="flex-col gap-4">
+        <Text className="text-xl font-semibold">Manage Users</Text>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Add User</CardTitle>
+          </CardHeader>
+          <CardContent className="flex-col gap-3">
+            <Input
+              placeholder="Enter user email"
+              value={newUserEmail}
+              onChangeText={setNewUserEmail}
+              autoCapitalize="none"
+            />
+            <Button
+              onPress={handleAddUser}
+              disabled={isAddingUser || !newUserEmail.trim()}
+            >
+              <Text>{isAddingUser ? "Adding..." : "Add User"}</Text>
+              <Icon
+                as={PlusIcon}
+                className="size-4"
+                color={theme === "dark" ? "black" : "white"}
+              />
+            </Button>
+          </CardContent>
+        </Card>
+
+        <View className="flex-col gap-2">
+          <Text className="text-lg font-medium">Household Members</Text>
+          {isUsersLoading ? (
+            <View className="py-4">
+              <Spinner />
+            </View>
+          ) : !householdUsers || householdUsers.length === 0 ? (
+            <Text className="text-muted-foreground">
+              No users in this household
+            </Text>
+          ) : (
+            householdUsers.map((householdUser) => {
+              const isCurrentUser = householdUser.user_id === user?.id;
+              return (
+                <View
+                  className="flex-row items-center gap-3 flex-1"
+                  key={householdUser.id}
+                >
+                  <Avatar alt={householdUser.user_id}>
+                    <AvatarFallback>
+                      <Text>
+                        {householdUser.user_id.slice(0, 2).toUpperCase()}
+                      </Text>
+                    </AvatarFallback>
+                  </Avatar>
+                  <View className="flex-1">
+                    <Text className="font-medium">
+                      {isCurrentUser ? "You" : "User"}
+                    </Text>
+                    <Text className="text-sm text-muted-foreground truncate line-clamp-1">
+                      Joined on{" "}
+                      {new Date(householdUser.created_at).toLocaleDateString()}
+                    </Text>
+                  </View>
+                  {!isCurrentUser && (
+                    <Pressable
+                      onPress={() =>
+                        handleRemoveUser(
+                          householdUser.id,
+                          householdUser.user_id
+                        )
+                      }
+                    >
+                      <Icon as={Trash2Icon} className="size-4" />
+                    </Pressable>
+                  )}
+                </View>
+              );
+            })
+          )}
         </View>
       </View>
     </ScrollView>

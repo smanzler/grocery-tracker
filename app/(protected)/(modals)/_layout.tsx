@@ -2,9 +2,21 @@ import { Stack } from "expo-router";
 
 export default function ModalsLayout() {
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="create-household" />
-      <Stack.Screen name="edit-household" />
+    <Stack>
+      <Stack.Screen
+        name="create-household"
+        options={{
+          headerTitle: "Create Household",
+          headerLargeTitleEnabled: true,
+        }}
+      />
+      <Stack.Screen
+        name="edit-household"
+        options={{
+          headerTitle: "Edit Household",
+          headerLargeTitleEnabled: true,
+        }}
+      />
     </Stack>
   );
 }

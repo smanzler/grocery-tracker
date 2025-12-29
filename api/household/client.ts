@@ -3,7 +3,6 @@ import { supabase } from "@/lib/supabase";
 
 export const getHouseholds = async () => {
   const { data, error } = await supabase.from("households").select("*");
-  console.log(data, error);
   if (error) throw error;
   return data;
 };
@@ -11,7 +10,6 @@ export const getHouseholds = async () => {
 export const getHousehold = async (householdId?: string) => {
   if (!householdId) return null;
   const { data, error } = await supabase.from("households").select("*").eq("id", householdId).single();
-  console.log(data, error);
   if (error) throw error;
   return data;
 };
@@ -21,7 +19,6 @@ export const createHousehold = async (name: string, image_url?: string) => {
     p_name: name,
     p_image_url: image_url,
   });
-  console.log(data, error);
   if (error) throw error;
   return data;
 };
@@ -46,7 +43,6 @@ export const getHouseholdUsers = async (householdId: string) => {
     .from("household_users")
     .select("id, user_id, created_at")
     .eq("household_id", householdId);
-  console.log(data, error);
   if (error) throw error;
   return data;
 };
@@ -59,7 +55,6 @@ export const addHouseholdUser = async (
     p_household_id: householdId,
     p_email: email,
   });
-  console.log(error);
   if (error) throw error;
   return householdId;
 };
@@ -69,6 +64,5 @@ export const removeHouseholdUser = async (householdRoleId: string) => {
     .from("household_users")
     .delete()
     .eq("id", householdRoleId);
-  console.log(error);
   if (error) throw error;
 };

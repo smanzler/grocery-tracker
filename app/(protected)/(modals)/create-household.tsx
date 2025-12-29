@@ -12,7 +12,7 @@ import { Text } from "@/components/ui/text";
 import { useAuthStore } from "@/stores/auth-store";
 import { router } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, View } from "react-native";
+import { Alert, ScrollView } from "react-native";
 
 type CreateHouseholdFormData = {
   name: string;
@@ -52,8 +52,11 @@ export default function CreateHousehold() {
   }
 
   return (
-    <View className="flex-col gap-6 mt-8 px-6">
-      <Text className="text-2xl font-bold">Create Household</Text>
+    <ScrollView
+      contentContainerClassName="gap-6"
+      className="p-4"
+      contentInsetAdjustmentBehavior="automatic"
+    >
       <FieldGroup>
         <Field>
           <FieldLabel>Household Name</FieldLabel>
@@ -113,6 +116,6 @@ export default function CreateHousehold() {
       <Button onPress={handleSubmit(onSubmit)} disabled={isSubmitting}>
         <Text>{isSubmitting ? "Creating..." : "Create Household"}</Text>
       </Button>
-    </View>
+    </ScrollView>
   );
 }

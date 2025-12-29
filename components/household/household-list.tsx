@@ -56,7 +56,11 @@ export const HouseholdList = () => {
   }
 
   return (
-    <ScrollView className="px-6 py-4" contentContainerClassName="gap-2">
+    <ScrollView
+      className="p-4"
+      contentContainerClassName="gap-2"
+      contentInsetAdjustmentBehavior="automatic"
+    >
       {data.map((household) => (
         <Button
           key={household.id}
