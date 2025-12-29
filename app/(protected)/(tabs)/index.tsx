@@ -91,11 +91,19 @@ export default function Home() {
           ),
         }}
       />
-      <ScrollView className="px-6 py-4" contentContainerClassName="gap-2">
+      <ScrollView className="px-6" contentContainerClassName="gap-2 py-4">
         {sortedData.map((item) => (
           <ListItem key={item.id} item={item} />
         ))}
       </ScrollView>
+      <Button className="mx-6 mb-6">
+        <Text>Checkout</Text>
+        <Icon
+          as={ShoppingCartIcon}
+          color={theme === "dark" ? "black" : "white"}
+          className="size-4"
+        />
+      </Button>
     </>
   );
 }

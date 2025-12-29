@@ -40,7 +40,7 @@ function RootLayoutNav() {
   if (initializing) return null;
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack screenOptions={{ headerShown: false, animation: "none" }}>
       <Stack.Protected guard={isAuthenticated}>
         <Stack.Screen name="(protected)" />
       </Stack.Protected>

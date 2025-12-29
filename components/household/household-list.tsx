@@ -9,13 +9,28 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Icon } from "@/components/ui/icon";
+import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { useHouseholdStore } from "@/stores/household-store";
+import { formatDistanceToNow } from "date-fns";
 import { router } from "expo-router";
-import { HomeIcon, PlusIcon } from "lucide-react-native";
-import { ScrollView } from "react-native";
+import {
+  ChevronRightIcon,
+  HomeIcon,
+  PencilIcon,
+  PlusIcon,
+  TrashIcon,
+} from "lucide-react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import { useUniwind } from "uniwind";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "../ui/context-menu";
 
 export const HouseholdList = () => {
   const { data, isLoading } = useHouseholds();
@@ -57,19 +72,49 @@ export const HouseholdList = () => {
 
   return (
     <ScrollView
-      className="p-4"
-      contentContainerClassName="gap-2"
+      className="px-6"
+      contentContainerClassName="gap-2 py-4"
       contentInsetAdjustmentBehavior="automatic"
     >
       {data.map((household) => (
-        <Button
-          key={household.id}
-          variant="outline"
-          onPress={() => selectHousehold(household.id)}
-        >
-          <Text>{household.name}</Text>
-        </Button>
+        <ContextMenu key={household.id}>
+          <ContextMenuTrigger asChild>
+            <Pressable
+              className="flex-row items-center gap-4 py-0 pr-2 overflow-hidden rounded-md bg-card"
+              onPress={() => selectHousehold(household.id)}
+            >
+              <Avatar
+                alt={household.name || ""}
+                className="size-20 rounded-none"
+              >
+                <AvatarImage src={household.image_url || undefined} />
+                <AvatarFallback className="rounded-none">
+                  <Text>{household.name?.charAt(0) || "H"}</Text>
+                </AvatarFallback>
+              </Avatar>
+              <View className="flex-1">
+                <Text className="text-md font-semibold">{household.name}</Text>
+                <Text className="text-sm text-muted-foreground">
+                  Created {formatDistanceToNow(household.created_at)} ago
+                </Text>
+              </View>
+
+              <Icon as={ChevronRightIcon} />
+            </Pressable>
+          </ContextMenuTrigger>
+          <ContextMenuContent>
+            <ContextMenuItem>
+              <Text>Edit</Text>
+              <Icon as={PencilIcon} className="size-4" />
+            </ContextMenuItem>
+            <ContextMenuItem variant="destructive">
+              <Text>Delete</Text>
+              <Icon as={TrashIcon} className="size-4 text-destructive" />
+            </ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
       ))}
+      <Separator className="my-4" />
       <Button
         onPress={() => {
           console.log("create household");

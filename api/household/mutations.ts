@@ -2,10 +2,8 @@ import { Tables, TablesUpdate } from "@/lib/database.types";
 import { queryClient } from "@/lib/query-client";
 import { useMutation } from "@tanstack/react-query";
 import {
-  addHouseholdUser,
   createHousehold,
-  removeHouseholdUser,
-  updateHousehold,
+  updateHousehold
 } from "./client";
 
 export const useCreateHousehold = () => {
@@ -26,27 +24,6 @@ export const useUpdateHousehold = () => {
       queryClient.invalidateQueries({
         queryKey: ["household", household.id],
       });
-    },
-  });
-};
-
-export const useAddHouseholdUser = () => {
-  return useMutation({
-    mutationFn: ({householdId, email}: {householdId: string, email: string}) => addHouseholdUser(householdId, email),
-    onSuccess: (householdId: string) => {
-      queryClient.invalidateQueries({
-        queryKey: ["household-users", householdId],
-      });
-    },
-  });
-};
-
-export const useRemoveHouseholdUser = () => {
-  return useMutation({
-    mutationFn: (householdRoleId: string) =>
-      removeHouseholdUser(householdRoleId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["household-users"] });
     },
   });
 };

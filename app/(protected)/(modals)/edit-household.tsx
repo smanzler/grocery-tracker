@@ -1,9 +1,8 @@
-import {
-  useAddHouseholdUser,
-  useRemoveHouseholdUser,
-  useUpdateHousehold,
-} from "@/api/household/mutations";
-import { useHousehold, useHouseholdUsers } from "@/api/household/queries";
+import { useCreateHouseholdInvite } from "@/api/household/invites/mutations";
+import { useUpdateHousehold } from "@/api/household/mutations";
+import { useHousehold } from "@/api/household/queries";
+import { useRemoveHouseholdUser } from "@/api/household/users/mutations";
+import { useHouseholdUsers } from "@/api/household/users/queries";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -44,7 +43,7 @@ export default function EditHousehold() {
     householdId ?? undefined
   );
   const { mutateAsync: updateHousehold } = useUpdateHousehold();
-  const { mutateAsync: addHouseholdUser } = useAddHouseholdUser();
+  const { mutateAsync: createHouseholdInvite } = useCreateHouseholdInvite();
   const { mutateAsync: removeHouseholdUser } = useRemoveHouseholdUser();
 
   const [newUserEmail, setNewUserEmail] = useState("");
@@ -102,19 +101,14 @@ export default function EditHousehold() {
 
     setIsAddingUser(true);
     try {
-      await addHouseholdUser({
-        householdId: householdId,
-        email: newUserEmail.trim(),
-      });
-      setNewUserEmail("");
-      Alert.alert("Success", "User added to household");
+      const { inviteLink } = await createHouseholdInvite(householdId);
+      console.log(inviteLink);
+      Alert.alert("Success", "Invite created successfully");
     } catch (error) {
       Alert.alert(
         "Error",
-        error instanceof Error ? error.message : "Failed to add user"
+        error instanceof Error ? error.message : "Failed to create invite"
       );
-    } finally {
-      setIsAddingUser(false);
     }
   }
 

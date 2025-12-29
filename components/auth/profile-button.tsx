@@ -13,7 +13,12 @@ import { Text } from "@/components/ui/text";
 import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
 import { router } from "expo-router";
-import { ArrowRightIcon, HomeIcon, UserIcon } from "lucide-react-native";
+import {
+  ArrowRightIcon,
+  HomeIcon,
+  LogOutIcon,
+  UserIcon,
+} from "lucide-react-native";
 
 export const ProfileButton = () => {
   const { user, signOut } = useAuthStore();
@@ -48,13 +53,13 @@ export const ProfileButton = () => {
       <DropdownMenuContent sideOffset={2}>
         <DropdownMenuItem>
           <Text>Profile</Text>
-          <Icon className="size-4 ml-auto" as={UserIcon} />
+          <Icon className="size-4" as={UserIcon} />
         </DropdownMenuItem>
         {householdId && (
           <>
             <DropdownMenuItem onPress={handleHouseholdsPress}>
               <Text>Households</Text>
-              <Icon className="size-4 ml-auto" as={HomeIcon} />
+              <Icon className="size-4" as={HomeIcon} />
             </DropdownMenuItem>
             <DropdownMenuItem
               disabled={!household}
@@ -65,7 +70,7 @@ export const ProfileButton = () => {
               ) : (
                 <Text>{household.name}</Text>
               )}
-              <Icon className="size-4 ml-auto" as={ArrowRightIcon} />
+              <Icon className="size-4" as={ArrowRightIcon} />
             </DropdownMenuItem>
           </>
         )}
@@ -79,6 +84,7 @@ export const ProfileButton = () => {
         <DropdownMenuSeparator />
         <DropdownMenuItem variant="destructive" onPress={signOut}>
           <Text>Logout</Text>
+          <Icon className="size-4" as={LogOutIcon} />
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

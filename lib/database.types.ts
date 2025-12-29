@@ -34,6 +34,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      household_invites: {
+        Row: {
+          created_at: string | null
+          expires_at: string | null
+          household_id: string | null
+          id: string
+          max_uses: number | null
+          token: string
+          used_count: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at?: string | null
+          household_id?: string | null
+          id?: string
+          max_uses?: number | null
+          token: string
+          used_count?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string | null
+          household_id?: string | null
+          id?: string
+          max_uses?: number | null
+          token?: string
+          used_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "household_invites_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       household_users: {
         Row: {
           created_at: string
@@ -55,7 +93,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "household_roles_household_id_fkey"
+            foreignKeyName: "household_users_household_id_fkey"
             columns: ["household_id"]
             isOneToOne: false
             referencedRelation: "households"
@@ -138,7 +176,15 @@ export type Database = {
         Args: { p_image_url?: string; p_name: string }
         Returns: string
       }
+      create_household_invite: {
+        Args: { p_expires_in_days?: number; p_household_id: string }
+        Returns: string
+      }
       is_household_user: { Args: { p_household_id: string }; Returns: boolean }
+      redeem_household_invite: {
+        Args: { p_invite_token: string; p_user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
