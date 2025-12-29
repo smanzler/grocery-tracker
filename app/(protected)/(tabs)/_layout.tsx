@@ -4,7 +4,10 @@ import { List, Refrigerator, ShoppingCart } from "lucide-react-native";
 
 export default function TabsLayout() {
   return (
-    <Tabs screenOptions={{ headerLeft: () => <ProfileButton /> }}>
+    <Tabs
+      initialRouteName="index"
+      screenOptions={{ headerLeft: () => <ProfileButton /> }}
+    >
       <Tabs.Screen
         name="pantry"
         options={{

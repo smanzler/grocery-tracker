@@ -114,7 +114,7 @@ function FieldError({
   children,
   errors,
   ...props
-}: ViewProps & {
+}: TextProps & {
   errors?: Array<{ message?: string } | undefined>;
 }) {
   const content = useMemo(() => {
@@ -149,14 +149,14 @@ function FieldError({
   }
 
   return (
-    <View
+    <Text
       role="alert"
       data-slot="field-error"
       className={cn("text-destructive text-sm font-normal", className)}
       {...props}
     >
       {content}
-    </View>
+    </Text>
   );
 }
 

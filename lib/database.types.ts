@@ -76,7 +76,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           name?: string | null
-          user_id: string
+          user_id?: string
         }
         Update: {
           created_at?: string
@@ -89,6 +89,7 @@ export type Database = {
       }
       list_items: {
         Row: {
+          completed: boolean
           created_at: string
           household_id: string
           id: string
@@ -97,6 +98,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          completed?: boolean
           created_at?: string
           household_id: string
           id?: string
@@ -105,6 +107,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          completed?: boolean
           created_at?: string
           household_id?: string
           id?: string
