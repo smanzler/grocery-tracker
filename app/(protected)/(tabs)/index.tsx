@@ -73,10 +73,8 @@ export default function Home() {
   }
 
   const sortedData = [...data].sort((a, b) => {
-    if (a.created_at && !b.created_at) return 1;
-    if (!a.created_at && b.created_at) return -1;
-    if (a.id < b.id) return -1;
-    if (a.id > b.id) return 1;
+    if (new Date(a.created_at) < new Date(b.created_at)) return 1;
+    if (new Date(a.created_at) > new Date(b.created_at)) return -1;
     return 0;
   });
 

@@ -34,7 +34,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      household_roles: {
+      household_users: {
         Row: {
           created_at: string
           household_id: string
@@ -130,6 +130,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_household_user: {
+        Args: { p_email: string; p_household_id: string }
+        Returns: string
+      }
       create_household: {
         Args: { p_image_url?: string; p_name: string }
         Returns: string

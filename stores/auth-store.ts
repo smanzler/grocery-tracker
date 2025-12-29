@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { Session, User } from "@supabase/supabase-js";
 import { create } from "zustand";
+import { useHouseholdStore } from "./household-store";
 
 type AuthStoreState = {
   session: Session | null;
@@ -84,6 +85,8 @@ export const useAuthStore = create<AuthStoreState>((set, get) => {
       try {
 
         await supabase.auth.signOut();
+
+        useHouseholdStore.getState().selectHousehold(null);
 
         set({
           session: null,

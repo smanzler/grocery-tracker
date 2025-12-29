@@ -17,7 +17,7 @@ export const ListItem = ({ item }: { item: Tables<"list_items"> }) => {
 
   return (
     <Pressable
-      className="flex-row items-center justify-between"
+      className="flex-row items-center justify-between p-2 rounded-md bg-card"
       onPress={handleCompleteChange}
     >
       <View className="flex-row items-center gap-2">

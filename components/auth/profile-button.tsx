@@ -16,14 +16,14 @@ import { router } from "expo-router";
 import { ArrowRightIcon, HomeIcon, UserIcon } from "lucide-react-native";
 
 export const ProfileButton = () => {
-  const { user } = useAuthStore();
+  const { user, signOut } = useAuthStore();
   const { householdId, selectHousehold } = useHouseholdStore();
 
   const { data: household, isLoading: isHouseholdLoading } = useHousehold(
     householdId ?? undefined
   );
 
-  if (!user || !householdId) {
+  if (!user) {
     return null;
   }
 
@@ -50,18 +50,25 @@ export const ProfileButton = () => {
           <Text>Profile</Text>
           <Icon className="size-4 ml-auto" as={UserIcon} />
         </DropdownMenuItem>
-        <DropdownMenuItem onPress={handleHouseholdsPress}>
-          <Text>Households</Text>
-          <Icon className="size-4 ml-auto" as={HomeIcon} />
-        </DropdownMenuItem>
-        <DropdownMenuItem disabled={!household} onPress={handleHouseholdPress}>
-          {isHouseholdLoading || !household ? (
-            <Spinner />
-          ) : (
-            <Text>{household.name}</Text>
-          )}
-          <Icon className="size-4 ml-auto" as={ArrowRightIcon} />
-        </DropdownMenuItem>
+        {householdId && (
+          <>
+            <DropdownMenuItem onPress={handleHouseholdsPress}>
+              <Text>Households</Text>
+              <Icon className="size-4 ml-auto" as={HomeIcon} />
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              disabled={!household}
+              onPress={handleHouseholdPress}
+            >
+              {isHouseholdLoading || !household ? (
+                <Spinner />
+              ) : (
+                <Text>{household.name}</Text>
+              )}
+              <Icon className="size-4 ml-auto" as={ArrowRightIcon} />
+            </DropdownMenuItem>
+          </>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <Text>Account Settings</Text>
@@ -70,7 +77,7 @@ export const ProfileButton = () => {
           <Text>Help & Support</Text>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive">
+        <DropdownMenuItem variant="destructive" onPress={signOut}>
           <Text>Logout</Text>
         </DropdownMenuItem>
       </DropdownMenuContent>

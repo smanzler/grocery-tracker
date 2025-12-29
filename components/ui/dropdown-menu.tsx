@@ -166,7 +166,7 @@ function DropdownMenuItem({
   return (
     <TextClassContext.Provider
       value={cn(
-        "select-none text-sm text-popover-foreground group-active:text-popover-foreground font-bold",
+        "select-none text-sm text-popover-foreground group-active:text-popover-foreground font-medium",
         variant === "destructive" &&
           "text-destructive group-active:text-destructive"
       )}

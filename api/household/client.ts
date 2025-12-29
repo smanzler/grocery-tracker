@@ -1,4 +1,4 @@
-import { TablesInsert, TablesUpdate } from "@/lib/database.types";
+import { TablesUpdate } from "@/lib/database.types";
 import { supabase } from "@/lib/supabase";
 
 export const getHouseholds = async () => {
@@ -43,7 +43,7 @@ export const updateHousehold = async (
 
 export const getHouseholdUsers = async (householdId: string) => {
   const { data, error } = await supabase
-    .from("household_roles")
+    .from("household_users")
     .select("id, user_id, created_at")
     .eq("household_id", householdId);
   console.log(data, error);
@@ -52,21 +52,21 @@ export const getHouseholdUsers = async (householdId: string) => {
 };
 
 export const addHouseholdUser = async (
-  householdUser: TablesInsert<"household_roles">
+  householdId: string,
+  email: string
 ) => {
-  const { data, error } = await supabase
-    .from("household_roles")
-    .insert(householdUser)
-    .select()
-    .single();
-  console.log(data, error);
+  const { error } = await supabase.rpc("add_household_user", {
+    p_household_id: householdId,
+    p_email: email,
+  });
+  console.log(error);
   if (error) throw error;
-  return data;
+  return householdId;
 };
 
 export const removeHouseholdUser = async (householdRoleId: string) => {
   const { error } = await supabase
-    .from("household_roles")
+    .from("household_users")
     .delete()
     .eq("id", householdRoleId);
   console.log(error);

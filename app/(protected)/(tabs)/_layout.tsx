@@ -6,7 +6,11 @@ export default function TabsLayout() {
   return (
     <Tabs
       initialRouteName="index"
-      screenOptions={{ headerLeft: () => <ProfileButton /> }}
+      screenOptions={{
+        headerLeft: () => <ProfileButton />,
+        headerLeftContainerStyle: { paddingLeft: 16 },
+        headerRightContainerStyle: { paddingRight: 16 },
+      }}
     >
       <Tabs.Screen
         name="pantry"

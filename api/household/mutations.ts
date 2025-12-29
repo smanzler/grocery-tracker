@@ -1,4 +1,4 @@
-import { Tables, TablesInsert, TablesUpdate } from "@/lib/database.types";
+import { Tables, TablesUpdate } from "@/lib/database.types";
 import { queryClient } from "@/lib/query-client";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -32,10 +32,10 @@ export const useUpdateHousehold = () => {
 
 export const useAddHouseholdUser = () => {
   return useMutation({
-    mutationFn: (householdUser: TablesInsert<"household_roles">) => addHouseholdUser(householdUser),
-    onSuccess: (householdUser: Tables<"household_roles">) => {
+    mutationFn: ({householdId, email}: {householdId: string, email: string}) => addHouseholdUser(householdId, email),
+    onSuccess: (householdId: string) => {
       queryClient.invalidateQueries({
-        queryKey: ["household-users", householdUser.household_id],
+        queryKey: ["household-users", householdId],
       });
     },
   });
