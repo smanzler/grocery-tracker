@@ -1,5 +1,5 @@
 import { useUpdateListItem } from "@/api/list-item/mutations";
-import { Checkbox } from "@/components/ui/checkbox";
+import { AnimatedCheckbox } from "@/components/list/animated-checkbox";
 import { Text } from "@/components/ui/text";
 import { Tables } from "@/lib/database.types";
 import { Pressable, View } from "react-native";
@@ -21,10 +21,7 @@ export const ListItem = ({ item }: { item: Tables<"list_items"> }) => {
       onPress={handleCompleteChange}
     >
       <View className="flex-row items-center gap-2">
-        <Checkbox
-          checked={item.completed}
-          onCheckedChange={handleCompleteChange}
-        />
+        <AnimatedCheckbox checked={item.completed} />
         <Text>{item.quantity}</Text>
         <Text>{item.name}</Text>
       </View>

@@ -21,7 +21,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
 import { Stack } from "expo-router";
 import { PlusIcon, ShoppingCartIcon } from "lucide-react-native";
-import { Pressable, ScrollView } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import { useUniwind } from "uniwind";
 
 export default function Home() {
@@ -32,7 +32,11 @@ export default function Home() {
   const { mutate: createListItem } = useCreateListItem(householdId ?? "");
 
   if (isLoading || !user || !householdId) {
-    return <Spinner />;
+    return (
+      <View className="flex-1 items-center justify-center">
+        <Spinner />
+      </View>
+    );
   }
 
   const handleCreateListItem = async (data: ListItemFormData) => {
