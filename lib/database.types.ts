@@ -36,31 +36,31 @@ export type Database = {
     Tables: {
       household_invites: {
         Row: {
-          created_at: string | null
+          created_at: string
           expires_at: string | null
-          household_id: string | null
+          household_id: string
           id: string
           max_uses: number | null
           token: string
-          used_count: number | null
+          used_count: number
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           expires_at?: string | null
-          household_id?: string | null
+          household_id: string
           id?: string
           max_uses?: number | null
           token: string
-          used_count?: number | null
+          used_count?: number
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           expires_at?: string | null
-          household_id?: string | null
+          household_id?: string
           id?: string
           max_uses?: number | null
           token?: string
-          used_count?: number | null
+          used_count?: number
         }
         Relationships: [
           {
@@ -127,35 +127,70 @@ export type Database = {
       }
       list_items: {
         Row: {
-          completed: boolean
+          checked: boolean
           created_at: string
           household_id: string
           id: string
-          name: string | null
-          quantity: number
+          name: string
+          quantity: number | null
           user_id: string
         }
         Insert: {
-          completed?: boolean
+          checked?: boolean
           created_at?: string
           household_id: string
           id?: string
-          name?: string | null
-          quantity?: number
+          name: string
+          quantity?: number | null
           user_id: string
         }
         Update: {
-          completed?: boolean
+          checked?: boolean
           created_at?: string
           household_id?: string
           id?: string
-          name?: string | null
-          quantity?: number
+          name?: string
+          quantity?: number | null
           user_id?: string
         }
         Relationships: [
           {
             foreignKeyName: "list_items_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pantry_items: {
+        Row: {
+          created_at: string
+          household_id: string
+          id: string
+          name: string
+          quantity: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          household_id: string
+          id?: string
+          name: string
+          quantity?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          household_id?: string
+          id?: string
+          name?: string
+          quantity?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pantry_items_household_id_fkey"
             columns: ["household_id"]
             isOneToOne: false
             referencedRelation: "households"
@@ -171,6 +206,10 @@ export type Database = {
       add_household_user: {
         Args: { p_email: string; p_household_id: string }
         Returns: string
+      }
+      checkout_list_items: {
+        Args: { p_household_id: string }
+        Returns: boolean
       }
       create_household: {
         Args: { p_image_url?: string; p_name: string }

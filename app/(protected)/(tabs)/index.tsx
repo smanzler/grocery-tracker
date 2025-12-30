@@ -1,4 +1,7 @@
-import { useCreateListItem } from "@/api/list-item/mutations";
+import {
+  useCheckoutListItems,
+  useCreateListItem,
+} from "@/api/list-item/mutations";
 import { useListItems } from "@/api/list-item/queries";
 import { ListItem } from "@/components/list/list-item";
 import {
@@ -21,7 +24,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
 import { Stack } from "expo-router";
 import { PlusIcon, ShoppingCartIcon } from "lucide-react-native";
-import { Pressable, ScrollView, View } from "react-native";
+import { Alert, Pressable, ScrollView, View } from "react-native";
 import { useUniwind } from "uniwind";
 
 export default function Home() {
@@ -30,6 +33,8 @@ export default function Home() {
   const { data, isLoading } = useListItems(householdId ?? undefined);
   const { user } = useAuthStore();
   const { mutate: createListItem } = useCreateListItem(householdId ?? "");
+  const { mutateAsync: checkoutListItems, isPending: isCheckingOut } =
+    useCheckoutListItems(householdId ?? "");
 
   if (isLoading || !user || !householdId) {
     return (
@@ -38,6 +43,21 @@ export default function Home() {
       </View>
     );
   }
+
+  const handleCheckout = () => {
+    Alert.alert(
+      "Checkout",
+      "Are you sure you want to checkout? This will move checked items to the pantry.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Checkout",
+          onPress: async () => await checkoutListItems(),
+          isPreferred: true,
+        },
+      ]
+    );
+  };
 
   const handleCreateListItem = async (data: ListItemFormData) => {
     createListItem({
@@ -100,13 +120,21 @@ export default function Home() {
           <ListItem key={item.id} item={item} />
         ))}
       </ScrollView>
-      <Button className="mx-6 mb-6">
+      <Button
+        className="mx-6 mb-6"
+        onPress={handleCheckout}
+        disabled={isCheckingOut}
+      >
         <Text>Checkout</Text>
-        <Icon
-          as={ShoppingCartIcon}
-          color={theme === "dark" ? "black" : "white"}
-          className="size-4"
-        />
+        {isCheckingOut ? (
+          <Spinner />
+        ) : (
+          <Icon
+            as={ShoppingCartIcon}
+            color={theme === "dark" ? "black" : "white"}
+            className="size-4"
+          />
+        )}
       </Button>
     </>
   );

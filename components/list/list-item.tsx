@@ -11,10 +11,9 @@ export const ListItem = ({ item }: { item: Tables<"list_items"> }) => {
 
   const handleCompleteChange = async () => {
     if (isPending) return;
-    console.log("handleCompleteChange", item.completed, item.id);
     await updateListItem({
       id: item.id,
-      completed: !item.completed,
+      checked: !item.checked,
     });
   };
 
@@ -25,7 +24,7 @@ export const ListItem = ({ item }: { item: Tables<"list_items"> }) => {
       disabled={isPending}
     >
       <View className="flex-row items-center gap-2">
-        <AnimatedCheckbox checked={item.completed} />
+        <AnimatedCheckbox checked={item.checked} />
         <Text>{item.quantity}</Text>
         <Text>{item.name}</Text>
       </View>
