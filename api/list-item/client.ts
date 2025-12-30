@@ -22,7 +22,9 @@ export const updateListItem = async (listItem: TablesUpdate<"list_items">) => {
   const { data, error } = await supabase
     .from("list_items")
     .update(listItem)
-    .eq("id", listItem.id);
+    .eq("id", listItem.id)
+    .select()
+    .single();
   if (error) throw error;
   return data;
 };

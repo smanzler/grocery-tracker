@@ -5,9 +5,12 @@ import { Tables } from "@/lib/database.types";
 import { Pressable, View } from "react-native";
 
 export const ListItem = ({ item }: { item: Tables<"list_items"> }) => {
-  const { mutateAsync: updateListItem } = useUpdateListItem(item.household_id);
+  const { mutateAsync: updateListItem, isPending } = useUpdateListItem(
+    item.household_id
+  );
 
   const handleCompleteChange = async () => {
+    if (isPending) return;
     console.log("handleCompleteChange", item.completed, item.id);
     await updateListItem({
       id: item.id,
@@ -19,6 +22,7 @@ export const ListItem = ({ item }: { item: Tables<"list_items"> }) => {
     <Pressable
       className="flex-row items-center justify-between p-2 rounded-md bg-card"
       onPress={handleCompleteChange}
+      disabled={isPending}
     >
       <View className="flex-row items-center gap-2">
         <AnimatedCheckbox checked={item.completed} />
