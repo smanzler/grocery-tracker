@@ -1,4 +1,5 @@
 import { useCreateHousehold } from "@/api/household/mutations";
+import { KBAScrollView } from "@/components/scroll/kba-scroll-view";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -12,7 +13,7 @@ import { Text } from "@/components/ui/text";
 import { useAuthStore } from "@/stores/auth-store";
 import { router } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, ScrollView } from "react-native";
+import { Alert } from "react-native";
 
 type CreateHouseholdFormData = {
   name: string;
@@ -52,11 +53,7 @@ export default function CreateHousehold() {
   }
 
   return (
-    <ScrollView
-      contentContainerClassName="gap-6"
-      className="p-4"
-      contentInsetAdjustmentBehavior="automatic"
-    >
+    <KBAScrollView>
       <FieldGroup>
         <Field>
           <FieldLabel>Household Name</FieldLabel>
@@ -116,6 +113,6 @@ export default function CreateHousehold() {
       <Button onPress={handleSubmit(onSubmit)} disabled={isSubmitting}>
         <Text>{isSubmitting ? "Creating..." : "Create Household"}</Text>
       </Button>
-    </ScrollView>
+    </KBAScrollView>
   );
 }

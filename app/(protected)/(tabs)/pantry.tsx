@@ -1,5 +1,6 @@
 import { usePantryItems } from "@/api/pantry/queries";
 import { PantryItem } from "@/components/pantry/pantry-item";
+import { BScrollView } from "@/components/scroll/b-scroll-view";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -14,7 +15,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { useHouseholdStore } from "@/stores/household-store";
 import { PlusIcon, RefrigeratorIcon } from "lucide-react-native";
-import { ScrollView, View } from "react-native";
+import { View } from "react-native";
 import { useUniwind } from "uniwind";
 
 export default function Pantry() {
@@ -55,10 +56,10 @@ export default function Pantry() {
   }
 
   return (
-    <ScrollView className="px-6" contentContainerClassName="gap-2 py-4">
+    <BScrollView>
       {data.map((item) => (
         <PantryItem key={item.id} item={item} />
       ))}
-    </ScrollView>
+    </BScrollView>
   );
 }

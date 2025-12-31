@@ -8,6 +8,7 @@ import {
   ListItemDialog,
   ListItemFormData,
 } from "@/components/list/list-item-dialog";
+import { BScrollView } from "@/components/scroll/b-scroll-view";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -24,7 +25,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
 import { Stack } from "expo-router";
 import { PlusIcon, ShoppingCartIcon } from "lucide-react-native";
-import { Alert, Pressable, ScrollView, View } from "react-native";
+import { Alert, Pressable, View } from "react-native";
 import { useUniwind } from "uniwind";
 
 export default function Home() {
@@ -115,11 +116,11 @@ export default function Home() {
           ),
         }}
       />
-      <ScrollView className="px-6" contentContainerClassName="gap-2 py-4">
+      <BScrollView>
         {sortedData.map((item) => (
           <ListItem key={item.id} item={item} />
         ))}
-      </ScrollView>
+      </BScrollView>
       <Button
         className="mx-6 mb-6"
         onPress={handleCheckout}

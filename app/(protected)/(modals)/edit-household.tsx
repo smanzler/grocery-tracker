@@ -3,6 +3,7 @@ import { useUpdateHousehold } from "@/api/household/mutations";
 import { useHousehold } from "@/api/household/queries";
 import { HouseholdInvitesList } from "@/components/household/household-invites-list";
 import { HouseholdUsersList } from "@/components/household/household-users-list";
+import { KBAScrollView } from "@/components/scroll/kba-scroll-view";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -23,7 +24,7 @@ import { router } from "expo-router";
 import { PlusIcon } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, Pressable, ScrollView, View } from "react-native";
+import { Alert, Pressable, View } from "react-native";
 
 type EditHouseholdFormData = {
   name: string;
@@ -130,11 +131,7 @@ export default function EditHousehold() {
   }
 
   return (
-    <ScrollView
-      contentContainerClassName="gap-6"
-      className="p-4"
-      contentInsetAdjustmentBehavior="automatic"
-    >
+    <KBAScrollView>
       <FieldGroup>
         <Field>
           <FieldLabel>Household Name</FieldLabel>
@@ -223,6 +220,6 @@ export default function EditHousehold() {
           </TabsContent>
         </Tabs>
       </View>
-    </ScrollView>
+    </KBAScrollView>
   );
 }

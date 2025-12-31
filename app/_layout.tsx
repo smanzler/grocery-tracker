@@ -9,6 +9,8 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 import { useUniwind } from "uniwind";
 
 export {
@@ -20,13 +22,17 @@ export default function RootLayout() {
   const { theme } = useUniwind();
 
   return (
-    <ThemeProvider value={NAV_THEME[theme ?? "light"]}>
-      <QueryClientProvider client={queryClient}>
-        <StatusBar style={theme === "dark" ? "light" : "dark"} />
-        <RootLayoutNav />
-        <PortalHost />
-      </QueryClientProvider>
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <KeyboardProvider>
+        <ThemeProvider value={NAV_THEME[theme ?? "light"]}>
+          <QueryClientProvider client={queryClient}>
+            <StatusBar style={theme === "dark" ? "light" : "dark"} />
+            <RootLayoutNav />
+            <PortalHost />
+          </QueryClientProvider>
+        </ThemeProvider>
+      </KeyboardProvider>
+    </GestureHandlerRootView>
   );
 }
 

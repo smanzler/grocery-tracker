@@ -1,4 +1,5 @@
 import { useRedeemHouseholdInvite } from "@/api/household/invites/mutations";
+import { KBAScrollView } from "@/components/scroll/kba-scroll-view";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -15,7 +16,7 @@ import { useHouseholdStore } from "@/stores/household-store";
 import { router } from "expo-router";
 import { HousePlusIcon } from "lucide-react-native";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, ScrollView } from "react-native";
+import { Alert } from "react-native";
 import { useUniwind } from "uniwind";
 
 type JoinHouseholdFormData = {
@@ -63,11 +64,7 @@ export default function JoinHousehold() {
   }
 
   return (
-    <ScrollView
-      className="px-4"
-      contentContainerClassName="gap-6 py-4"
-      contentInsetAdjustmentBehavior="automatic"
-    >
+    <KBAScrollView>
       <FieldGroup>
         <Field>
           <FieldLabel>Invite Code</FieldLabel>
@@ -110,6 +107,6 @@ export default function JoinHousehold() {
           color={theme === "dark" ? "black" : "white"}
         />
       </Button>
-    </ScrollView>
+    </KBAScrollView>
   );
 }

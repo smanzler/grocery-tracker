@@ -22,8 +22,9 @@ import {
   PlusIcon,
   TrashIcon,
 } from "lucide-react-native";
-import { Pressable, ScrollView, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { useUniwind } from "uniwind";
+import { BScrollView } from "../scroll/b-scroll-view";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
   ContextMenu,
@@ -71,11 +72,7 @@ export const HouseholdList = () => {
   }
 
   return (
-    <ScrollView
-      className="px-6"
-      contentContainerClassName="gap-2 py-4"
-      contentInsetAdjustmentBehavior="automatic"
-    >
+    <BScrollView>
       {data.map((household) => (
         <ContextMenu key={household.id}>
           <ContextMenuTrigger asChild>
@@ -124,6 +121,6 @@ export const HouseholdList = () => {
         <Text>Create Household</Text>
         <Icon as={PlusIcon} color={theme === "dark" ? "black" : "white"} />
       </Button>
-    </ScrollView>
+    </BScrollView>
   );
 };
