@@ -21,11 +21,11 @@ import Animated, {
   FadeOut,
   useAnimatedStyle,
 } from "react-native-reanimated";
-import { useUniwind } from "uniwind";
 import CheckoutButton from "../list/checkout-button";
 
 export default function GroceryItemInput() {
-  const { theme } = useUniwind();
+  const [isFocused, setIsFocused] = useState(false);
+
   const tabBarHeight = useBottomTabBarHeight();
   const { height, progress } = useReanimatedKeyboardAnimation();
 
@@ -50,7 +50,7 @@ export default function GroceryItemInput() {
   const isSearching = search.length > 0;
   const showLoading = (isDebouncing || isLoading) && isSearching;
   const showGroceryItems = groceryItems && groceryItems.length > 0;
-  const showOverlay = showLoading || showGroceryItems;
+  const showOverlay = (showLoading || showGroceryItems) && isFocused;
 
   const isSubmitting = isCreatingGroceryItem || isCreatingListItem;
 
@@ -112,8 +112,10 @@ export default function GroceryItemInput() {
                   onPress={() => handleSelectSuggestion(groceryItem)}
                   className={cn(
                     "px-4 py-3 border-b border-border",
-                    index === groceryItems.length - 1 && "border-b-0"
+                    index === groceryItems.length - 1 && "border-b-0",
+                    isSubmitting && "opacity-50"
                   )}
+                  disabled={isSubmitting}
                 >
                   <Text>{groceryItem.name}</Text>
                 </Pressable>
@@ -127,6 +129,8 @@ export default function GroceryItemInput() {
             className="flex-1"
             value={search}
             onChangeText={setSearch}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
             onSubmitEditing={() => handleSubmit(search)}
           />
           <Button
@@ -136,11 +140,7 @@ export default function GroceryItemInput() {
             disabled={isSubmitting || !isSearching}
             onPress={() => handleSubmit(search)}
           >
-            {isSubmitting ? (
-              <Spinner color={theme === "dark" ? "black" : "white"} />
-            ) : (
-              <Icon as={PlusIcon} />
-            )}
+            {isSubmitting ? <Spinner /> : <Icon as={PlusIcon} />}
           </Button>
           <CheckoutButton />
         </View>

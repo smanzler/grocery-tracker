@@ -14,7 +14,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { generateColorFromUserId } from "@/lib/utils";
 import { useHouseholdStore } from "@/stores/household-store";
-import { format } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { Ham, PlusIcon, RefrigeratorIcon } from "lucide-react-native";
 import { View } from "react-native";
 import { useUniwind } from "uniwind";
@@ -89,8 +89,8 @@ export default function PantryList() {
                   </Text>
 
                   <Text className="text-sm text-muted-foreground">
-                    Added by {item.profiles?.display_name ?? "Unknown"} on{" "}
-                    {format(item.created_at, "MMM d, yyyy")}
+                    {item.profiles?.display_name ?? "Unknown"} added{" "}
+                    {formatDistanceToNow(item.created_at)} ago
                   </Text>
                 </View>
               </View>

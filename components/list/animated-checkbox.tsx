@@ -1,6 +1,6 @@
 import * as Haptics from "expo-haptics";
 import { ShoppingBasket, Square } from "lucide-react-native";
-import { useEffect, useRef } from "react";
+import { memo, useEffect, useMemo, useRef } from "react";
 import { View } from "react-native";
 import Animated, {
   interpolate,
@@ -9,6 +9,7 @@ import Animated, {
   useSharedValue,
   withSpring,
   withTiming,
+  type SharedValue,
 } from "react-native-reanimated";
 import Svg, { Line } from "react-native-svg";
 import { useUniwind } from "uniwind";
@@ -16,7 +17,74 @@ import { Icon } from "../ui/icon";
 
 const AnimatedLine = Animated.createAnimatedComponent(Line);
 
-export const AnimatedCheckbox = ({ checked }: { checked: boolean }) => {
+const BurstLine = memo(
+  ({
+    index,
+    totalLines,
+    center,
+    innerRadius,
+    outerRadius,
+    burstProgress,
+    strokeColor,
+  }: {
+    index: number;
+    totalLines: number;
+    center: number;
+    innerRadius: number;
+    outerRadius: number;
+    burstProgress: SharedValue<number>;
+    strokeColor: string;
+  }) => {
+    const angle = useMemo(
+      () => (2 * Math.PI * index) / totalLines,
+      [index, totalLines]
+    );
+    const x1 = useMemo(
+      () => center + innerRadius * Math.cos(angle),
+      [center, innerRadius, angle]
+    );
+    const y1 = useMemo(
+      () => center + innerRadius * Math.sin(angle),
+      [center, innerRadius, angle]
+    );
+
+    const animatedProps = useAnimatedProps(() => {
+      const burstOpacity = interpolate(
+        burstProgress.value,
+        [0, 0.2, 0.6, 0.9, 1],
+        [0, 1, 1, 0.6, 0]
+      );
+      const distance = interpolate(
+        burstProgress.value,
+        [0, 1],
+        [innerRadius, outerRadius]
+      );
+      const x2 = center + distance * Math.cos(angle);
+      const y2 = center + distance * Math.sin(angle);
+
+      return {
+        x2,
+        y2,
+        strokeOpacity: burstOpacity,
+        strokeWidth: 2,
+      };
+    });
+
+    return (
+      <AnimatedLine
+        x1={x1}
+        y1={y1}
+        animatedProps={animatedProps}
+        stroke={strokeColor}
+        strokeLinecap="round"
+      />
+    );
+  }
+);
+
+BurstLine.displayName = "BurstLine";
+
+export const AnimatedCheckbox = memo(({ checked }: { checked: boolean }) => {
   const { theme } = useUniwind();
   const isFirstRender = useRef(true);
 
@@ -26,34 +94,29 @@ export const AnimatedCheckbox = ({ checked }: { checked: boolean }) => {
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
+      progress.value = checked ? 1 : 0;
       return;
     }
 
     if (checked) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    } else {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-
-    if (checked) {
       progress.value = withSpring(1, {
         damping: 10,
         stiffness: 50,
         mass: 1,
       });
-
       burstProgress.value = 0;
       burstProgress.value = withTiming(1, {
         duration: 400,
       });
     } else {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       progress.value = withTiming(0, {
         duration: 200,
       });
-
       burstProgress.value = 0;
     }
-  }, [checked]);
+  }, [checked, progress, burstProgress]);
 
   const squareStyle = useAnimatedStyle(() => {
     const opacity = interpolate(progress.value, [0, 0.5, 1], [1, 0.5, 0]);
@@ -81,13 +144,16 @@ export const AnimatedCheckbox = ({ checked }: { checked: boolean }) => {
     };
   });
 
-  // Impact burst configuration
-  const size = 24; // size-6 = 24px
-  const center = size / 2;
-  const innerRadius = 12; // Start from center
-  const outerRadius = 30; // Expand outward
-  const lines = 8;
-  const strokeColor = theme === "dark" ? "#fff" : "#000";
+  // Impact burst configuration - memoized to avoid recalculation
+  const burstConfig = useMemo(() => {
+    const size = 24;
+    const center = size / 2;
+    const innerRadius = 12;
+    const outerRadius = 30;
+    const lines = 8;
+    const strokeColor = theme === "dark" ? "#fff" : "#000";
+    return { size, center, innerRadius, outerRadius, lines, strokeColor };
+  }, [theme]);
 
   return (
     <View className="relative size-6">
@@ -103,51 +169,28 @@ export const AnimatedCheckbox = ({ checked }: { checked: boolean }) => {
       >
         <Icon as={ShoppingBasket} className="size-5" />
       </Animated.View>
-      {/* Impact burst strokes */}
-      <Svg
-        width={size}
-        height={size}
-        style={{ position: "absolute", top: 0, left: 0 }}
-      >
-        {Array.from({ length: lines }).map((_, i) => {
-          const angle = (2 * Math.PI * i) / lines;
-          const x1 = center + innerRadius * Math.cos(angle);
-          const y1 = center + innerRadius * Math.sin(angle);
-
-          const animatedProps = useAnimatedProps(() => {
-            const burstOpacity = interpolate(
-              burstProgress.value,
-              [0, 0.2, 0.6, 0.9, 1],
-              [0, 1, 1, 0.6, 0]
-            );
-            const distance = interpolate(
-              burstProgress.value,
-              [0, 1],
-              [innerRadius, outerRadius]
-            );
-            const x2 = center + distance * Math.cos(angle);
-            const y2 = center + distance * Math.sin(angle);
-
-            return {
-              x2,
-              y2,
-              strokeOpacity: burstOpacity,
-              strokeWidth: 2,
-            };
-          });
-
-          return (
-            <AnimatedLine
+      {checked && (
+        <Svg
+          width={burstConfig.size}
+          height={burstConfig.size}
+          style={{ position: "absolute", top: 0, left: 0 }}
+        >
+          {Array.from({ length: burstConfig.lines }).map((_, i) => (
+            <BurstLine
               key={i}
-              x1={x1}
-              y1={y1}
-              animatedProps={animatedProps}
-              stroke={strokeColor}
-              strokeLinecap="round"
+              index={i}
+              totalLines={burstConfig.lines}
+              center={burstConfig.center}
+              innerRadius={burstConfig.innerRadius}
+              outerRadius={burstConfig.outerRadius}
+              burstProgress={burstProgress}
+              strokeColor={burstConfig.strokeColor}
             />
-          );
-        })}
-      </Svg>
+          ))}
+        </Svg>
+      )}
     </View>
   );
-};
+});
+
+AnimatedCheckbox.displayName = "AnimatedCheckbox";

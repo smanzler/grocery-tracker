@@ -19,6 +19,8 @@ export default function CheckoutButton() {
   const { mutateAsync: checkoutListItems, isPending: isCheckingOut } =
     useCheckoutListItems(householdId ?? "");
 
+  const hasCheckedItems = listItems && listItems.some((item) => item.checked);
+
   const isLoading = isLoadingListItems || isCheckingOut;
 
   const handleCheckout = () => {
@@ -41,7 +43,7 @@ export default function CheckoutButton() {
       size="icon"
       className="rounded-full"
       onPress={handleCheckout}
-      disabled={isLoading}
+      disabled={isLoading || !hasCheckedItems}
     >
       {isLoading ? (
         <Spinner color={theme === "dark" ? "black" : "white"} />

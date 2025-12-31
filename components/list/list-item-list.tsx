@@ -69,7 +69,7 @@ export default function ListItemList() {
   });
 
   return (
-    <BScrollView>
+    <BScrollView keyboardDismissMode="on-drag">
       {sortedData.map((item) => (
         <Pressable
           key={item.id}

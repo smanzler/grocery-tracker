@@ -27,7 +27,6 @@ export const createGroceryItem = async (
     .insert(groceryItem)
     .select()
     .single();
-  console.log(data, error);
   if (error) throw error;
   return data;
 };
