@@ -13,11 +13,6 @@ const SOCIAL_CONNECTION_STRATEGIES = [
     source: { uri: "https://img.clerk.com/static/google.png?width=160" },
     useTint: false,
   },
-  {
-    type: "oauth_github",
-    source: { uri: "https://img.clerk.com/static/github.png?width=160" },
-    useTint: true,
-  },
 ];
 
 export function SocialConnections() {

@@ -99,6 +99,13 @@ export type Database = {
             referencedRelation: "households"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "household_users_user_id_fkey1"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       households: {
@@ -123,7 +130,15 @@ export type Database = {
           name?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "households_user_id_fkey1"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       list_items: {
         Row: {
@@ -161,6 +176,13 @@ export type Database = {
             referencedRelation: "households"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "list_items_user_id_fkey1"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       pantry_items: {
@@ -196,7 +218,38 @@ export type Database = {
             referencedRelation: "households"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "pantry_items_user_id_fkey1"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          id: string
+          image_url: string | null
+          username: string | null
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          id: string
+          image_url?: string | null
+          username?: string | null
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          image_url?: string | null
+          username?: string | null
+        }
+        Relationships: []
       }
     }
     Views: {

@@ -16,6 +16,7 @@ import { router } from "expo-router";
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, Pressable, type TextInput, View } from "react-native";
+import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 
 type SignInFormData = {
   email: string;
@@ -59,9 +60,9 @@ export function SignInForm() {
         </CardDescription>
       </CardHeader>
       <CardContent className="gap-6">
-        <View className="gap-6">
-          <View className="gap-1.5">
-            <Label htmlFor="email">Email</Label>
+        <FieldGroup className="gap-6">
+          <Field className="gap-1.5">
+            <FieldLabel htmlFor="email">Email</FieldLabel>
             <Controller
               control={control}
               name="email"
@@ -88,13 +89,9 @@ export function SignInForm() {
                 />
               )}
             />
-            {errors.email && (
-              <Text className="text-destructive text-sm">
-                {errors.email.message}
-              </Text>
-            )}
-          </View>
-          <View className="gap-1.5">
+            <FieldError errors={[errors.email]} />
+          </Field>
+          <Field className="gap-1.5">
             <View className="flex-row items-center">
               <Label htmlFor="password">Password</Label>
               <Button
@@ -129,12 +126,8 @@ export function SignInForm() {
                 />
               )}
             />
-            {errors.password && (
-              <Text className="text-destructive text-sm">
-                {errors.password.message}
-              </Text>
-            )}
-          </View>
+            <FieldError errors={[errors.password]} />
+          </Field>
           <Button
             className="w-full"
             onPress={handleSubmit(onSubmit)}
@@ -142,7 +135,7 @@ export function SignInForm() {
           >
             <Text>{isSubmitting ? "Signing in..." : "Continue"}</Text>
           </Button>
-        </View>
+        </FieldGroup>
         <View className="flex-row items-center justify-center gap-2">
           <Text className="text-center text-sm">
             Don&apos;t have an account?

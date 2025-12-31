@@ -11,7 +11,11 @@ type AuthStoreState = {
   loading: boolean;
   initialize: () => Promise<void>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signUp: (
+    displayName: string,
+    email: string,
+    password: string
+  ) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 };
 
@@ -63,12 +67,17 @@ export const useAuthStore = create<AuthStoreState>((set, get) => {
       }
     },
 
-    async signUp(email: string, password: string) {
+    async signUp(displayName: string, email: string, password: string) {
       set({ loading: true });
       try {
         const { error } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            data: {
+              display_name: displayName,
+            },
+          },
         });
         return { error: error ? new Error(error.message) : null };
       } catch (error) {

@@ -8,7 +8,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Text } from "@/components/ui/text";
 import { useAuthStore } from "@/stores/auth-store";
@@ -16,8 +15,10 @@ import { router } from "expo-router";
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, Pressable, TextInput, View } from "react-native";
+import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 
 type SignUpFormData = {
+  displayName: string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -35,6 +36,7 @@ export function SignUpForm() {
     formState: { errors, isSubmitting },
   } = useForm<SignUpFormData>({
     defaultValues: {
+      displayName: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -52,7 +54,7 @@ export function SignUpForm() {
   }
 
   async function onSubmit(data: SignUpFormData) {
-    const { error } = await signUp(data.email, data.password);
+    const { error } = await signUp(data.displayName, data.email, data.password);
     if (error) {
       Alert.alert("Error", error.message);
     }
@@ -69,9 +71,29 @@ export function SignUpForm() {
         </CardDescription>
       </CardHeader>
       <CardContent className="gap-6">
-        <View className="gap-6">
-          <View className="gap-1.5">
-            <Label htmlFor="email">Email</Label>
+        <FieldGroup>
+          <Field>
+            <FieldLabel htmlFor="displayName">Display Name</FieldLabel>
+            <Controller
+              control={control}
+              name="displayName"
+              rules={{
+                required: "Display name is required",
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  id="displayName"
+                  placeholder="John Doe"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                />
+              )}
+            />
+            <FieldError errors={[errors.displayName]} />
+          </Field>
+          <Field className="gap-1.5">
+            <FieldLabel htmlFor="email">Email</FieldLabel>
             <Controller
               control={control}
               name="email"
@@ -98,16 +120,10 @@ export function SignUpForm() {
                 />
               )}
             />
-            {errors.email && (
-              <Text className="text-destructive text-sm">
-                {errors.email.message}
-              </Text>
-            )}
-          </View>
-          <View className="gap-1.5">
-            <View className="flex-row items-center">
-              <Label htmlFor="password">Password</Label>
-            </View>
+            <FieldError errors={[errors.email]} />
+          </Field>
+          <Field className="gap-1.5">
+            <FieldLabel htmlFor="password">Password</FieldLabel>
             <Controller
               control={control}
               name="password"
@@ -128,19 +144,15 @@ export function SignUpForm() {
                   onBlur={onBlur}
                   returnKeyType="next"
                   onSubmitEditing={onPasswordSubmitEditing}
+                  autoComplete="password"
+                  textContentType="newPassword"
                 />
               )}
             />
-            {errors.password && (
-              <Text className="text-destructive text-sm">
-                {errors.password.message}
-              </Text>
-            )}
-          </View>
-          <View className="gap-1.5">
-            <View className="flex-row items-center">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-            </View>
+            {errors.password && <FieldError errors={[errors.password]} />}
+          </Field>
+          <Field className="gap-1.5">
+            <FieldLabel htmlFor="confirmPassword">Confirm Password</FieldLabel>
             <Controller
               control={control}
               name="confirmPassword"
@@ -159,6 +171,8 @@ export function SignUpForm() {
                   onBlur={onBlur}
                   returnKeyType="send"
                   onSubmitEditing={handleSubmit(onSubmit)}
+                  autoComplete="password"
+                  textContentType="password"
                 />
               )}
             />
@@ -167,7 +181,7 @@ export function SignUpForm() {
                 {errors.confirmPassword.message}
               </Text>
             )}
-          </View>
+          </Field>
           <Button
             className="w-full"
             onPress={handleSubmit(onSubmit)}
@@ -175,7 +189,7 @@ export function SignUpForm() {
           >
             <Text>{isSubmitting ? "Creating account..." : "Continue"}</Text>
           </Button>
-        </View>
+        </FieldGroup>
 
         <View className="flex-row items-center justify-center gap-2">
           <Text className="text-center text-sm">Already have an account?</Text>

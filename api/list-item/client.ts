@@ -33,7 +33,6 @@ export const checkoutListItems = async (householdId: string) => {
   const { data, error } = await supabase.rpc("checkout_list_items", {
     p_household_id: householdId,
   });
-  console.log(data, error);
   if (error) throw error;
   return data;
 };
