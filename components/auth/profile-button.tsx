@@ -1,24 +1,18 @@
 import { useHousehold } from "@/api/household/queries";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuItemIcon,
+  DropdownMenuItemTitle,
+  DropdownMenuRoot,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Icon } from "@/components/ui/icon";
-import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
 import { router } from "expo-router";
-import {
-  ArrowRightIcon,
-  HomeIcon,
-  LogOutIcon,
-  UserIcon,
-} from "lucide-react-native";
 
 export const ProfileButton = () => {
   const { user, signOut } = useAuthStore();
@@ -41,7 +35,7 @@ export const ProfileButton = () => {
   };
 
   return (
-    <DropdownMenu>
+    <DropdownMenuRoot>
       <DropdownMenuTrigger>
         <Avatar alt={user.email ?? ""} className="size-8">
           <AvatarImage source={{ uri: user.user_metadata.avatar_url }} />
@@ -51,42 +45,49 @@ export const ProfileButton = () => {
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent sideOffset={2}>
-        <DropdownMenuItem>
-          <Text>Profile</Text>
-          <Icon className="size-4" as={UserIcon} />
+        <DropdownMenuItem key="profile">
+          <DropdownMenuItemTitle>Profile</DropdownMenuItemTitle>
+          <DropdownMenuItemIcon ios={{ name: "person" }} />
         </DropdownMenuItem>
         {householdId && (
           <>
-            <DropdownMenuItem onPress={handleHouseholdsPress}>
-              <Text>Households</Text>
-              <Icon className="size-4" as={HomeIcon} />
+            <DropdownMenuItem key="households" onSelect={handleHouseholdsPress}>
+              <DropdownMenuItemTitle>Households</DropdownMenuItemTitle>
+              <DropdownMenuItemIcon ios={{ name: "house" }} />
             </DropdownMenuItem>
             <DropdownMenuItem
-              disabled={!household}
-              onPress={handleHouseholdPress}
+              key="household"
+              disabled={isHouseholdLoading || !household}
+              onSelect={handleHouseholdPress}
             >
-              {isHouseholdLoading || !household ? (
-                <Spinner />
-              ) : (
-                <Text>{household.name}</Text>
-              )}
-              <Icon className="size-4" as={ArrowRightIcon} />
+              <DropdownMenuItemTitle>
+                {isHouseholdLoading
+                  ? "Loading..."
+                  : !household || !household.name
+                  ? "No household selected"
+                  : household.name}
+              </DropdownMenuItemTitle>
+              <DropdownMenuItemIcon ios={{ name: "arrow-right" }} />
             </DropdownMenuItem>
           </>
         )}
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <Text>Account Settings</Text>
+        <DropdownMenuItem key="account-settings">
+          <DropdownMenuItemTitle>Account Settings</DropdownMenuItemTitle>
+          <DropdownMenuItemIcon ios={{ name: "gearshape" }} />
         </DropdownMenuItem>
-        <DropdownMenuItem>
-          <Text>Help & Support</Text>
+        <DropdownMenuItem key="help-support">
+          <DropdownMenuItemTitle>Help & Support</DropdownMenuItemTitle>
+          <DropdownMenuItemIcon ios={{ name: "questionmark.circle" }} />
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive" onPress={signOut}>
-          <Text>Logout</Text>
-          <Icon className="size-4 text-destructive" as={LogOutIcon} />
+        <DropdownMenuItem key="logout" destructive onSelect={signOut}>
+          <DropdownMenuItemTitle>Logout</DropdownMenuItemTitle>
+          <DropdownMenuItemIcon
+            ios={{ name: "rectangle.portrait.and.arrow.right" }}
+          />
         </DropdownMenuItem>
       </DropdownMenuContent>
-    </DropdownMenu>
+    </DropdownMenuRoot>
   );
 };

@@ -15,21 +15,17 @@ import { Text } from "@/components/ui/text";
 import { useHouseholdStore } from "@/stores/household-store";
 import { formatDistanceToNow } from "date-fns";
 import { router } from "expo-router";
-import {
-  ChevronRightIcon,
-  HomeIcon,
-  PencilIcon,
-  PlusIcon,
-  TrashIcon,
-} from "lucide-react-native";
+import { ChevronRightIcon, HomeIcon, PlusIcon } from "lucide-react-native";
 import { Pressable, View } from "react-native";
 import { useUniwind } from "uniwind";
 import { BScrollView } from "../scroll/b-scroll-view";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
-  ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuItemIcon,
+  ContextMenuItemTitle,
+  ContextMenuRoot,
   ContextMenuTrigger,
 } from "../ui/context-menu";
 
@@ -74,7 +70,7 @@ export const HouseholdList = () => {
   return (
     <BScrollView>
       {data.map((household) => (
-        <ContextMenu key={household.id}>
+        <ContextMenuRoot key={household.id}>
           <ContextMenuTrigger asChild>
             <Pressable
               className="flex-row items-center gap-4 py-0 pr-2 overflow-hidden rounded-md bg-card"
@@ -100,16 +96,21 @@ export const HouseholdList = () => {
             </Pressable>
           </ContextMenuTrigger>
           <ContextMenuContent>
-            <ContextMenuItem>
-              <Text>Edit</Text>
-              <Icon as={PencilIcon} className="size-4" />
+            <ContextMenuItem
+              key="edit"
+              onSelect={() =>
+                router.push("/(protected)/(modals)/edit-household")
+              }
+            >
+              <ContextMenuItemTitle>Edit</ContextMenuItemTitle>
+              <ContextMenuItemIcon ios={{ name: "pencil" }} />
             </ContextMenuItem>
-            <ContextMenuItem variant="destructive">
-              <Text>Delete</Text>
-              <Icon as={TrashIcon} className="size-4 text-destructive" />
+            <ContextMenuItem key="delete" destructive>
+              <ContextMenuItemTitle>Delete</ContextMenuItemTitle>
+              <ContextMenuItemIcon ios={{ name: "trash" }} />
             </ContextMenuItem>
           </ContextMenuContent>
-        </ContextMenu>
+        </ContextMenuRoot>
       ))}
       <Separator className="my-4" />
       <Button

@@ -1,324 +1,118 @@
-import { Icon } from "@/components/ui/icon";
-import { NativeOnlyAnimatedView } from "@/components/ui/native-only-animated-view";
-import { TextClassContext } from "@/components/ui/text";
-import { cn } from "@/lib/utils";
-import * as ContextMenuPrimitive from "@rn-primitives/context-menu";
-import {
-  Check,
-  ChevronDown,
-  ChevronRight,
-  ChevronUp,
-} from "lucide-react-native";
-import * as React from "react";
-import {
-  Platform,
-  type StyleProp,
-  StyleSheet,
-  Text,
-  type TextProps,
-  View,
-  type ViewStyle,
-} from "react-native";
-import { FadeIn } from "react-native-reanimated";
-import { FullWindowOverlay as RNFullWindowOverlay } from "react-native-screens";
+import { View } from "react-native";
+import * as ContextMenu from "zeego/context-menu";
 
-const ContextMenu = ContextMenuPrimitive.Root;
-const ContextMenuTrigger = ContextMenuPrimitive.Trigger;
-const ContextMenuGroup = ContextMenuPrimitive.Group;
-const ContextMenuSub = ContextMenuPrimitive.Sub;
-const ContextMenuRadioGroup = ContextMenuPrimitive.RadioGroup;
+export const ContextMenuRoot = ContextMenu.Root;
 
-function ContextMenuSubTrigger({
-  className,
-  inset,
-  children,
-  iconClassName,
-  ...props
-}: ContextMenuPrimitive.SubTriggerProps &
-  React.RefAttributes<ContextMenuPrimitive.SubTriggerRef> & {
-    children?: React.ReactNode;
-    iconClassName?: string;
-    inset?: boolean;
-  }) {
-  const { open } = ContextMenuPrimitive.useSubContext();
-  const icon =
-    Platform.OS === "web" ? ChevronRight : open ? ChevronUp : ChevronDown;
-  return (
-    <TextClassContext.Provider
-      value={cn(
-        "text-sm select-none group-active:text-accent-foreground",
-        open && "text-accent-foreground"
-      )}
-    >
-      <ContextMenuPrimitive.SubTrigger
-        className={cn(
-          "active:bg-accent group flex flex-row items-center justify-between rounded-sm px-2 py-2 sm:py-1.5",
-          Platform.select({
-            web: "focus:bg-accent focus:text-accent-foreground cursor-default outline-none [&_svg]:pointer-events-none",
-          }),
-          open && cn("bg-accent", Platform.select({ native: "mb-1" })),
-          inset && "pl-8"
-        )}
-        {...props}
-      >
-        <>{children}</>
-        <Icon
-          as={icon}
-          className={cn("text-foreground size-4 shrink-0", iconClassName)}
-        />
-      </ContextMenuPrimitive.SubTrigger>
-    </TextClassContext.Provider>
-  );
-}
+export const ContextMenuTrigger = ContextMenu.create(
+  (props: React.ComponentProps<typeof ContextMenu.Trigger>) => (
+    <ContextMenu.Trigger {...props} asChild>
+      <View aria-role="button">{props.children}</View>
+    </ContextMenu.Trigger>
+  ),
+  "Trigger"
+);
 
-function ContextMenuSubContent({
-  className,
-  ...props
-}: ContextMenuPrimitive.SubContentProps &
-  React.RefAttributes<ContextMenuPrimitive.SubContentRef>) {
-  return (
-    <NativeOnlyAnimatedView entering={FadeIn}>
-      <ContextMenuPrimitive.SubContent
-        className={cn(
-          "bg-popover border-border overflow-hidden rounded-md border p-1 shadow-lg shadow-black/5",
-          Platform.select({
-            web: "animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 fade-in-0 data-[state=closed]:zoom-out-95 zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-(--radix-context-menu-content-transform-origin) z-50 min-w-[8rem]",
-          }),
-          className
-        )}
-        {...props}
-      />
-    </NativeOnlyAnimatedView>
-  );
-}
+export const ContextMenuContent = ContextMenu.create(
+  (props: React.ComponentProps<typeof ContextMenu.Content>) => (
+    <ContextMenu.Content {...props} />
+  ),
+  "Content"
+);
 
-const FullWindowOverlay =
-  Platform.OS === "ios" ? RNFullWindowOverlay : React.Fragment;
+export const ContextMenuItem = ContextMenu.create(
+  (props: React.ComponentProps<typeof ContextMenu.Item>) => (
+    <ContextMenu.Item {...props} />
+  ),
+  "Item"
+);
 
-function ContextMenuContent({
-  className,
-  overlayClassName,
-  overlayStyle,
-  portalHost,
-  ...props
-}: ContextMenuPrimitive.ContentProps &
-  React.RefAttributes<ContextMenuPrimitive.ContentRef> & {
-    overlayStyle?: StyleProp<ViewStyle>;
-    overlayClassName?: string;
-    portalHost?: string;
-  }) {
-  return (
-    <ContextMenuPrimitive.Portal hostName={portalHost}>
-      <FullWindowOverlay>
-        <ContextMenuPrimitive.Overlay
-          style={Platform.select({
-            web: overlayStyle ?? undefined,
-            native: overlayStyle
-              ? StyleSheet.flatten([
-                  StyleSheet.absoluteFill,
-                  overlayStyle as typeof StyleSheet.absoluteFill,
-                ])
-              : StyleSheet.absoluteFill,
-          })}
-          className={overlayClassName}
-        >
-          <NativeOnlyAnimatedView entering={FadeIn}>
-            <TextClassContext.Provider value="text-popover-foreground">
-              <ContextMenuPrimitive.Content
-                className={cn(
-                  "bg-popover border-border min-w-[8rem] overflow-hidden rounded-md border p-1 shadow-lg shadow-black/5",
-                  Platform.select({
-                    web: cn(
-                      "animate-in fade-in-0 zoom-in-95 max-h-(--radix-context-menu-content-available-height) origin-(--radix-context-menu-content-transform-origin) z-50 cursor-default",
-                      props.side === "bottom" && "slide-in-from-top-2",
-                      props.side === "top" && "slide-in-from-bottom-2"
-                    ),
-                  }),
-                  className
-                )}
-                {...props}
-              />
-            </TextClassContext.Provider>
-          </NativeOnlyAnimatedView>
-        </ContextMenuPrimitive.Overlay>
-      </FullWindowOverlay>
-    </ContextMenuPrimitive.Portal>
-  );
-}
+export const ContextMenuItemTitle = ContextMenu.create(
+  (props: React.ComponentProps<typeof ContextMenu.ItemTitle>) => (
+    <ContextMenu.ItemTitle {...props} />
+  ),
+  "ItemTitle"
+);
 
-function ContextMenuItem({
-  className,
-  inset,
-  variant,
-  ...props
-}: ContextMenuPrimitive.ItemProps &
-  React.RefAttributes<ContextMenuPrimitive.ItemRef> & {
-    className?: string;
-    inset?: boolean;
-    variant?: "default" | "destructive";
-  }) {
-  return (
-    <TextClassContext.Provider
-      value={cn(
-        "select-none text-sm text-popover-foreground group-active:text-popover-foreground font-medium",
-        variant === "destructive" &&
-          "text-destructive group-active:text-destructive"
-      )}
-    >
-      <ContextMenuPrimitive.Item
-        className={cn(
-          "active:bg-accent group relative flex flex-row items-center justify-between gap-2 rounded-sm px-2 py-2 sm:py-1.5",
-          Platform.select({
-            web: cn(
-              "focus:bg-accent focus:text-accent-foreground cursor-default outline-none data-[disabled]:pointer-events-none",
-              variant === "destructive" &&
-                "focus:bg-destructive/10 dark:focus:bg-destructive/20"
-            ),
-          }),
-          variant === "destructive" &&
-            "active:bg-destructive/10 dark:active:bg-destructive/20",
-          props.disabled && "opacity-50",
-          inset && "pl-8",
-          className
-        )}
-        {...props}
-      />
-    </TextClassContext.Provider>
-  );
-}
+export const ContextMenuItemIcon = ContextMenu.create(
+  (props: React.ComponentProps<typeof ContextMenu.ItemIcon>) => (
+    <ContextMenu.ItemIcon {...props} />
+  ),
+  "ItemIcon"
+);
 
-function ContextMenuCheckboxItem({
-  className,
-  children,
-  ...props
-}: ContextMenuPrimitive.CheckboxItemProps &
-  React.RefAttributes<ContextMenuPrimitive.CheckboxItemRef> & {
-    children?: React.ReactNode;
-  }) {
-  return (
-    <TextClassContext.Provider value="text-sm text-popover-foreground select-none group-active:text-accent-foreground">
-      <ContextMenuPrimitive.CheckboxItem
-        className={cn(
-          "active:bg-accent group relative flex flex-row items-center gap-2 rounded-sm py-2 pl-8 pr-2 sm:py-1.5",
-          Platform.select({
-            web: "focus:bg-accent focus:text-accent-foreground cursor-default outline-none data-[disabled]:pointer-events-none",
-          }),
-          props.disabled && "opacity-50",
-          className
-        )}
-        {...props}
-      >
-        <View className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-          <ContextMenuPrimitive.ItemIndicator>
-            <Icon
-              as={Check}
-              className={cn(
-                "text-foreground size-4",
-                Platform.select({ web: "pointer-events-none" })
-              )}
-            />
-          </ContextMenuPrimitive.ItemIndicator>
-        </View>
-        <>{children}</>
-      </ContextMenuPrimitive.CheckboxItem>
-    </TextClassContext.Provider>
-  );
-}
+export const ContextMenuItemImage = ContextMenu.create(
+  (props: React.ComponentProps<typeof ContextMenu.ItemImage>) => (
+    <ContextMenu.ItemImage {...props} />
+  ),
+  "ItemImage"
+);
 
-function ContextMenuRadioItem({
-  className,
-  children,
-  ...props
-}: ContextMenuPrimitive.RadioItemProps &
-  React.RefAttributes<ContextMenuPrimitive.RadioItemRef> & {
-    children?: React.ReactNode;
-  }) {
-  return (
-    <TextClassContext.Provider value="text-sm text-popover-foreground select-none group-active:text-accent-foreground">
-      <ContextMenuPrimitive.RadioItem
-        className={cn(
-          "active:bg-accent group relative flex flex-row items-center gap-2 rounded-sm py-2 pl-8 pr-2 sm:py-1.5",
-          Platform.select({
-            web: "focus:bg-accent focus:text-accent-foreground cursor-default outline-none data-[disabled]:pointer-events-none",
-          }),
-          props.disabled && "opacity-50",
-          className
-        )}
-        {...props}
-      >
-        <View className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-          <ContextMenuPrimitive.ItemIndicator>
-            <View className="bg-foreground h-2 w-2 rounded-full" />
-          </ContextMenuPrimitive.ItemIndicator>
-        </View>
-        <>{children}</>
-      </ContextMenuPrimitive.RadioItem>
-    </TextClassContext.Provider>
-  );
-}
+export const ContextMenuCheckboxItem = ContextMenu.create(
+  (props: React.ComponentProps<typeof ContextMenu.CheckboxItem>) => (
+    <ContextMenu.CheckboxItem {...props} />
+  ),
+  "CheckboxItem"
+);
 
-function ContextMenuLabel({
-  className,
-  inset,
-  ...props
-}: ContextMenuPrimitive.LabelProps &
-  React.RefAttributes<ContextMenuPrimitive.LabelRef> & {
-    className?: string;
-    inset?: boolean;
-  }) {
-  return (
-    <ContextMenuPrimitive.Label
-      className={cn(
-        "text-foreground px-2 py-2 text-sm font-medium sm:py-1.5",
-        inset && "pl-8",
-        className
-      )}
-      {...props}
-    />
-  );
-}
+export const ContextMenuLabel = ContextMenu.create(
+  (props: React.ComponentProps<typeof ContextMenu.Label>) => (
+    <ContextMenu.Label {...props} />
+  ),
+  "Label"
+);
 
-function ContextMenuSeparator({
-  className,
-  ...props
-}: ContextMenuPrimitive.SeparatorProps &
-  React.RefAttributes<ContextMenuPrimitive.SeparatorRef>) {
-  return (
-    <ContextMenuPrimitive.Separator
-      className={cn("bg-border -mx-1 my-1 h-px", className)}
-      {...props}
-    />
-  );
-}
+export const ContextMenuSeparator = ContextMenu.create(
+  (props: React.ComponentProps<typeof ContextMenu.Separator>) => (
+    <ContextMenu.Separator {...props} />
+  ),
+  "Separator"
+);
 
-function ContextMenuShortcut({
-  className,
-  ...props
-}: TextProps & React.RefAttributes<Text>) {
-  return (
-    <Text
-      className={cn(
-        "text-muted-foreground ml-auto text-xs tracking-widest",
-        className
-      )}
-      {...props}
-    />
-  );
-}
+export const ContextMenuGroup = ContextMenu.create(
+  (props: React.ComponentProps<typeof ContextMenu.Group>) => (
+    <ContextMenu.Group {...props} />
+  ),
+  "Group"
+);
 
-export {
-  ContextMenu,
-  ContextMenuCheckboxItem,
-  ContextMenuContent,
-  ContextMenuGroup,
-  ContextMenuItem,
-  ContextMenuLabel,
-  ContextMenuRadioGroup,
-  ContextMenuRadioItem,
-  ContextMenuSeparator,
-  ContextMenuShortcut,
-  ContextMenuSub,
-  ContextMenuSubContent,
-  ContextMenuSubTrigger,
-  ContextMenuTrigger,
-};
+export const ContextMenuSubTrigger = ContextMenu.create(
+  (props: React.ComponentProps<typeof ContextMenu.SubTrigger>) => (
+    <ContextMenu.SubTrigger {...props} />
+  ),
+  "SubTrigger"
+);
+
+export const ContextMenuSubContent = ContextMenu.create(
+  (props: React.ComponentProps<typeof ContextMenu.SubContent>) => (
+    <ContextMenu.SubContent {...props} />
+  ),
+  "SubContent"
+);
+
+export const ContextMenuSub = ContextMenu.create(
+  (props: React.ComponentProps<typeof ContextMenu.Sub>) => (
+    <ContextMenu.Sub {...props} />
+  ),
+  "Sub"
+);
+
+export const ContextMenuItemIndicator = ContextMenu.create(
+  (props: React.ComponentProps<typeof ContextMenu.ItemIndicator>) => (
+    <ContextMenu.ItemIndicator {...props} />
+  ),
+  "ItemIndicator"
+);
+
+export const ContextMenuPreview = ContextMenu.create(
+  (props: React.ComponentProps<typeof ContextMenu.Preview>) => (
+    <ContextMenu.Preview {...props} />
+  ),
+  "Preview"
+);
+
+export const ContextMenuArrow = ContextMenu.create(
+  (props: React.ComponentProps<typeof ContextMenu.Arrow>) => (
+    <ContextMenu.Arrow {...props} />
+  ),
+  "Arrow"
+);

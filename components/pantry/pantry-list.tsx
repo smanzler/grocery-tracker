@@ -15,14 +15,16 @@ import { Text } from "@/components/ui/text";
 import { generateColorFromUserId } from "@/lib/utils";
 import { useHouseholdStore } from "@/stores/household-store";
 import { formatDistanceToNow } from "date-fns";
-import { Ham, PlusIcon, RefrigeratorIcon } from "lucide-react-native";
+import { PlusIcon, RefrigeratorIcon } from "lucide-react-native";
 import { View } from "react-native";
 import { useUniwind } from "uniwind";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import {
-  ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuItemIcon,
+  ContextMenuItemTitle,
+  ContextMenuRoot,
   ContextMenuTrigger,
 } from "../ui/context-menu";
 
@@ -70,7 +72,7 @@ export default function PantryList() {
   return (
     <BScrollView>
       {data.map((item) => (
-        <ContextMenu key={item.id}>
+        <ContextMenuRoot key={item.id}>
           <ContextMenuTrigger>
             <View className="flex-row items-center justify-between px-4 py-2 rounded-md bg-card gap-4">
               <View className="flex-row items-center gap-2">
@@ -100,12 +102,15 @@ export default function PantryList() {
             </View>
           </ContextMenuTrigger>
           <ContextMenuContent>
-            <ContextMenuItem onPress={() => handleConsume(item.id)}>
-              <Text>Consume</Text>
-              <Icon as={Ham} className="size-4" />
+            <ContextMenuItem
+              key="consume"
+              onSelect={() => handleConsume(item.id)}
+            >
+              <ContextMenuItemTitle>Consume</ContextMenuItemTitle>
+              <ContextMenuItemIcon ios={{ name: "hammer" }} />
             </ContextMenuItem>
           </ContextMenuContent>
-        </ContextMenu>
+        </ContextMenuRoot>
       ))}
     </BScrollView>
   );
