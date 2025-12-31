@@ -34,6 +34,35 @@ export type Database = {
   }
   public: {
     Tables: {
+      grocery_items: {
+        Row: {
+          created_at: string
+          id: string
+          name: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grocery_items_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       household_invites: {
         Row: {
           created_at: string
@@ -144,31 +173,38 @@ export type Database = {
         Row: {
           checked: boolean
           created_at: string
+          grocery_item_id: string
           household_id: string
           id: string
-          name: string
           quantity: number | null
           user_id: string
         }
         Insert: {
           checked?: boolean
           created_at?: string
+          grocery_item_id: string
           household_id: string
           id?: string
-          name: string
           quantity?: number | null
           user_id: string
         }
         Update: {
           checked?: boolean
           created_at?: string
+          grocery_item_id?: string
           household_id?: string
           id?: string
-          name?: string
           quantity?: number | null
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "list_items_grocery_item_id_fkey"
+            columns: ["grocery_item_id"]
+            isOneToOne: false
+            referencedRelation: "grocery_items"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "list_items_household_id_fkey"
             columns: ["household_id"]
@@ -185,32 +221,88 @@ export type Database = {
           },
         ]
       }
+      pantry_events: {
+        Row: {
+          created_at: string
+          event: Database["public"]["Enums"]["pantry_event_type"]
+          grocery_item_id: string | null
+          household_id: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event: Database["public"]["Enums"]["pantry_event_type"]
+          grocery_item_id?: string | null
+          household_id?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event?: Database["public"]["Enums"]["pantry_event_type"]
+          grocery_item_id?: string | null
+          household_id?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pantry_events_grocery_item_id_fkey"
+            columns: ["grocery_item_id"]
+            isOneToOne: false
+            referencedRelation: "grocery_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pantry_events_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pantry_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pantry_items: {
         Row: {
           created_at: string
+          grocery_item_id: string
           household_id: string
           id: string
-          name: string
           quantity: number | null
           user_id: string
         }
         Insert: {
           created_at?: string
+          grocery_item_id: string
           household_id: string
           id?: string
-          name: string
           quantity?: number | null
           user_id: string
         }
         Update: {
           created_at?: string
+          grocery_item_id?: string
           household_id?: string
           id?: string
-          name?: string
           quantity?: number | null
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "pantry_items_grocery_item_id_fkey"
+            columns: ["grocery_item_id"]
+            isOneToOne: false
+            referencedRelation: "grocery_items"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "pantry_items_household_id_fkey"
             columns: ["household_id"]
@@ -277,9 +369,10 @@ export type Database = {
         Args: { p_invite_token: string; p_user_id: string }
         Returns: string
       }
+      remove_pantry_item: { Args: { p_item_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      pantry_event_type: "add" | "restock" | "consume" | "remove"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -409,7 +502,9 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      pantry_event_type: ["add", "restock", "consume", "remove"],
+    },
   },
 } as const
 

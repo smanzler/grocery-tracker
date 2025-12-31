@@ -7,6 +7,7 @@ import { Text } from "@/components/ui/text";
 import { generateColorFromUserId } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
+import { format } from "date-fns";
 import { Trash2Icon } from "lucide-react-native";
 import { Alert, Pressable, View } from "react-native";
 
@@ -79,11 +80,11 @@ export const HouseholdUsersList = () => {
           </Avatar>
           <View className="flex-1">
             <Text className="font-medium">
-              {isCurrentUser ? "You" : "User"}
+              {householdUser.profiles?.display_name ?? "Unknown"}{" "}
+              {isCurrentUser ? "(You)" : ""}
             </Text>
             <Text className="text-sm text-muted-foreground truncate line-clamp-1">
-              Joined on{" "}
-              {new Date(householdUser.created_at).toLocaleDateString()}
+              Joined on {format(householdUser.created_at, "MMM d, yyyy")}
             </Text>
           </View>
           {!isCurrentUser && (

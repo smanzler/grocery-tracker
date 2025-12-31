@@ -24,7 +24,7 @@ import { Input } from "../ui/input";
 const WIDTH = Dimensions.get("window").width - 32;
 
 export type ListItemFormData = {
-  name: string;
+  groceryItemId: string;
   quantity: string;
 };
 
@@ -47,7 +47,7 @@ export const ListItemDialog = ({
     formState: { errors },
   } = useForm<ListItemFormData>({
     defaultValues: {
-      name: "",
+      groceryItemId: "",
       quantity: "1",
     },
   });
@@ -55,12 +55,12 @@ export const ListItemDialog = ({
   React.useEffect(() => {
     if (item) {
       reset({
-        name: item.name ?? "",
+        groceryItemId: item.grocery_item_id ?? "",
         quantity: item.quantity?.toString() ?? "",
       });
     } else {
       reset({
-        name: "",
+        groceryItemId: "",
         quantity: "1",
       });
     }
@@ -71,7 +71,7 @@ export const ListItemDialog = ({
 
     if (!isEditMode) {
       reset({
-        name: "",
+        groceryItemId: "",
         quantity: "1",
       });
     }
@@ -99,7 +99,7 @@ export const ListItemDialog = ({
               <FieldLabel>Item Name</FieldLabel>
               <Controller
                 control={control}
-                name="name"
+                name="groceryItemId"
                 rules={{ required: "Item name is required" }}
                 render={({ field: { onChange, onBlur, value } }) => (
                   <Input
@@ -112,7 +112,11 @@ export const ListItemDialog = ({
                   />
                 )}
               />
-              <FieldError errors={errors.name ? [errors.name] : undefined} />
+              <FieldError
+                errors={
+                  errors.groceryItemId ? [errors.groceryItemId] : undefined
+                }
+              />
             </FieldContent>
           </Field>
 
