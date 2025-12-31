@@ -12,9 +12,9 @@ import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { PlusIcon } from "lucide-react-native";
-import { useState } from "react";
-import { Pressable, View } from "react-native";
+import { PlusIcon, X } from "lucide-react-native";
+import { useRef, useState } from "react";
+import { Pressable, TextInput, View } from "react-native";
 import { useReanimatedKeyboardAnimation } from "react-native-keyboard-controller";
 import Animated, {
   FadeIn,
@@ -25,6 +25,7 @@ import CheckoutButton from "../list/checkout-button";
 
 export default function GroceryItemInput() {
   const [isFocused, setIsFocused] = useState(false);
+  const inputRef = useRef<TextInput>(null);
 
   const tabBarHeight = useBottomTabBarHeight();
   const { height, progress } = useReanimatedKeyboardAnimation();
@@ -78,6 +79,7 @@ export default function GroceryItemInput() {
     });
 
     setSearch("");
+    inputRef.current?.focus();
   };
 
   const handleSelectSuggestion = (item: Tables<"grocery_items">) => {
@@ -89,6 +91,9 @@ export default function GroceryItemInput() {
       quantity: 1,
       user_id: user.id,
     });
+
+    setSearch("");
+    inputRef.current?.focus();
   };
 
   return (
@@ -125,20 +130,41 @@ export default function GroceryItemInput() {
         )}
 
         <View className="bg-background p-4 flex-row items-center gap-2">
-          <Input
-            className="flex-1"
-            value={search}
-            onChangeText={setSearch}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-            onSubmitEditing={() => handleSubmit(search)}
-          />
+          <View className="flex-1 relative">
+            <Input
+              ref={inputRef}
+              className="pr-10"
+              placeholder="Add to your grocery list..."
+              value={search}
+              onChangeText={setSearch}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              onSubmitEditing={(e) => {
+                e.preventDefault();
+                handleSubmit(search);
+              }}
+            />
+            {!!search && (
+              <Pressable
+                className="absolute right-0 top-0 bottom-0 justify-center p-2"
+                onPress={() => {
+                  setSearch("");
+                }}
+                hitSlop={8}
+              >
+                <Icon as={X} className="text-muted-foreground size-4" />
+              </Pressable>
+            )}
+          </View>
           <Button
             variant="outline"
             size="icon"
             className="rounded-full"
             disabled={isSubmitting || !isSearching}
-            onPress={() => handleSubmit(search)}
+            onPress={(e) => {
+              e.preventDefault();
+              handleSubmit(search);
+            }}
           >
             {isSubmitting ? <Spinner /> : <Icon as={PlusIcon} />}
           </Button>
