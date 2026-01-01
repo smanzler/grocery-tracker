@@ -1,4 +1,3 @@
-import { SocialConnections } from "@/components/social-connections";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -155,7 +154,7 @@ export function SignInForm() {
           <Text className="text-muted-foreground px-4 text-sm">or</Text>
           <Separator className="flex-1" />
         </View>
-        <SocialConnections />
+        {/* <SocialConnections /> */}
       </CardContent>
     </Card>
   );
