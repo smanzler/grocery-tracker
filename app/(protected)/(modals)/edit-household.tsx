@@ -53,8 +53,8 @@ export default function EditHousehold() {
     try {
       const { token } = await createHouseholdInvite(householdId);
 
-      const link = Linking.createURL("join-household", {
-        queryParams: { token },
+      const link = Linking.createURL("link-handler", {
+        queryParams: { type: "join-household", token },
       });
 
       console.log(link);

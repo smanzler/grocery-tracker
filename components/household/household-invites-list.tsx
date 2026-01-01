@@ -24,10 +24,9 @@ const HouseholdInviteItem = ({
 
   const handleSetInviteLink = (token: string | null) => {
     if (!token) return;
-    const link = Linking.createURL("join-household", {
-      queryParams: { token },
+    const link = Linking.createURL("link-handler", {
+      queryParams: { type: "join-household", token },
     });
-    console.log(link);
     setInviteLink(link);
   };
 
