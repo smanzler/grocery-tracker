@@ -24,6 +24,27 @@ export default function ModalsLayout() {
           headerLargeTitleEnabled: true,
         }}
       />
+      <Stack.Screen
+        name="profile"
+        options={{
+          headerTitle: "Profile",
+          headerLargeTitleEnabled: true,
+        }}
+      />
+      <Stack.Screen
+        name="settings"
+        options={{
+          headerTitle: "Settings",
+          headerLargeTitleEnabled: true,
+        }}
+      />
+      <Stack.Screen
+        name="help-support"
+        options={{
+          headerTitle: "Help & Support",
+          headerLargeTitleEnabled: true,
+        }}
+      />
     </Stack>
   );
 }

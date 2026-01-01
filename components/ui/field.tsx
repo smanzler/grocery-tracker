@@ -76,10 +76,7 @@ function FieldTitle({ className, ...props }: TextProps) {
 function FieldDescription({ className, ...props }: TextProps) {
   return (
     <Text
-      className={cn(
-        "text-muted-foreground text-sm leading-none font-normal",
-        className
-      )}
+      className={cn("text-muted-foreground text-sm font-normal", className)}
       {...props}
     />
   );

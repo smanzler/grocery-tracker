@@ -35,6 +35,18 @@ export const ProfileButton = () => {
     router.push("/(protected)/(modals)/edit-household");
   };
 
+  const handleProfilePress = () => {
+    router.push("/(protected)/(modals)/profile");
+  };
+
+  const handleSettingsPress = () => {
+    router.push("/(protected)/(modals)/settings");
+  };
+
+  const handleHelpSupportPress = () => {
+    router.push("/(protected)/(modals)/help-support");
+  };
+
   return (
     <DropdownMenuRoot>
       <DropdownMenuTrigger>
@@ -64,16 +76,19 @@ export const ProfileButton = () => {
           </DropdownMenuGroup>
         )}
         <DropdownMenuGroup>
-          <DropdownMenuItem key="profile">
+          <DropdownMenuItem key="profile" onSelect={handleProfilePress}>
             <DropdownMenuItemTitle>Profile</DropdownMenuItemTitle>
             <DropdownMenuItemIcon ios={{ name: "person" }} />
           </DropdownMenuItem>
           <DropdownMenuLabel>Account</DropdownMenuLabel>
-          <DropdownMenuItem key="account-settings">
-            <DropdownMenuItemTitle>Account Settings</DropdownMenuItemTitle>
+          <DropdownMenuItem key="settings" onSelect={handleSettingsPress}>
+            <DropdownMenuItemTitle>Settings</DropdownMenuItemTitle>
             <DropdownMenuItemIcon ios={{ name: "gearshape" }} />
           </DropdownMenuItem>
-          <DropdownMenuItem key="help-support">
+          <DropdownMenuItem
+            key="help-support"
+            onSelect={handleHelpSupportPress}
+          >
             <DropdownMenuItemTitle>Help & Support</DropdownMenuItemTitle>
             <DropdownMenuItemIcon ios={{ name: "questionmark.circle" }} />
           </DropdownMenuItem>
