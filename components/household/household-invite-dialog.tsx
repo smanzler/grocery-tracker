@@ -1,15 +1,12 @@
-import { useCreateHouseholdInvite } from "@/api/household/invites/mutations";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
-import { useHouseholdStore } from "@/stores/household-store";
 import * as Clipboard from "expo-clipboard";
-import { Copy, PlusIcon, Share } from "lucide-react-native";
-import React, { useState } from "react";
+import { Copy, Share } from "lucide-react-native";
+import React from "react";
 import {
   Alert,
   Dimensions,
-  GestureResponderEvent,
   Share as RNShare,
   ScrollView,
   View,
@@ -28,33 +25,15 @@ const WIDTH = Dimensions.get("window").width;
 const PADDING = 16;
 const WIDTH_WITH_PADDING = WIDTH - PADDING * 2;
 
-export const HouseholdInviteDialog = () => {
-  const { householdId } = useHouseholdStore();
-  const [inviteLink, setInviteLink] = useState<string | null>(null);
-
-  const { mutateAsync: createHouseholdInvite } = useCreateHouseholdInvite();
-  const handleCreateInvite = async (e: GestureResponderEvent) => {
-    e.preventDefault();
-
-    console.log("create invite");
-
-    if (!householdId) {
-      Alert.alert("Error", "No household selected");
-      return;
-    }
-
-    try {
-      const { inviteLink } = await createHouseholdInvite(householdId);
-
-      setInviteLink(inviteLink);
-    } catch (error) {
-      Alert.alert(
-        "Error",
-        error instanceof Error ? error.message : "Failed to create invite"
-      );
-    }
-  };
-
+export const HouseholdInviteDialog = ({
+  children,
+  inviteLink,
+  setInviteLink,
+}: {
+  children: React.ReactNode;
+  inviteLink: string | null;
+  setInviteLink: (inviteLink: string | null) => void;
+}) => {
   const handleCopyInvite = async () => {
     if (!inviteLink) return;
     await Clipboard.setStringAsync(inviteLink);
@@ -77,16 +56,7 @@ export const HouseholdInviteDialog = () => {
         if (!open) setInviteLink(null);
       }}
     >
-      <AlertDialogTrigger>
-        <Button
-          variant="outline"
-          size="icon"
-          className="rounded-full"
-          onPress={handleCreateInvite}
-        >
-          <Icon as={PlusIcon} />
-        </Button>
-      </AlertDialogTrigger>
+      <AlertDialogTrigger>{children}</AlertDialogTrigger>
       <AlertDialogContent style={{ width: WIDTH_WITH_PADDING, maxWidth: 600 }}>
         <AlertDialogHeader>
           <AlertDialogTitle>Invite Link</AlertDialogTitle>

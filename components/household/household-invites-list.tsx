@@ -5,9 +5,11 @@ import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { Tables } from "@/lib/database.types";
 import { useHouseholdStore } from "@/stores/household-store";
-import * as Clipboard from "expo-clipboard";
+import * as Linking from "expo-linking";
 import { CopyIcon, TrashIcon } from "lucide-react-native";
-import { Alert, Pressable, View } from "react-native";
+import { useState } from "react";
+import { Pressable, View } from "react-native";
+import { HouseholdInviteDialog } from "./household-invite-dialog";
 
 const HouseholdInviteItem = ({
   invite,
@@ -18,10 +20,16 @@ const HouseholdInviteItem = ({
   const { mutateAsync: removeHouseholdInvite, isPending: isRemovingInvite } =
     useRemoveHouseholdInvite(householdId ?? "");
 
-  async function handleCopyInvite(token: string) {
-    await Clipboard.setStringAsync(token);
-    Alert.alert("Success", "Invite link copied to clipboard");
-  }
+  const [inviteLink, setInviteLink] = useState<string | null>(null);
+
+  const handleSetInviteLink = (token: string | null) => {
+    if (!token) return;
+    const link = Linking.createURL("join-household", {
+      queryParams: { token },
+    });
+    console.log(link);
+    setInviteLink(link);
+  };
 
   return (
     <View
@@ -41,9 +49,14 @@ const HouseholdInviteItem = ({
         </Text>
       </View>
       <View className="flex flex-row items-center gap-2">
-        <Pressable onPress={() => handleCopyInvite(invite.token)}>
-          <Icon as={CopyIcon} className="size-4" />
-        </Pressable>
+        <HouseholdInviteDialog
+          inviteLink={inviteLink}
+          setInviteLink={setInviteLink}
+        >
+          <Pressable onPress={() => handleSetInviteLink(invite.token)}>
+            <Icon as={CopyIcon} className="size-4" />
+          </Pressable>
+        </HouseholdInviteDialog>
         <Pressable
           onPress={() => removeHouseholdInvite(invite.id)}
           disabled={isRemovingInvite}

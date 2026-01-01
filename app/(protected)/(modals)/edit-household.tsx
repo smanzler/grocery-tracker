@@ -1,3 +1,4 @@
+import { useCreateHouseholdInvite } from "@/api/household/invites/mutations";
 import { useUpdateHousehold } from "@/api/household/mutations";
 import { useHousehold } from "@/api/household/queries";
 import { HouseholdInviteDialog } from "@/components/household/household-invite-dialog";
@@ -12,13 +13,16 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
+import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
 import { useHouseholdStore } from "@/stores/household-store";
+import * as Linking from "expo-linking";
 import { router } from "expo-router";
+import { Plus } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, View } from "react-native";
@@ -35,6 +39,34 @@ export default function EditHousehold() {
     householdId ?? undefined
   );
   const { mutateAsync: updateHousehold } = useUpdateHousehold();
+
+  const { mutateAsync: createHouseholdInvite } = useCreateHouseholdInvite();
+
+  const [inviteLink, setInviteLink] = useState<string | null>(null);
+
+  const handleCreateInvite = async () => {
+    if (!householdId) {
+      Alert.alert("Error", "No household selected");
+      return;
+    }
+
+    try {
+      const { token } = await createHouseholdInvite(householdId);
+
+      const link = Linking.createURL("join-household", {
+        queryParams: { token },
+      });
+
+      console.log(link);
+
+      setInviteLink(link);
+    } catch (error) {
+      Alert.alert(
+        "Error",
+        error instanceof Error ? error.message : "Failed to create invite"
+      );
+    }
+  };
 
   const {
     control,
@@ -176,7 +208,18 @@ export default function EditHousehold() {
                 <Text>Invites</Text>
               </TabsTrigger>
             </TabsList>
-            <HouseholdInviteDialog />
+            <HouseholdInviteDialog
+              inviteLink={inviteLink}
+              setInviteLink={setInviteLink}
+            >
+              <Button
+                variant="outline"
+                size="icon"
+                onPress={handleCreateInvite}
+              >
+                <Icon as={Plus} />
+              </Button>
+            </HouseholdInviteDialog>
           </View>
           <TabsContent className="mt-4" value="members">
             <HouseholdUsersList />

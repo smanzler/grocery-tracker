@@ -11,15 +11,15 @@ export const useCreateHouseholdInvite = () => {
     mutationFn: (householdId: string) => createHouseholdInvite(householdId),
     onSuccess: ({
       householdId,
-      inviteLink,
+      token,
     }: {
       householdId: string;
-      inviteLink: string;
+      token: string;
     }) => {
       queryClient.invalidateQueries({
         queryKey: ["household-invites", householdId],
       });
-      return { inviteLink };
+      return { token };
     },
   });
 };

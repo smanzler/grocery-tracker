@@ -14,7 +14,7 @@ export const createHouseholdInvite = async (householdId: string) => {
     p_household_id: householdId,
   });
   if (error) throw error;
-  return { householdId, inviteLink: data };
+  return { householdId, token: data };
 };
 
 export const removeHouseholdInvite = async (inviteId: string) => {
