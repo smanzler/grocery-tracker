@@ -24,7 +24,7 @@ const textVariants = cva(
           Platform.select({ web: "scroll-m-20 first:mt-0" })
         ),
         h3: cn(
-          "text-2xl font-semibold tracking-tight",
+          "text-2xl font-semibold tracking-normal",
           Platform.select({ web: "scroll-m-20" })
         ),
         h4: cn(

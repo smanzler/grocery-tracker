@@ -5,11 +5,20 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Separator } from "@/components/ui/separator";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import Constants from "expo-constants";
 import * as Linking from "expo-linking";
+import { Mail } from "lucide-react-native";
 import { Pressable, View } from "react-native";
+
+const SUPPORT_EMAIL = "support@example.com";
 
 type FAQItem = {
   question: string;
@@ -51,81 +60,70 @@ const faqItems: FAQItem[] = [
 
 export default function HelpSupport() {
   const handleContactSupport = () => {
-    Linking.openURL(
-      "mailto:support@example.com?subject=Grocery Tracker Support"
-    );
+    Linking.openURL(`mailto:${SUPPORT_EMAIL}?subject=Grocery Tracker Support`);
   };
 
   return (
-    <KBAScrollView>
+    <KBAScrollView contentContainerClassName="gap-12">
       <View className="gap-4">
-        <Text variant="h3">Frequently Asked Questions</Text>
-        <Text variant="muted">
-          Find answers to common questions about using the app
+        <Text variant="h3" className="border-b border-border">
+          FAQ
         </Text>
+
+        <Accordion type="single" collapsible>
+          {faqItems.map((item, index) => (
+            <AccordionItem key={index} value={`item-${index}`}>
+              <AccordionTrigger>
+                <Text>{item.question}</Text>
+              </AccordionTrigger>
+              <AccordionContent>
+                <FieldDescription>{item.answer}</FieldDescription>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
       </View>
 
-      <Accordion type="single" collapsible className="mt-4">
-        {faqItems.map((item, index) => (
-          <AccordionItem key={index} value={`item-${index}`}>
-            <AccordionTrigger>
-              <Text className="text-left">{item.question}</Text>
-            </AccordionTrigger>
-            <AccordionContent>
-              <Text>{item.answer}</Text>
-            </AccordionContent>
-          </AccordionItem>
-        ))}
-      </Accordion>
-
-      <Separator />
-
       <View className="gap-4">
-        <Text variant="h3">Contact Support</Text>
-        <Text variant="muted">
-          Need help? Get in touch with our support team
+        <Text variant="h3" className="border-b border-border">
+          Contact Support
         </Text>
-        <View className="gap-2">
-          <Text>Email: support@example.com</Text>
-          <Text variant="muted">We typically respond within 24-48 hours.</Text>
-          <Pressable onPress={handleContactSupport} className="mt-2">
-            <Text className="text-primary underline">Send us an email</Text>
-          </Pressable>
-        </View>
-      </View>
-
-      <Separator />
-
-      <View className="gap-4">
-        <Text variant="h3">About</Text>
-        <Text variant="muted">App information and version</Text>
-        <View className="gap-4">
-          <View>
-            <Text variant="small" className="text-muted-foreground">
-              App Name
-            </Text>
-            <Text className="mt-1">Grocery Tracker</Text>
+        <Field orientation="horizontal">
+          <View className="flex-1 gap-1">
+            <FieldLabel>Email</FieldLabel>
+            <FieldDescription>{SUPPORT_EMAIL}</FieldDescription>
           </View>
-          <View>
-            <Text variant="small" className="text-muted-foreground">
-              Version
-            </Text>
-            <Text className="mt-1">
+          <Pressable onPress={handleContactSupport}>
+            <Icon as={Mail} />
+          </Pressable>
+        </Field>
+      </View>
+
+      <View className="gap-4">
+        <Text variant="h3" className="border-b border-border">
+          About
+        </Text>
+        <FieldGroup>
+          <Field className="gap-1">
+            <FieldLabel>App Name</FieldLabel>
+            <FieldDescription>Grocery Tracker</FieldDescription>
+          </Field>
+          <Field className="gap-1">
+            <FieldLabel>Version</FieldLabel>
+            <FieldDescription>
               {Constants.expoConfig?.version ||
                 Constants.manifest?.version ||
                 "1.0.0"}
-            </Text>
-          </View>
-          <View>
-            <Text variant="small" className="text-muted-foreground">
-              Description
-            </Text>
-            <Text className="mt-1">
+            </FieldDescription>
+          </Field>
+          <Field className="gap-1">
+            <FieldLabel>Description</FieldLabel>
+            <FieldDescription>
               A collaborative grocery tracking app for managing shopping lists
               and pantry items with your household.
-            </Text>
-          </View>
-        </View>
+            </FieldDescription>
+          </Field>
+        </FieldGroup>
       </View>
     </KBAScrollView>
   );

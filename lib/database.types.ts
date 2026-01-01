@@ -37,6 +37,7 @@ export type Database = {
       grocery_items: {
         Row: {
           created_at: string
+          household_id: string | null
           id: string
           is_global: boolean
           name: string | null
@@ -44,6 +45,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          household_id?: string | null
           id?: string
           is_global?: boolean
           name?: string | null
@@ -51,12 +53,20 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          household_id?: string | null
           id?: string
           is_global?: boolean
           name?: string | null
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "grocery_items_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "grocery_items_user_id_fkey"
             columns: ["user_id"]
@@ -367,6 +377,7 @@ export type Database = {
         Args: { p_expires_in_days?: number; p_household_id: string }
         Returns: string
       }
+      empty_pantry: { Args: { p_household_id: string }; Returns: boolean }
       get_invite_info_by_token: {
         Args: { p_token: string }
         Returns: {
