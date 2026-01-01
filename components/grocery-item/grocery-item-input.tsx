@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import * as Haptics from "expo-haptics";
 import { PlusIcon, X } from "lucide-react-native";
 import { useRef, useState } from "react";
 import { Pressable, TextInput, View } from "react-native";
@@ -51,9 +52,14 @@ export default function GroceryItemInput() {
   const isSearching = search.length > 0;
   const showLoading = (isDebouncing || isLoading) && isSearching;
   const showGroceryItems = groceryItems && groceryItems.length > 0;
-  const showOverlay = (showLoading || showGroceryItems) && isFocused;
 
   const isSubmitting = isCreatingGroceryItem || isCreatingListItem;
+
+  const showOverlay =
+    (showLoading || showGroceryItems) &&
+    isFocused &&
+    !isSubmitting &&
+    isSearching;
 
   const animatedSpacerStyle = useAnimatedStyle(() => {
     return {
@@ -63,6 +69,7 @@ export default function GroceryItemInput() {
 
   const handleSubmit = async (text: string) => {
     if (!householdId || !user) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
 
     const groceryItem = await createGroceryItem({
       name: text,
@@ -84,6 +91,7 @@ export default function GroceryItemInput() {
 
   const handleSelectSuggestion = (item: Tables<"grocery_items">) => {
     if (!householdId || !user) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
 
     createListItem({
       grocery_item_id: item.id,

@@ -51,6 +51,9 @@ export const useCheckoutListItems = (householdId: string) => {
     mutationFn: () => checkoutListItems(householdId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["list-items", householdId] });
+      queryClient.invalidateQueries({
+        queryKey: ["pantry-items", householdId],
+      });
     },
   });
 };
