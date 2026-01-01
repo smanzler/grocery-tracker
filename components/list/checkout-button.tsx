@@ -3,11 +3,21 @@ import { useListItems } from "@/api/list-item/queries";
 import CustomHaptics from "@/modules/custom-haptics";
 import { useHouseholdStore } from "@/stores/household-store";
 import { ShoppingCartIcon } from "lucide-react-native";
-import { Alert } from "react-native";
 import { useUniwind } from "uniwind";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
 import { Button } from "../ui/button";
 import { Icon } from "../ui/icon";
 import { Spinner } from "../ui/spinner";
+import { Text } from "../ui/text";
 
 export default function CheckoutButton() {
   const { theme } = useUniwind();
@@ -25,41 +35,44 @@ export default function CheckoutButton() {
   const isLoading = isLoadingListItems || isCheckingOut;
 
   const checkout = async () => {
-    await CustomHaptics.impactAsync(400);
+    CustomHaptics.impactAsync(400);
     await checkoutListItems();
   };
 
-  const handleCheckout = () => {
-    Alert.alert(
-      "Checkout",
-      "Are you sure you want to checkout? This will move checked items to the pantry.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Checkout",
-          onPress: checkout,
-          isPreferred: true,
-        },
-      ]
-    );
-  };
-
   return (
-    <Button
-      size="icon"
-      className="rounded-full"
-      onPress={handleCheckout}
-      disabled={isLoading || !hasCheckedItems}
-    >
-      {isLoading ? (
-        <Spinner color={theme === "dark" ? "black" : "white"} />
-      ) : (
-        <Icon
-          as={ShoppingCartIcon}
-          color={theme === "dark" ? "black" : "white"}
-          className="size-4"
-        />
-      )}
-    </Button>
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button
+          size="icon"
+          className="rounded-full"
+          disabled={isLoading || !hasCheckedItems}
+        >
+          {isLoading ? (
+            <Spinner color={theme === "dark" ? "black" : "white"} />
+          ) : (
+            <Icon
+              as={ShoppingCartIcon}
+              color={theme === "dark" ? "black" : "white"}
+              className="size-4"
+            />
+          )}
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogTitle className="text-center">Checkout</AlertDialogTitle>
+        <AlertDialogDescription className="text-center">
+          Are you sure you want to checkout? This will move all checked items to
+          the pantry.
+        </AlertDialogDescription>
+        <AlertDialogFooter className="flex-row gap-2">
+          <AlertDialogCancel className="flex-1">
+            <Text className="text-center">Cancel</Text>
+          </AlertDialogCancel>
+          <AlertDialogAction className="flex-1" onPress={checkout}>
+            <Text className="text-center">Checkout</Text>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

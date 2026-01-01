@@ -49,6 +49,14 @@ export const useUpdateListItem = (householdId: string) => {
 export const useCheckoutListItems = (householdId: string) => {
   return useMutation({
     mutationFn: () => checkoutListItems(householdId),
+    onMutate: optimisticUpdate<Tables<"list_items">[], void>({
+      queryKey: ["list-items", householdId],
+      updater: (old) => old.filter((item) => !item.checked),
+    }),
+    onError: optimisticRollback<Tables<"list_items">[]>([
+      "list-items",
+      householdId,
+    ]),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["list-items", householdId] });
       queryClient.invalidateQueries({
