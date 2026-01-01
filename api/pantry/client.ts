@@ -13,6 +13,7 @@ export const removePantryItem = async (itemId: string) => {
   const { data, error } = await supabase.rpc("remove_pantry_item", {
     p_item_id: itemId,
   });
+  console.log("removePantryItem", data, error);
   if (error) throw error;
   return data;
 };
