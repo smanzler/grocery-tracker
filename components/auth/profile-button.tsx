@@ -2,11 +2,12 @@ import { useHousehold } from "@/api/household/queries";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuItemIcon,
   DropdownMenuItemTitle,
+  DropdownMenuLabel,
   DropdownMenuRoot,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Text } from "@/components/ui/text";
@@ -45,48 +46,46 @@ export const ProfileButton = () => {
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent sideOffset={2}>
-        <DropdownMenuItem key="profile">
-          <DropdownMenuItemTitle>Profile</DropdownMenuItemTitle>
-          <DropdownMenuItemIcon ios={{ name: "person" }} />
-        </DropdownMenuItem>
         {householdId && (
-          <>
-            <DropdownMenuItem key="households" onSelect={handleHouseholdsPress}>
-              <DropdownMenuItemTitle>Households</DropdownMenuItemTitle>
-              <DropdownMenuItemIcon ios={{ name: "house" }} />
-            </DropdownMenuItem>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Households</DropdownMenuLabel>
             <DropdownMenuItem
               key="household"
               disabled={isHouseholdLoading || !household}
               onSelect={handleHouseholdPress}
             >
-              <DropdownMenuItemTitle>
-                {isHouseholdLoading
-                  ? "Loading..."
-                  : !household || !household.name
-                  ? "No household selected"
-                  : household.name}
-              </DropdownMenuItemTitle>
-              <DropdownMenuItemIcon ios={{ name: "arrow-right" }} />
+              <DropdownMenuItemTitle>Edit Household</DropdownMenuItemTitle>
+              <DropdownMenuItemIcon ios={{ name: "pencil.circle" }} />
             </DropdownMenuItem>
-          </>
+            <DropdownMenuItem key="households" onSelect={handleHouseholdsPress}>
+              <DropdownMenuItemTitle>Select Household</DropdownMenuItemTitle>
+              <DropdownMenuItemIcon ios={{ name: "house" }} />
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
         )}
-        <DropdownMenuSeparator />
-        <DropdownMenuItem key="account-settings">
-          <DropdownMenuItemTitle>Account Settings</DropdownMenuItemTitle>
-          <DropdownMenuItemIcon ios={{ name: "gearshape" }} />
-        </DropdownMenuItem>
-        <DropdownMenuItem key="help-support">
-          <DropdownMenuItemTitle>Help & Support</DropdownMenuItemTitle>
-          <DropdownMenuItemIcon ios={{ name: "questionmark.circle" }} />
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem key="logout" destructive onSelect={signOut}>
-          <DropdownMenuItemTitle>Logout</DropdownMenuItemTitle>
-          <DropdownMenuItemIcon
-            ios={{ name: "rectangle.portrait.and.arrow.right" }}
-          />
-        </DropdownMenuItem>
+        <DropdownMenuGroup>
+          <DropdownMenuItem key="profile">
+            <DropdownMenuItemTitle>Profile</DropdownMenuItemTitle>
+            <DropdownMenuItemIcon ios={{ name: "person" }} />
+          </DropdownMenuItem>
+          <DropdownMenuLabel>Account</DropdownMenuLabel>
+          <DropdownMenuItem key="account-settings">
+            <DropdownMenuItemTitle>Account Settings</DropdownMenuItemTitle>
+            <DropdownMenuItemIcon ios={{ name: "gearshape" }} />
+          </DropdownMenuItem>
+          <DropdownMenuItem key="help-support">
+            <DropdownMenuItemTitle>Help & Support</DropdownMenuItemTitle>
+            <DropdownMenuItemIcon ios={{ name: "questionmark.circle" }} />
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuGroup>
+          <DropdownMenuItem key="logout" destructive onSelect={signOut}>
+            <DropdownMenuItemTitle>Logout</DropdownMenuItemTitle>
+            <DropdownMenuItemIcon
+              ios={{ name: "rectangle.portrait.and.arrow.right" }}
+            />
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenuRoot>
   );

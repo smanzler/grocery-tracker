@@ -35,6 +35,11 @@ export const HouseholdList = () => {
 
   const { theme } = useUniwind();
 
+  const handleEditPress = (householdId: string) => {
+    selectHousehold(householdId);
+    router.push("/(protected)/(modals)/edit-household");
+  };
+
   if (isLoading) {
     return <Spinner />;
   }
@@ -98,9 +103,7 @@ export const HouseholdList = () => {
           <ContextMenuContent>
             <ContextMenuItem
               key="edit"
-              onSelect={() =>
-                router.push("/(protected)/(modals)/edit-household")
-              }
+              onSelect={() => handleEditPress(household.id)}
             >
               <ContextMenuItemTitle>Edit</ContextMenuItemTitle>
               <ContextMenuItemIcon ios={{ name: "pencil" }} />
