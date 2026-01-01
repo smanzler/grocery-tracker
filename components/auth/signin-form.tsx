@@ -120,6 +120,7 @@ export function SignInForm() {
                   onChangeText={onChange}
                   onBlur={onBlur}
                   returnKeyType="send"
+                  textContentType="password"
                   onSubmitEditing={handleSubmit(onSubmit)}
                 />
               )}

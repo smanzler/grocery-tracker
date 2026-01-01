@@ -143,7 +143,7 @@ export function SignUpForm() {
                   returnKeyType="next"
                   onSubmitEditing={onPasswordSubmitEditing}
                   autoComplete="password"
-                  textContentType="newPassword"
+                  textContentType="password"
                 />
               )}
             />

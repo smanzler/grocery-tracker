@@ -41,7 +41,11 @@ export const HouseholdList = () => {
   };
 
   if (isLoading) {
-    return <Spinner />;
+    return (
+      <View className="py-4 items-center justify-center">
+        <Spinner />
+      </View>
+    );
   }
 
   if (!data || data.length === 0) {
