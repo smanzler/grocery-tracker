@@ -1,7 +1,7 @@
 import { useCheckoutListItems } from "@/api/list-item/mutations";
 import { useListItems } from "@/api/list-item/queries";
+import CustomHaptics from "@/modules/custom-haptics";
 import { useHouseholdStore } from "@/stores/household-store";
-import * as Haptics from "expo-haptics";
 import { ShoppingCartIcon } from "lucide-react-native";
 import { Alert } from "react-native";
 import { useUniwind } from "uniwind";
@@ -25,7 +25,7 @@ export default function CheckoutButton() {
   const isLoading = isLoadingListItems || isCheckingOut;
 
   const checkout = async () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    await CustomHaptics.impactAsync(400);
     await checkoutListItems();
   };
 
