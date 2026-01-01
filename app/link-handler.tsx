@@ -1,4 +1,4 @@
-import { useAuthStore } from "@/stores/auth-store";
+import { useIntentStore } from "@/stores/intent-store";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect } from "react";
 
@@ -7,36 +7,18 @@ export default function LinkHandler() {
     type?: string;
     token?: string;
   }>();
-
-  const { user, initializing } = useAuthStore();
   const router = useRouter();
+  const setIntent = useIntentStore((s) => s.setIntent);
 
   useEffect(() => {
-    if (initializing) return;
-
     if (type === "join-household" && token) {
-      if (!user) {
-        router.replace({
-          pathname: "/(auth)",
-          params: {
-            redirectTo: `/link-handler?type=join-household&token=${token}`,
-          },
-        });
-      } else {
-        router.replace("/");
+      setIntent({ type, token });
 
-        setTimeout(() => {
-          router.push({
-            pathname: "/(protected)/(modals)/join-household",
-            params: { token },
-          });
-        }, 0);
-      }
-      return;
+      router.replace("/");
+    } else {
+      router.replace("/");
     }
-
-    router.replace("/");
-  }, [type, token, user, initializing]);
+  }, [type, token, router, setIntent]);
 
   return null;
 }

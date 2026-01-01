@@ -36,3 +36,13 @@ export const redeemHouseholdInvite = async (
   if (error) throw error;
   return data;
 };
+
+export const getHouseholdInfoFromInviteToken = async (inviteToken: string) => {
+  const { data, error } = await supabase
+    .rpc("get_invite_info_by_token", {
+      p_token: inviteToken,
+    })
+    .single();
+  if (error) throw error;
+  return data;
+};

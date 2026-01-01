@@ -32,6 +32,7 @@ export default function PantryList() {
   const { theme } = useUniwind();
   const { householdId } = useHouseholdStore();
   const { data, isLoading } = usePantryItems(householdId ?? undefined);
+  console.log(data);
 
   const handleConsume = (itemId: string) => {
     console.log("consume", itemId);
@@ -76,18 +77,18 @@ export default function PantryList() {
           <ContextMenuTrigger>
             <View className="flex-row items-center justify-between px-4 py-2 rounded-md bg-card gap-4">
               <View className="flex-row items-center gap-2">
-                <Avatar alt={item.grocery_items.name ?? ""}>
+                <Avatar alt={item.grocery_items?.name ?? ""}>
                   <AvatarFallback
                     style={{
                       backgroundColor: generateColorFromUserId(item.id),
                     }}
                   >
-                    <Text>{item.grocery_items.name?.charAt(0) ?? ""}</Text>
+                    <Text>{item.grocery_items?.name?.charAt(0) ?? ""}</Text>
                   </AvatarFallback>
                 </Avatar>
                 <View className="space-y-1">
                   <Text className="text-base font-medium">
-                    {item.grocery_items.name ?? ""}
+                    {item.grocery_items?.name ?? ""}
                   </Text>
 
                   <Text className="text-sm text-muted-foreground">

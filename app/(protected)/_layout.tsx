@@ -1,12 +1,28 @@
 import { useHouseholdStore } from "@/stores/household-store";
-import { Stack } from "expo-router";
-import { useEffect } from "react";
+import { useIntentStore } from "@/stores/intent-store";
+import { router, Stack, usePathname } from "expo-router";
+import { useEffect, useRef } from "react";
 
 export default function ProtectedLayout() {
   const { householdId } = useHouseholdStore();
+  const { pendingIntent } = useIntentStore();
+  const pathname = usePathname();
+  const handledRef = useRef(false);
+
   useEffect(() => {
-    console.log("mounted");
-  }, []);
+    if (!pendingIntent || handledRef.current) return;
+
+    if (pendingIntent.type === "join-household" && pendingIntent.token) {
+      handledRef.current = true;
+
+      if (!pathname.includes("join-household")) {
+        setTimeout(() => {
+          router.push("/(protected)/(modals)/join-household");
+        }, 50);
+      }
+    }
+  }, [pendingIntent, pathname, router]);
+
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={!householdId}>

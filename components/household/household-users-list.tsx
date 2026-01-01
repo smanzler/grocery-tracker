@@ -68,7 +68,7 @@ export const HouseholdUsersList = () => {
       const isCurrentUser = householdUser.user_id === user?.id;
       return (
         <View
-          className="flex-row items-center gap-3 flex-1"
+          className="flex-row items-center gap-3 flex-1 pb-4"
           key={householdUser.id}
         >
           <Avatar alt={householdUser.user_id}>

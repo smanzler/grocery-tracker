@@ -38,18 +38,21 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          is_global: boolean
           name: string | null
           user_id: string | null
         }
         Insert: {
           created_at?: string
           id?: string
+          is_global?: boolean
           name?: string | null
           user_id?: string | null
         }
         Update: {
           created_at?: string
           id?: string
+          is_global?: boolean
           name?: string | null
           user_id?: string | null
         }
@@ -363,6 +366,21 @@ export type Database = {
       create_household_invite: {
         Args: { p_expires_in_days?: number; p_household_id: string }
         Returns: string
+      }
+      get_invite_info_by_token: {
+        Args: { p_token: string }
+        Returns: {
+          creator_display_name: string
+          creator_id: string
+          creator_username: string
+          household_created_at: string
+          household_id: string
+          household_image_url: string
+          household_name: string
+          invite_expires_at: string
+          invite_id: string
+          is_already_member: boolean
+        }[]
       }
       is_household_user: { Args: { p_household_id: string }; Returns: boolean }
       redeem_household_invite: {
