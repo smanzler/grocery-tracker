@@ -1,6 +1,6 @@
-import { useCreateHouseholdInvite } from "@/api/household/invites/mutations";
 import { useUpdateHousehold } from "@/api/household/mutations";
 import { useHousehold } from "@/api/household/queries";
+import { HouseholdInviteDialog } from "@/components/household/household-invite-dialog";
 import { HouseholdInvitesList } from "@/components/household/household-invites-list";
 import { HouseholdUsersList } from "@/components/household/household-users-list";
 import { KBAScrollView } from "@/components/scroll/kba-scroll-view";
@@ -12,19 +12,16 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
 import { useHouseholdStore } from "@/stores/household-store";
-import * as Clipboard from "expo-clipboard";
 import { router } from "expo-router";
-import { PlusIcon } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, Pressable, View } from "react-native";
+import { Alert, View } from "react-native";
 
 type EditHouseholdFormData = {
   name: string;
@@ -38,7 +35,6 @@ export default function EditHousehold() {
     householdId ?? undefined
   );
   const { mutateAsync: updateHousehold } = useUpdateHousehold();
-  const { mutateAsync: createHouseholdInvite } = useCreateHouseholdInvite();
 
   const {
     control,
@@ -83,33 +79,6 @@ export default function EditHousehold() {
       );
     }
   }
-
-  const handleCreateInvite = async () => {
-    if (!householdId) {
-      Alert.alert("Error", "No household selected");
-      return;
-    }
-
-    try {
-      setSelectedTab("invites");
-      const { inviteLink } = await createHouseholdInvite(householdId);
-      Alert.alert("Success", "Invite created successfully", [
-        {
-          text: "Copy",
-          onPress: () => {
-            Clipboard.setStringAsync(inviteLink);
-            Alert.alert("Success", "Invite copied to clipboard");
-          },
-        },
-        { text: "Cancel", style: "cancel" },
-      ]);
-    } catch (error) {
-      Alert.alert(
-        "Error",
-        error instanceof Error ? error.message : "Failed to create invite"
-      );
-    }
-  };
 
   if (isHouseholdLoading) {
     return (
@@ -207,9 +176,7 @@ export default function EditHousehold() {
                 <Text>Invites</Text>
               </TabsTrigger>
             </TabsList>
-            <Pressable onPress={handleCreateInvite}>
-              <Icon as={PlusIcon} className="size-4" />
-            </Pressable>
+            <HouseholdInviteDialog />
           </View>
           <TabsContent className="mt-4" value="members">
             <HouseholdUsersList />
