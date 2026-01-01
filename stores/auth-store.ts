@@ -17,6 +17,7 @@ type AuthStoreState = {
     password: string
   ) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
 };
 
 export const useAuthStore = create<AuthStoreState>((set, get) => {
@@ -101,6 +102,18 @@ export const useAuthStore = create<AuthStoreState>((set, get) => {
           user: null,
           isAuthenticated: false,
         });
+      } finally {
+        set({ loading: false });
+      }
+    },
+
+    async deleteAccount() {
+      set({ loading: true });
+      try {
+        const { error } = await supabase.rpc("delete_user");
+        if (error) throw error;
+
+        await get().signOut();
       } finally {
         set({ loading: false });
       }

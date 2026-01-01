@@ -1,4 +1,14 @@
 import { KBAScrollView } from "@/components/scroll/kba-scroll-view";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -28,7 +38,7 @@ type PasswordFormData = {
 };
 
 export default function AccountSettings() {
-  const { user, session } = useAuthStore();
+  const { user, deleteAccount } = useAuthStore();
   const [isChangingEmail, setIsChangingEmail] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
@@ -135,6 +145,10 @@ export default function AccountSettings() {
     } finally {
       setIsChangingPassword(false);
     }
+  };
+
+  const handleDeleteAccount = async () => {
+    await deleteAccount();
   };
 
   if (!user) {
@@ -339,6 +353,37 @@ export default function AccountSettings() {
           Preferences and notification settings will be available in a future
           update.
         </Text>
+      </View>
+
+      <View className="gap-4">
+        <Text variant="h3" className="border-b border-border">
+          Danger Zone
+        </Text>
+
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive">
+              <Text>Delete Account</Text>
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Account</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete your account? This action cannot
+                be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>
+                <Text>Cancel</Text>
+              </AlertDialogCancel>
+              <Button onPress={handleDeleteAccount} variant="destructive">
+                <Text>Delete</Text>
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </View>
     </KBAScrollView>
   );

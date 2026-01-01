@@ -377,6 +377,7 @@ export type Database = {
         Args: { p_expires_in_days?: number; p_household_id: string }
         Returns: string
       }
+      delete_user: { Args: never; Returns: undefined }
       empty_pantry: { Args: { p_household_id: string }; Returns: boolean }
       get_invite_info_by_token: {
         Args: { p_token: string }
