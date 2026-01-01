@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { Text } from "@/components/ui/text";
 import { useAuthStore } from "@/stores/auth-store";
 import { router } from "expo-router";
@@ -149,12 +148,12 @@ export function SignInForm() {
             </Text>
           </Pressable>
         </View>
-        <View className="flex-row items-center">
+        {/* <View className="flex-row items-center">
           <Separator className="flex-1" />
           <Text className="text-muted-foreground px-4 text-sm">or</Text>
           <Separator className="flex-1" />
         </View>
-        {/* <SocialConnections /> */}
+        <SocialConnections /> */}
       </CardContent>
     </Card>
   );
