@@ -92,18 +92,14 @@ export function SignInForm() {
           <Field className="gap-1.5">
             <View className="flex-row items-center">
               <Label htmlFor="password">Password</Label>
-              <Button
-                variant="link"
-                size="sm"
-                className="web:h-fit ml-auto h-4 px-1 py-0 sm:h-4"
-                onPress={() => {
-                  // TODO: Navigate to forgot password screen
-                }}
+              <Pressable
+                onPress={() => router.push("/(auth)/forgot-password")}
+                className="ml-auto"
               >
-                <Text className="font-normal leading-4">
+                <Text className="text-sm underline underline-offset-4">
                   Forgot your password?
                 </Text>
-              </Button>
+              </Pressable>
             </View>
             <Controller
               control={control}

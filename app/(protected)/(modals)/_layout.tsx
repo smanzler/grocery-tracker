@@ -45,6 +45,14 @@ export default function ModalsLayout() {
           headerLargeTitleEnabled: true,
         }}
       />
+      <Stack.Screen
+        name="update-password"
+        options={{
+          headerTitle: "Update Password",
+          headerLargeTitleEnabled: true,
+          presentation: "fullScreenModal",
+        }}
+      />
     </Stack>
   );
 }

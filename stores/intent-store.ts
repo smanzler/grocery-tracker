@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 type PendingIntent = {
-  type: "join-household";
+  type: "join-household" | "update-password";
   token: string;
 } | null;
 

@@ -10,17 +10,33 @@ export default function ProtectedLayout() {
   const handledRef = useRef(false);
 
   useEffect(() => {
-    if (!pendingIntent || handledRef.current) return;
+    const handleIntent = () => {
+      if (!pendingIntent || handledRef.current) return;
 
-    if (pendingIntent.type === "join-household" && pendingIntent.token) {
-      handledRef.current = true;
+      if (pendingIntent.type === "join-household" && pendingIntent.token) {
+        handledRef.current = true;
 
-      if (!pathname.includes("join-household")) {
-        setTimeout(() => {
-          router.push("/(protected)/(modals)/join-household");
-        }, 50);
+        if (!pathname.includes("join-household")) {
+          setTimeout(() => {
+            router.push("/(protected)/(modals)/join-household");
+          }, 50);
+        }
+        return;
       }
-    }
+
+      if (pendingIntent.type === "update-password" && pendingIntent.token) {
+        handledRef.current = true;
+
+        if (!pathname.includes("update-password")) {
+          setTimeout(() => {
+            router.push("/(protected)/(modals)/update-password");
+          }, 50);
+        }
+        return;
+      }
+    };
+
+    handleIntent();
   }, [pendingIntent, pathname, router]);
 
   return (

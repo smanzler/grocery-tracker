@@ -56,6 +56,8 @@ export function SignUpForm() {
     if (error) {
       Alert.alert("Error", error.message);
     }
+
+    router.replace("/(auth)/email-sent-success");
   }
 
   return (
