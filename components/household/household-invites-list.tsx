@@ -6,7 +6,7 @@ import { Text } from "@/components/ui/text";
 import { Tables } from "@/lib/database.types";
 import { useHouseholdStore } from "@/stores/household-store";
 import * as Linking from "expo-linking";
-import { CopyIcon, TrashIcon } from "lucide-react-native";
+import { Share, Trash } from "lucide-react-native";
 import { useState } from "react";
 import { Pressable, View } from "react-native";
 import { HouseholdInviteDialog } from "./household-invite-dialog";
@@ -53,7 +53,7 @@ const HouseholdInviteItem = ({
           setInviteLink={setInviteLink}
         >
           <Pressable onPress={() => handleSetInviteLink(invite.token)}>
-            <Icon as={CopyIcon} className="size-4" />
+            <Icon as={Share} className="size-4" />
           </Pressable>
         </HouseholdInviteDialog>
         <Pressable
@@ -63,7 +63,7 @@ const HouseholdInviteItem = ({
           {isRemovingInvite ? (
             <Spinner />
           ) : (
-            <Icon as={TrashIcon} className="size-4 text-destructive" />
+            <Icon as={Trash} className="size-4 text-destructive" />
           )}
         </Pressable>
       </View>

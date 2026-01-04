@@ -1,6 +1,6 @@
 import { useRemoveHouseholdUser } from "@/api/household/users/mutations";
 import { useHouseholdUsers } from "@/api/household/users/queries";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Icon } from "@/components/ui/icon";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
@@ -8,7 +8,7 @@ import { generateColorFromUserId } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
 import { format } from "date-fns";
-import { Trash2Icon } from "lucide-react-native";
+import { Trash } from "lucide-react-native";
 import { Alert, Pressable, View } from "react-native";
 
 export const HouseholdUsersList = () => {
@@ -72,6 +72,9 @@ export const HouseholdUsersList = () => {
           key={householdUser.id}
         >
           <Avatar alt={householdUser.user_id}>
+            <AvatarImage
+              source={{ uri: householdUser.profiles.image_url ?? undefined }}
+            />
             <AvatarFallback
               style={{
                 backgroundColor: generateColorFromUserId(householdUser.user_id),
@@ -93,7 +96,7 @@ export const HouseholdUsersList = () => {
                 handleRemoveUser(householdUser.id, householdUser.user_id)
               }
             >
-              <Icon as={Trash2Icon} className="size-4" />
+              <Icon as={Trash} className="size-4 text-destructive" />
             </Pressable>
           )}
         </View>
