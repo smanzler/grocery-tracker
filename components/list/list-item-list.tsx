@@ -23,7 +23,6 @@ import { useRef } from "react";
 import { Pressable, View } from "react-native";
 import { default as Swipeable } from "react-native-gesture-handler/ReanimatedSwipeable";
 import Animated, {
-  Easing,
   useAnimatedStyle,
   useDerivedValue,
   withTiming,
@@ -68,35 +67,29 @@ const ListItem = ({
         onSwipeableOpenStartDrag={handleDragStart}
         onSwipeableWillClose={handleDragEnd}
         renderLeftActions={(progress, translation, swipeableMethods) => {
-          const anim = useDerivedValue(() => {
-            return withTiming(progress.value < 1 ? 0 : 1, {
-              duration: 100,
-              easing: Easing.inOut(Easing.ease),
+          const opacity = useDerivedValue(() => {
+            return withTiming(translation.value > 50 ? 1 : 0, {
+              duration: 200,
             });
           });
 
           const styleAnimation = useAnimatedStyle(() => {
             return {
-              transform: [
-                {
-                  translateX: (translation.value - 30) * anim.value + 6,
-                },
-              ],
+              width: translation.value,
+              opacity: opacity.value,
             };
           });
 
           return (
             <Pressable
               onPress={handleDelete}
-              className="relative h-full w-[150px] rounded-l-md"
+              className="relative h-full w-[100px] rounded-l-md"
             >
               <Animated.View
-                className="absolute top-0 left-0 h-full justify-center"
+                className="absolute top-0 left-0 h-full items-center justify-center"
                 style={styleAnimation}
               >
-                <Pressable onPress={() => swipeableMethods.openRight()}>
-                  <Icon as={Trash} color="white" className="size-5" />
-                </Pressable>
+                <Icon as={Trash} color="white" className="size-5" />
               </Animated.View>
             </Pressable>
           );
