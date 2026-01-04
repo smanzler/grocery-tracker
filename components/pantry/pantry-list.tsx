@@ -65,8 +65,7 @@ const PantryItem = ({
 
             <Text className="text-sm text-muted-foreground line-clamp-1">
               {item.profiles?.display_name ?? "Unknown"} added{" "}
-              {formatDistanceToNow(item.created_at)} agof jdsakl fjsakl fjakdls
-              jklasj lfdsaj lkfsa
+              {formatDistanceToNow(item.created_at)} ago
             </Text>
           </View>
           {isPending ? (

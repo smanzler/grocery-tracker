@@ -5,8 +5,7 @@ import { createHousehold, updateHousehold } from "./client";
 
 export const useCreateHousehold = () => {
   return useMutation({
-    mutationFn: ({ name, image_url }: { name: string; image_url?: string }) =>
-      createHousehold(name, image_url),
+    mutationFn: ({ name }: { name: string }) => createHousehold(name),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["households"] });
     },

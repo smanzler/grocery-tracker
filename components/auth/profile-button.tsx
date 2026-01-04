@@ -22,7 +22,7 @@ export const ProfileButton = () => {
   const { user, signOut } = useAuthStore();
   const { householdId, selectHousehold } = useHouseholdStore();
 
-  const { data: profile, isLoading: isProfileLoading } = useProfile();
+  const { data: profile, isLoading: isProfileLoading } = useProfile(user?.id);
 
   const { data: household, isLoading: isHouseholdLoading } = useHousehold(
     householdId ?? undefined
@@ -84,7 +84,7 @@ export const ProfileButton = () => {
               onSelect={handleHouseholdPress}
             >
               <DropdownMenuItemTitle>Edit Household</DropdownMenuItemTitle>
-              <DropdownMenuItemIcon ios={{ name: "pencil.circle" }} />
+              <DropdownMenuItemIcon ios={{ name: "pencil.and.outline" }} />
             </DropdownMenuItem>
             <DropdownMenuItem key="households" onSelect={handleHouseholdsPress}>
               <DropdownMenuItemTitle>Select Household</DropdownMenuItemTitle>

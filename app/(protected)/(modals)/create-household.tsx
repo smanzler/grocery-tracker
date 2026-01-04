@@ -17,7 +17,6 @@ import { Alert } from "react-native";
 
 type CreateHouseholdFormData = {
   name: string;
-  image_url: string;
 };
 
 export default function CreateHousehold() {
@@ -31,7 +30,6 @@ export default function CreateHousehold() {
   } = useForm<CreateHouseholdFormData>({
     defaultValues: {
       name: "",
-      image_url: "",
     },
   });
 
@@ -42,7 +40,7 @@ export default function CreateHousehold() {
     }
 
     try {
-      await createHousehold({ name: data.name, image_url: data.image_url });
+      await createHousehold({ name: data.name });
       router.back();
     } catch (error) {
       Alert.alert(
@@ -79,35 +77,6 @@ export default function CreateHousehold() {
           />
           <FieldDescription>Enter the name of the household</FieldDescription>
           <FieldError errors={errors.name ? [errors.name] : undefined} />
-        </Field>
-        <Field>
-          <FieldLabel>Household Image URL</FieldLabel>
-          <Controller
-            control={control}
-            name="image_url"
-            rules={{
-              pattern: {
-                value: /^https?:\/\/.+/,
-                message: "Please enter a valid URL",
-              },
-            }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                placeholder="https://example.com/image.jpg"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                keyboardType="url"
-                autoCapitalize="none"
-              />
-            )}
-          />
-          <FieldDescription>
-            Enter an image URL for the household (optional)
-          </FieldDescription>
-          <FieldError
-            errors={errors.image_url ? [errors.image_url] : undefined}
-          />
         </Field>
       </FieldGroup>
       <Button onPress={handleSubmit(onSubmit)} disabled={isSubmitting}>

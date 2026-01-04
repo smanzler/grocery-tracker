@@ -27,6 +27,7 @@ export const supabase = createClient<Database>(
 export interface ImageUploadResult {
   success: boolean;
   url?: string;
+  path?: string;
   error?: string;
 }
 
@@ -117,6 +118,7 @@ export const uploadImage = async (
     return {
       success: true,
       url: urlData.publicUrl,
+      path: data.path,
     };
   } catch (error) {
     console.error("Upload error:", error);

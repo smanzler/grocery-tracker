@@ -154,21 +154,21 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          image_url: string | null
+          image_path: string | null
           name: string | null
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
-          image_url?: string | null
+          image_path?: string | null
           name?: string | null
           user_id?: string
         }
         Update: {
           created_at?: string
           id?: string
-          image_url?: string | null
+          image_path?: string | null
           name?: string | null
           user_id?: string
         }
@@ -369,10 +369,7 @@ export type Database = {
         Args: { p_household_id: string }
         Returns: boolean
       }
-      create_household: {
-        Args: { p_image_url?: string; p_name: string }
-        Returns: string
-      }
+      create_household: { Args: { p_name: string }; Returns: string }
       create_household_invite: {
         Args: { p_expires_in_days?: number; p_household_id: string }
         Returns: string

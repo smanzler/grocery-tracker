@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
-import { pickImage, supabase, uploadImage } from "@/lib/supabase";
+import { pickImage, uploadImage } from "@/lib/supabase";
 import { useAuthStore } from "@/stores/auth-store";
 import { router } from "expo-router";
 import { useEffect } from "react";
@@ -76,7 +76,7 @@ export default function Profile() {
     }
   }
 
-  const handleProfilePress = async () => {
+  const handleImagePress = async () => {
     if (!user) return;
 
     const image = await pickImage();
@@ -93,12 +93,12 @@ export default function Profile() {
       return;
     }
 
-    const { error: updateError } = await supabase
-      .from("profiles")
-      .update({ image_url: url })
-      .eq("id", user.id);
+    const updateResult = await updateProfile({
+      id: user.id,
+      image_url: url,
+    });
 
-    if (updateError) {
+    if (!updateResult) {
       Alert.alert("Error", "An error occured uploading the image");
       return;
     }
@@ -128,7 +128,7 @@ export default function Profile() {
   return (
     <KBAScrollView>
       <View className="items-center py-6">
-        <Pressable onPress={handleProfilePress}>
+        <Pressable onPress={handleImagePress}>
           <Avatar alt={user.email ?? ""} className="size-24">
             <AvatarImage
               source={{

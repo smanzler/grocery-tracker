@@ -1,6 +1,7 @@
 import { useCreateHouseholdInvite } from "@/api/household/invites/mutations";
 import { useUpdateHousehold } from "@/api/household/mutations";
 import { useHousehold } from "@/api/household/queries";
+import { useSignedImageUrl } from "@/api/images/queries";
 import { useEmptyPantry } from "@/api/pantry/mutations";
 import { HouseholdInviteDialog } from "@/components/household/household-invite-dialog";
 import { HouseholdInvitesList } from "@/components/household/household-invites-list";
@@ -17,6 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -30,21 +32,24 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
+import { pickImage, uploadImage } from "@/lib/supabase";
+import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
+import { formatDistanceToNow } from "date-fns";
 import * as Linking from "expo-linking";
 import { router } from "expo-router";
 import { Plus } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, View } from "react-native";
+import { Alert, Pressable, View } from "react-native";
 
 type EditHouseholdFormData = {
   name: string;
-  image_url: string;
 };
 
 export default function EditHousehold() {
   const [selectedTab, setSelectedTab] = useState("members");
+  const { user } = useAuthStore();
   const { householdId } = useHouseholdStore();
   const { data: household, isLoading: isHouseholdLoading } = useHousehold(
     householdId ?? undefined
@@ -54,6 +59,11 @@ export default function EditHousehold() {
   const { mutateAsync: createHouseholdInvite } = useCreateHouseholdInvite();
 
   const [inviteLink, setInviteLink] = useState<string | null>(null);
+
+  const { data: signedImageUrl } = useSignedImageUrl(
+    "households",
+    household?.image_path ?? undefined
+  );
 
   const { mutateAsync: emptyPantry, isPending: isEmptyingPantry } =
     useEmptyPantry(householdId!);
@@ -107,7 +117,6 @@ export default function EditHousehold() {
   } = useForm<EditHouseholdFormData>({
     defaultValues: {
       name: household?.name ?? "",
-      image_url: household?.image_url ?? "",
     },
   });
 
@@ -116,7 +125,6 @@ export default function EditHousehold() {
     if (household && !isHouseholdLoading) {
       reset({
         name: household.name ?? "",
-        image_url: household.image_url ?? "",
       });
     }
   }, [household, isHouseholdLoading, reset]);
@@ -131,7 +139,6 @@ export default function EditHousehold() {
       await updateHousehold({
         id: householdId,
         name: data.name,
-        image_url: data.image_url || null,
       });
       Alert.alert("Success", "Household updated successfully");
       router.back();
@@ -142,6 +149,36 @@ export default function EditHousehold() {
       );
     }
   }
+
+  const handleImagePress = async () => {
+    if (!user || !householdId) return;
+
+    const image = await pickImage();
+
+    if (!image) {
+      Alert.alert("Error", "An error occured fetching the image");
+      return;
+    }
+
+    const { path, error } = await uploadImage("households", householdId, image);
+
+    if (error || !path) {
+      Alert.alert("Error", "An error occured uploading the image");
+      return;
+    }
+
+    const updateResult = await updateHousehold({
+      id: householdId,
+      image_path: path,
+    });
+
+    if (!updateResult) {
+      Alert.alert("Error", "An error occured uploading the image");
+      return;
+    }
+
+    Alert.alert("Success", "Profile picture uploaded successfully");
+  };
 
   if (isHouseholdLoading) {
     return (
@@ -168,6 +205,29 @@ export default function EditHousehold() {
         <Text variant="h3" className="border-b border-border">
           Information
         </Text>
+
+        <View className="items-center py-6">
+          <Pressable onPress={handleImagePress}>
+            <Avatar alt={household.name || ""} className="size-24">
+              <AvatarImage
+                source={{
+                  uri: signedImageUrl ?? undefined,
+                }}
+              />
+              <AvatarFallback>
+                <Text className="text-2xl">
+                  {household.name?.charAt(0).toUpperCase()}
+                </Text>
+              </AvatarFallback>
+            </Avatar>
+          </Pressable>
+          <Text variant="h4" className="mt-4">
+            {household.name}
+          </Text>
+          <Text variant="muted" className="mt-1">
+            Created {formatDistanceToNow(household.created_at)} ago
+          </Text>
+        </View>
         <FieldGroup>
           <Field>
             <FieldLabel>Household Name</FieldLabel>
@@ -193,35 +253,6 @@ export default function EditHousehold() {
             />
             <FieldDescription>Enter the name of the household</FieldDescription>
             <FieldError errors={errors.name ? [errors.name] : undefined} />
-          </Field>
-          <Field>
-            <FieldLabel>Household Image URL</FieldLabel>
-            <Controller
-              control={control}
-              name="image_url"
-              rules={{
-                pattern: {
-                  value: /^https?:\/\/.+/,
-                  message: "Please enter a valid URL",
-                },
-              }}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  placeholder="https://example.com/image.jpg"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  keyboardType="url"
-                  autoCapitalize="none"
-                />
-              )}
-            />
-            <FieldDescription>
-              Enter an image URL for the household (optional)
-            </FieldDescription>
-            <FieldError
-              errors={errors.image_url ? [errors.image_url] : undefined}
-            />
           </Field>
         </FieldGroup>
 
