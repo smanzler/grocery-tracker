@@ -1,4 +1,5 @@
 import { useHousehold } from "@/api/household/queries";
+import { useProfile } from "@/api/profile/queries";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenuContent,
@@ -14,10 +15,14 @@ import { Text } from "@/components/ui/text";
 import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
 import { router } from "expo-router";
+import { View } from "react-native";
+import { Spinner } from "../ui/spinner";
 
 export const ProfileButton = () => {
   const { user, signOut } = useAuthStore();
   const { householdId, selectHousehold } = useHouseholdStore();
+
+  const { data: profile, isLoading: isProfileLoading } = useProfile();
 
   const { data: household, isLoading: isHouseholdLoading } = useHousehold(
     householdId ?? undefined
@@ -47,11 +52,23 @@ export const ProfileButton = () => {
     router.push("/(protected)/(modals)/help-support");
   };
 
+  if (isHouseholdLoading || isProfileLoading) {
+    return (
+      <View className="size-8 bg-muted flex items-center justify-center rounded-full">
+        <Spinner />
+      </View>
+    );
+  }
+
   return (
     <DropdownMenuRoot>
       <DropdownMenuTrigger>
         <Avatar alt={user.email ?? ""} className="size-8">
-          <AvatarImage source={{ uri: user.user_metadata.avatar_url }} />
+          <AvatarImage
+            source={{
+              uri: profile?.image_url || user.user_metadata.avatar_url,
+            }}
+          />
           <AvatarFallback>
             <Text>{user.email?.charAt(0)}</Text>
           </AvatarFallback>

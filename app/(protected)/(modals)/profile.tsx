@@ -14,16 +14,16 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
+import { pickImage, supabase, uploadImage } from "@/lib/supabase";
 import { useAuthStore } from "@/stores/auth-store";
 import { router } from "expo-router";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, View } from "react-native";
+import { Alert, Pressable, View } from "react-native";
 
 type ProfileFormData = {
   display_name: string;
   username: string;
-  image_url: string;
 };
 
 export default function Profile() {
@@ -42,17 +42,14 @@ export default function Profile() {
     defaultValues: {
       display_name: profile?.display_name ?? "",
       username: profile?.username ?? "",
-      image_url: profile?.image_url ?? "",
     },
   });
 
-  // Reset form when profile data loads
   useEffect(() => {
     if (profile && !isProfileLoading) {
       reset({
         display_name: profile.display_name ?? "",
         username: profile.username ?? "",
-        image_url: profile.image_url ?? "",
       });
     }
   }, [profile, isProfileLoading, reset]);
@@ -68,7 +65,6 @@ export default function Profile() {
         id: user.id,
         display_name: data.display_name || null,
         username: data.username || null,
-        image_url: data.image_url || null,
       });
       Alert.alert("Success", "Profile updated successfully");
       router.back();
@@ -79,6 +75,36 @@ export default function Profile() {
       );
     }
   }
+
+  const handleProfilePress = async () => {
+    if (!user) return;
+
+    const image = await pickImage();
+
+    if (!image) {
+      Alert.alert("Error", "An error occured fetching the image");
+      return;
+    }
+
+    const { url, error } = await uploadImage("avatars", user.id, image);
+
+    if (error || !url) {
+      Alert.alert("Error", "An error occured uploading the image");
+      return;
+    }
+
+    const { error: updateError } = await supabase
+      .from("profiles")
+      .update({ image_url: url })
+      .eq("id", user.id);
+
+    if (updateError) {
+      Alert.alert("Error", "An error occured uploading the image");
+      return;
+    }
+
+    Alert.alert("Success", "Profile picture uploaded successfully");
+  };
 
   if (isProfileLoading) {
     return (
@@ -102,18 +128,20 @@ export default function Profile() {
   return (
     <KBAScrollView>
       <View className="items-center py-6">
-        <Avatar alt={user.email ?? ""} className="size-24">
-          <AvatarImage
-            source={{
-              uri: profile?.image_url ?? user.user_metadata.avatar_url,
-            }}
-          />
-          <AvatarFallback>
-            <Text className="text-2xl">
-              {user.email?.charAt(0).toUpperCase()}
-            </Text>
-          </AvatarFallback>
-        </Avatar>
+        <Pressable onPress={handleProfilePress}>
+          <Avatar alt={user.email ?? ""} className="size-24">
+            <AvatarImage
+              source={{
+                uri: profile?.image_url ?? user.user_metadata.avatar_url,
+              }}
+            />
+            <AvatarFallback>
+              <Text className="text-2xl">
+                {user.email?.charAt(0).toUpperCase()}
+              </Text>
+            </AvatarFallback>
+          </Avatar>
+        </Pressable>
         <Text variant="h4" className="mt-4">
           {profile?.display_name ||
             user.user_metadata.display_name ||
@@ -188,36 +216,6 @@ export default function Profile() {
           </FieldDescription>
           <FieldError
             errors={errors.username ? [errors.username] : undefined}
-          />
-        </Field>
-
-        <Field>
-          <FieldLabel>Profile Image URL</FieldLabel>
-          <Controller
-            control={control}
-            name="image_url"
-            rules={{
-              pattern: {
-                value: /^https?:\/\/.+/,
-                message: "Please enter a valid URL",
-              },
-            }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                placeholder="https://example.com/image.jpg"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                keyboardType="url"
-                autoCapitalize="none"
-              />
-            )}
-          />
-          <FieldDescription>
-            Enter an image URL for your profile picture (optional)
-          </FieldDescription>
-          <FieldError
-            errors={errors.image_url ? [errors.image_url] : undefined}
           />
         </Field>
       </FieldGroup>
