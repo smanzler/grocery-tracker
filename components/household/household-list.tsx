@@ -1,4 +1,5 @@
 import { useHouseholds } from "@/api/household/queries";
+import { useSignedImageUrl } from "@/api/images/queries";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -12,6 +13,7 @@ import { Icon } from "@/components/ui/icon";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
+import { Tables } from "@/lib/database.types";
 import { useHouseholdStore } from "@/stores/household-store";
 import { formatDistanceToNow } from "date-fns";
 import { router } from "expo-router";
@@ -29,16 +31,67 @@ import {
   ContextMenuTrigger,
 } from "../ui/context-menu";
 
-export const HouseholdList = () => {
-  const { data, isLoading } = useHouseholds();
+const HouseholdListItem = ({
+  household,
+}: {
+  household: Tables<"households">;
+}) => {
   const { selectHousehold } = useHouseholdStore();
 
-  const { theme } = useUniwind();
+  const { data: signedImageUrl } = useSignedImageUrl(
+    "households",
+    household.image_path ?? undefined
+  );
 
   const handleEditPress = (householdId: string) => {
     selectHousehold(householdId);
     router.push("/(protected)/(modals)/edit-household");
   };
+
+  return (
+    <ContextMenuRoot key={household.id}>
+      <ContextMenuTrigger asChild>
+        <Pressable
+          className="flex-row items-center gap-4 py-0 pr-2 overflow-hidden rounded-md bg-card"
+          onPress={() => selectHousehold(household.id)}
+        >
+          <Avatar alt={household.name || ""} className="size-20 rounded-none">
+            <AvatarImage source={{ uri: signedImageUrl ?? undefined }} />
+            <AvatarFallback className="rounded-none">
+              <Text>{household.name?.charAt(0) || "H"}</Text>
+            </AvatarFallback>
+          </Avatar>
+          <View className="flex-1">
+            <Text className="text-md font-semibold">{household.name}</Text>
+            <Text className="text-sm text-muted-foreground">
+              Created {formatDistanceToNow(household.created_at)} ago
+            </Text>
+          </View>
+
+          <Icon as={ChevronRightIcon} />
+        </Pressable>
+      </ContextMenuTrigger>
+      <ContextMenuContent>
+        <ContextMenuItem
+          key="edit"
+          onSelect={() => handleEditPress(household.id)}
+        >
+          <ContextMenuItemTitle>Edit</ContextMenuItemTitle>
+          <ContextMenuItemIcon ios={{ name: "pencil" }} />
+        </ContextMenuItem>
+        <ContextMenuItem key="delete" destructive>
+          <ContextMenuItemTitle>Delete</ContextMenuItemTitle>
+          <ContextMenuItemIcon ios={{ name: "trash" }} />
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenuRoot>
+  );
+};
+
+export const HouseholdList = () => {
+  const { data, isLoading } = useHouseholds();
+
+  const { theme } = useUniwind();
 
   if (isLoading) {
     return (
@@ -79,45 +132,7 @@ export const HouseholdList = () => {
   return (
     <BScrollView>
       {data.map((household) => (
-        <ContextMenuRoot key={household.id}>
-          <ContextMenuTrigger asChild>
-            <Pressable
-              className="flex-row items-center gap-4 py-0 pr-2 overflow-hidden rounded-md bg-card"
-              onPress={() => selectHousehold(household.id)}
-            >
-              <Avatar
-                alt={household.name || ""}
-                className="size-20 rounded-none"
-              >
-                <AvatarImage src={household.image_url || undefined} />
-                <AvatarFallback className="rounded-none">
-                  <Text>{household.name?.charAt(0) || "H"}</Text>
-                </AvatarFallback>
-              </Avatar>
-              <View className="flex-1">
-                <Text className="text-md font-semibold">{household.name}</Text>
-                <Text className="text-sm text-muted-foreground">
-                  Created {formatDistanceToNow(household.created_at)} ago
-                </Text>
-              </View>
-
-              <Icon as={ChevronRightIcon} />
-            </Pressable>
-          </ContextMenuTrigger>
-          <ContextMenuContent>
-            <ContextMenuItem
-              key="edit"
-              onSelect={() => handleEditPress(household.id)}
-            >
-              <ContextMenuItemTitle>Edit</ContextMenuItemTitle>
-              <ContextMenuItemIcon ios={{ name: "pencil" }} />
-            </ContextMenuItem>
-            <ContextMenuItem key="delete" destructive>
-              <ContextMenuItemTitle>Delete</ContextMenuItemTitle>
-              <ContextMenuItemIcon ios={{ name: "trash" }} />
-            </ContextMenuItem>
-          </ContextMenuContent>
-        </ContextMenuRoot>
+        <HouseholdListItem key={household.id} household={household} />
       ))}
       <Separator className="my-4" />
       <Button
