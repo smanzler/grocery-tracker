@@ -54,6 +54,7 @@ const ListItem = ({
   };
 
   const handleCompleteChange = () => {
+    if (isPending) return;
     updateListItem({
       id: item.id,
       checked: !item.checked,
@@ -66,7 +67,7 @@ const ListItem = ({
         overshootFriction={4}
         onSwipeableOpenStartDrag={handleDragStart}
         onSwipeableWillClose={handleDragEnd}
-        renderLeftActions={(progress, translation, swipeableMethods) => {
+        renderLeftActions={(_, translation) => {
           const opacity = useDerivedValue(() => {
             return withTiming(translation.value > 50 ? 1 : 0, {
               duration: 200,
@@ -101,7 +102,6 @@ const ListItem = ({
         >
           <View className="flex-row items-center gap-2">
             <AnimatedCheckbox checked={item.checked} />
-            <Text>{item.quantity}</Text>
             <Text>{item.grocery_items?.name ?? ""}</Text>
           </View>
         </Pressable>
