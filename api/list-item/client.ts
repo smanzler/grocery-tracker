@@ -36,3 +36,12 @@ export const checkoutListItems = async (householdId: string) => {
   if (error) throw error;
   return data;
 };
+
+export const deleteListItem = async (listItemId: string) => {
+  console.log("deleteListItem", listItemId);
+  const { error } = await supabase
+    .from("list_items")
+    .delete()
+    .eq("id", listItemId);
+  if (error) throw error;
+};

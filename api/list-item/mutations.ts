@@ -6,7 +6,12 @@ import {
   updateWithServerResponse,
 } from "@/lib/query-client";
 import { useMutation } from "@tanstack/react-query";
-import { checkoutListItems, createListItem, updateListItem } from "./client";
+import {
+  checkoutListItems,
+  createListItem,
+  deleteListItem,
+  updateListItem,
+} from "./client";
 
 export const useCreateListItem = (householdId: string) => {
   return useMutation({
@@ -63,5 +68,23 @@ export const useCheckoutListItems = (householdId: string) => {
         queryKey: ["pantry-items", householdId],
       });
     },
+  });
+};
+
+export const useDeleteListItem = (householdId: string) => {
+  return useMutation({
+    mutationFn: (listItemId: string) => deleteListItem(listItemId),
+    onMutate: optimisticUpdate<Tables<"list_items">[], string>({
+      queryKey: ["list-items", householdId],
+      updater: (old, listItemId) =>
+        old.filter((item) => item.id !== listItemId),
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["list-items", householdId] });
+    },
+    onError: optimisticRollback<Tables<"list_items">[]>([
+      "list-items",
+      householdId,
+    ]),
   });
 };

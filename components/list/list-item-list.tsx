@@ -1,4 +1,7 @@
-import { useUpdateListItem } from "@/api/list-item/mutations";
+import {
+  useDeleteListItem,
+  useUpdateListItem,
+} from "@/api/list-item/mutations";
 import { useListItems } from "@/api/list-item/queries";
 import { BScrollView } from "@/components/scroll/b-scroll-view";
 import {
@@ -15,17 +18,109 @@ import { Text } from "@/components/ui/text";
 import { Tables } from "@/lib/database.types";
 import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
-import { ShoppingCartIcon } from "lucide-react-native";
+import { ShoppingCartIcon, Trash } from "lucide-react-native";
+import { useRef } from "react";
 import { Pressable, View } from "react-native";
+import { default as Swipeable } from "react-native-gesture-handler/ReanimatedSwipeable";
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useDerivedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { AnimatedCheckbox } from "./animated-checkbox";
+
+const ListItem = ({
+  item,
+}: {
+  item: Tables<"list_items"> & { grocery_items: { name: string | null } };
+}) => {
+  const { mutate: updateListItem, isPending } = useUpdateListItem(
+    item.household_id ?? ""
+  );
+  const { mutate: deleteListItem } = useDeleteListItem(item.household_id ?? "");
+
+  const isDraggingRef = useRef(false);
+
+  const handleDragStart = () => {
+    isDraggingRef.current = true;
+  };
+
+  const handleDragEnd = () => {
+    isDraggingRef.current = false;
+  };
+
+  const handleDelete = () => {
+    deleteListItem(item.id);
+  };
+
+  const handleCompleteChange = () => {
+    updateListItem({
+      id: item.id,
+      checked: !item.checked,
+    });
+  };
+
+  return (
+    <View className="flex-1 bg-red-500 rounded-md">
+      <Swipeable
+        overshootFriction={4}
+        onSwipeableOpenStartDrag={handleDragStart}
+        onSwipeableWillClose={handleDragEnd}
+        renderLeftActions={(progress, translation, swipeableMethods) => {
+          const anim = useDerivedValue(() => {
+            return withTiming(progress.value < 1 ? 0 : 1, {
+              duration: 100,
+              easing: Easing.inOut(Easing.ease),
+            });
+          });
+
+          const styleAnimation = useAnimatedStyle(() => {
+            return {
+              transform: [
+                {
+                  translateX: (translation.value - 30) * anim.value + 6,
+                },
+              ],
+            };
+          });
+
+          return (
+            <Pressable
+              onPress={handleDelete}
+              className="relative h-full w-[150px] rounded-l-md"
+            >
+              <Animated.View
+                className="absolute top-0 left-0 h-full justify-center"
+                style={styleAnimation}
+              >
+                <Pressable onPress={() => swipeableMethods.openRight()}>
+                  <Icon as={Trash} color="white" className="size-5" />
+                </Pressable>
+              </Animated.View>
+            </Pressable>
+          );
+        }}
+      >
+        <Pressable
+          className="flex-row items-center justify-between p-2 rounded-md bg-card"
+          onPress={handleCompleteChange}
+        >
+          <View className="flex-row items-center gap-2">
+            <AnimatedCheckbox checked={item.checked} />
+            <Text>{item.quantity}</Text>
+            <Text>{item.grocery_items?.name ?? ""}</Text>
+          </View>
+        </Pressable>
+      </Swipeable>
+    </View>
+  );
+};
 
 export default function ListItemList() {
   const { householdId } = useHouseholdStore();
   const { data, isLoading } = useListItems(householdId ?? undefined);
   const { user } = useAuthStore();
-  const { mutateAsync: updateListItem, isPending } = useUpdateListItem(
-    householdId ?? ""
-  );
 
   if (isLoading || !user || !householdId) {
     return (
@@ -34,14 +129,6 @@ export default function ListItemList() {
       </View>
     );
   }
-
-  const handleCompleteChange = async (item: Tables<"list_items">) => {
-    if (isPending) return;
-    await updateListItem({
-      id: item.id,
-      checked: !item.checked,
-    });
-  };
 
   if (!data || data.length === 0) {
     return (
@@ -71,18 +158,7 @@ export default function ListItemList() {
   return (
     <BScrollView keyboardDismissMode="on-drag">
       {sortedData.map((item) => (
-        <Pressable
-          key={item.id}
-          className="flex-row items-center justify-between p-2 rounded-md bg-card"
-          onPress={() => handleCompleteChange(item)}
-          disabled={isPending}
-        >
-          <View className="flex-row items-center gap-2">
-            <AnimatedCheckbox checked={item.checked} />
-            <Text>{item.quantity}</Text>
-            <Text>{item.grocery_items?.name ?? ""}</Text>
-          </View>
-        </Pressable>
+        <ListItem key={item.id} item={item} />
       ))}
     </BScrollView>
   );
