@@ -13,7 +13,8 @@ import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import * as Haptics from "expo-haptics";
-import { PlusIcon, X } from "lucide-react-native";
+import { router } from "expo-router";
+import { MoreVertical, PlusIcon, X } from "lucide-react-native";
 import { useRef, useState } from "react";
 import { Pressable, TextInput, View } from "react-native";
 import { useReanimatedKeyboardAnimation } from "react-native-keyboard-controller";
@@ -23,11 +24,18 @@ import Animated, {
   useAnimatedStyle,
 } from "react-native-reanimated";
 import CheckoutButton from "../list/checkout-button";
+import {
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuItemIcon,
+  DropdownMenuItemTitle,
+  DropdownMenuRoot,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 export default function GroceryItemInput() {
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<TextInput>(null);
-
   const tabBarHeight = useBottomTabBarHeight();
   const { height, progress } = useReanimatedKeyboardAnimation();
 
@@ -68,11 +76,12 @@ export default function GroceryItemInput() {
   });
 
   const handleSubmit = async (text: string) => {
-    if (!householdId || !user) return;
+    const trimmedText = text.trim();
+    if (!householdId || !user || trimmedText === "") return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
 
     const groceryItem = await createGroceryItem({
-      name: text,
+      name: trimmedText,
       user_id: user.id,
     });
 
@@ -102,6 +111,10 @@ export default function GroceryItemInput() {
 
     setSearch("");
     inputRef.current?.focus();
+  };
+
+  const handleScanBarcode = () => {
+    router.push("/(protected)/(modals)/add-list-item-barcode");
   };
 
   return (
@@ -164,18 +177,45 @@ export default function GroceryItemInput() {
               </Pressable>
             )}
           </View>
-          <Button
-            variant="outline"
-            size="icon"
-            className="rounded-full"
-            disabled={isSubmitting || !isSearching}
-            onPress={(e) => {
-              e.preventDefault();
-              handleSubmit(search);
-            }}
-          >
-            {isSubmitting ? <Spinner /> : <Icon as={PlusIcon} />}
-          </Button>
+          {isSubmitting || showLoading ? (
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full"
+              disabled
+            >
+              <Spinner />
+            </Button>
+          ) : isSearching ? (
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full"
+              onPress={(e) => {
+                e.preventDefault();
+                handleSubmit(search);
+              }}
+            >
+              <Icon as={PlusIcon} />
+            </Button>
+          ) : (
+            <DropdownMenuRoot>
+              <DropdownMenuTrigger>
+                <Button variant="outline" size="icon" className="rounded-full">
+                  <Icon as={MoreVertical} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem
+                  key="scan-barcode"
+                  onSelect={handleScanBarcode}
+                >
+                  <DropdownMenuItemTitle>Scan barcode</DropdownMenuItemTitle>
+                  <DropdownMenuItemIcon ios={{ name: "barcode.viewfinder" }} />
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenuRoot>
+          )}
           <CheckoutButton />
         </View>
       </View>

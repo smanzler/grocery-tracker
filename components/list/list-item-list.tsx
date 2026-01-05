@@ -18,6 +18,7 @@ import { Text } from "@/components/ui/text";
 import { Tables } from "@/lib/database.types";
 import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
+import * as Haptics from "expo-haptics";
 import { ShoppingCartIcon, Trash } from "lucide-react-native";
 import { useRef } from "react";
 import { Pressable, View } from "react-native";
@@ -50,11 +51,12 @@ const ListItem = ({
   };
 
   const handleDelete = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
     deleteListItem(item.id);
   };
 
   const handleCompleteChange = () => {
-    if (isPending) return;
+    if (isPending || isDraggingRef.current) return;
     updateListItem({
       id: item.id,
       checked: !item.checked,

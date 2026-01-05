@@ -2,7 +2,7 @@ import { Stack } from "expo-router";
 
 export default function ModalsLayout() {
   return (
-    <Stack>
+    <Stack screenOptions={{ presentation: "modal" }}>
       <Stack.Screen
         name="create-household"
         options={{
@@ -50,7 +50,13 @@ export default function ModalsLayout() {
         options={{
           headerTitle: "Update Password",
           headerLargeTitleEnabled: true,
-          presentation: "fullScreenModal",
+        }}
+      />
+      <Stack.Screen
+        name="add-list-item-barcode"
+        options={{
+          headerShown: false,
+          animation: "none",
         }}
       />
     </Stack>
