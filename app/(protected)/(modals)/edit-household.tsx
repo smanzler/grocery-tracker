@@ -18,7 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, ColoredFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -214,11 +214,10 @@ export default function EditHousehold() {
                   uri: signedImageUrl ?? undefined,
                 }}
               />
-              <AvatarFallback>
-                <Text className="text-2xl">
-                  {household.name?.charAt(0).toUpperCase()}
-                </Text>
-              </AvatarFallback>
+              <ColoredFallback
+                id={household.id}
+                text={household.name?.charAt(0).toUpperCase() ?? "H"}
+              />
             </Avatar>
           </Pressable>
           <Text variant="h4" className="mt-4">

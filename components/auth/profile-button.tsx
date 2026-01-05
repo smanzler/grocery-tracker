@@ -1,6 +1,6 @@
 import { useHousehold } from "@/api/household/queries";
 import { useProfile } from "@/api/profile/queries";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, ColoredFallback } from "@/components/ui/avatar";
 import {
   DropdownMenuContent,
   DropdownMenuGroup,
@@ -11,7 +11,6 @@ import {
   DropdownMenuRoot,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Text } from "@/components/ui/text";
 import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
 import { router } from "expo-router";
@@ -69,9 +68,11 @@ export const ProfileButton = () => {
               uri: profile?.image_url || user.user_metadata.avatar_url,
             }}
           />
-          <AvatarFallback>
-            <Text>{user.email?.charAt(0)}</Text>
-          </AvatarFallback>
+          <ColoredFallback
+            id={user.id}
+            text={user.email?.charAt(0).toUpperCase() ?? "U"}
+            textClassName="text-sm"
+          />
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent sideOffset={2}>

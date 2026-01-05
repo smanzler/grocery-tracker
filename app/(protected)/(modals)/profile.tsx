@@ -1,7 +1,7 @@
 import { useUpdateProfile } from "@/api/profile/mutations";
 import { useProfile } from "@/api/profile/queries";
 import { KBAScrollView } from "@/components/scroll/kba-scroll-view";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, ColoredFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -135,11 +135,11 @@ export default function Profile() {
                 uri: profile?.image_url ?? user.user_metadata.avatar_url,
               }}
             />
-            <AvatarFallback>
-              <Text className="text-2xl">
-                {user.email?.charAt(0).toUpperCase()}
-              </Text>
-            </AvatarFallback>
+            <ColoredFallback
+              id={user.id}
+              text={user.email?.charAt(0).toUpperCase() ?? "U"}
+              textClassName="text-xl"
+            />
           </Avatar>
         </Pressable>
         <Text variant="h4" className="mt-4">

@@ -1,10 +1,9 @@
 import { useRemoveHouseholdUser } from "@/api/household/users/mutations";
 import { useHouseholdUsers } from "@/api/household/users/queries";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, ColoredFallback } from "@/components/ui/avatar";
 import { Icon } from "@/components/ui/icon";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
-import { generateColorFromUserId } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
 import { format } from "date-fns";
@@ -75,10 +74,9 @@ export const HouseholdUsersList = () => {
             <AvatarImage
               source={{ uri: householdUser.profiles.image_url ?? undefined }}
             />
-            <AvatarFallback
-              style={{
-                backgroundColor: generateColorFromUserId(householdUser.user_id),
-              }}
+            <ColoredFallback
+              id={householdUser.user_id}
+              text={householdUser.profiles?.display_name?.charAt(0) || "U"}
             />
           </Avatar>
           <View className="flex-1">

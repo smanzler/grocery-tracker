@@ -13,12 +13,11 @@ import { Icon } from "@/components/ui/icon";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { Tables } from "@/lib/database.types";
-import { generateColorFromUserId } from "@/lib/utils";
 import { useHouseholdStore } from "@/stores/household-store";
 import { formatDistanceToNow } from "date-fns";
 import { RefrigeratorIcon } from "lucide-react-native";
 import { View } from "react-native";
-import { Avatar, AvatarFallback } from "../ui/avatar";
+import { Avatar, ColoredFallback } from "../ui/avatar";
 import {
   ContextMenuContent,
   ContextMenuItem,
@@ -50,13 +49,10 @@ const PantryItem = ({
       <ContextMenuTrigger>
         <View className="flex-row items-center gap-2 px-4 py-2 rounded-md bg-card gap-4">
           <Avatar alt={item.grocery_items?.name ?? ""}>
-            <AvatarFallback
-              style={{
-                backgroundColor: generateColorFromUserId(item.id),
-              }}
-            >
-              <Text>{item.grocery_items?.name?.charAt(0) ?? ""}</Text>
-            </AvatarFallback>
+            <ColoredFallback
+              id={item.id}
+              text={item.grocery_items?.name?.charAt(0) ?? "I"}
+            />
           </Avatar>
           <View className="space-y-1 flex-1">
             <Text className="text-base font-medium">

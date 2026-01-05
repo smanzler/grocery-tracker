@@ -21,7 +21,7 @@ import { ChevronRightIcon, HomeIcon, PlusIcon } from "lucide-react-native";
 import { Pressable, View } from "react-native";
 import { useUniwind } from "uniwind";
 import { BScrollView } from "../scroll/b-scroll-view";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Avatar, AvatarImage, ColoredFallback } from "../ui/avatar";
 import {
   ContextMenuContent,
   ContextMenuItem,
@@ -52,14 +52,15 @@ const HouseholdListItem = ({
     <ContextMenuRoot key={household.id}>
       <ContextMenuTrigger asChild>
         <Pressable
-          className="flex-row items-center gap-4 py-0 pr-2 overflow-hidden rounded-md bg-card"
+          className="flex-row items-center gap-4 p-2"
           onPress={() => selectHousehold(household.id)}
         >
-          <Avatar alt={household.name || ""} className="size-20 rounded-none">
+          <Avatar alt={household.name || ""} className="size-20 rounded-lg">
             <AvatarImage source={{ uri: signedImageUrl ?? undefined }} />
-            <AvatarFallback className="rounded-none">
-              <Text>{household.name?.charAt(0) || "H"}</Text>
-            </AvatarFallback>
+            <ColoredFallback
+              id={household.id}
+              text={household.name?.charAt(0) || "H"}
+            />
           </Avatar>
           <View className="flex-1">
             <Text className="text-md font-semibold">{household.name}</Text>
