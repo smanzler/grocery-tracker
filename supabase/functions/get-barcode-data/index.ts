@@ -44,18 +44,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // const token = auth.replace("Bearer ", "");
-    // const { data: user, error: userError } = await supabaseClient.auth.getUser(
-    //   token
-    // );
-
-    // if (userError || !user) {
-    //   return new Response(
-    //     JSON.stringify({ error: userError?.message || "Unauthorized" }),
-    //     { status: 401 }
-    //   );
-    // }
-
     const { data: groceryItem, error: groceryItemError } = await supabaseClient
       .from("grocery_items")
       .select("*")
@@ -98,6 +86,11 @@ Deno.serve(async (req) => {
       });
     }
 
+    const token = auth.replace("Bearer ", "");
+    const {
+      data: { user },
+    } = await supabaseClient.auth.getUser(token);
+
     const product = {
       barcode,
       is_global: true,
@@ -106,6 +99,9 @@ Deno.serve(async (req) => {
       image_url: data.product.image_url,
       quantity: Math.round(Number(data.product.product_quantity)),
       quantity_unit: data.product.product_quantity_unit,
+      categories: data.product.categories,
+      food_groups: data.product.food_groups,
+      user_id: user?.id,
     };
 
     const { data: insertedGroceryItem, error: insertError } =
