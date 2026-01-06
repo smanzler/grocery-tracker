@@ -15,9 +15,9 @@ import { Text } from "@/components/ui/text";
 import { Tables } from "@/lib/database.types";
 import { useHouseholdStore } from "@/stores/household-store";
 import { formatDistanceToNow } from "date-fns";
-import { RefrigeratorIcon } from "lucide-react-native";
-import { View } from "react-native";
-import { Avatar, ColoredFallback } from "../ui/avatar";
+import { Globe, RefrigeratorIcon } from "lucide-react-native";
+import { Pressable, View } from "react-native";
+import { Avatar, AvatarImage, ColoredFallback } from "../ui/avatar";
 import {
   ContextMenuContent,
   ContextMenuItem,
@@ -31,7 +31,7 @@ const PantryItem = ({
   item,
 }: {
   item: Tables<"pantry_items"> & {
-    grocery_items: { name: string | null };
+    grocery_items: Tables<"grocery_items">;
     profiles: { display_name: string | null };
   };
 }) => {
@@ -44,20 +44,39 @@ const PantryItem = ({
     await removePantryItem(itemId);
   };
 
+  const handlePress = () => {
+    console.log("pressed");
+  };
+
   return (
     <ContextMenuRoot key={item.id}>
       <ContextMenuTrigger>
-        <View className="flex-row items-center gap-2 px-4 py-2 rounded-md bg-card gap-4">
-          <Avatar alt={item.grocery_items?.name ?? ""}>
+        <Pressable
+          className="flex-row items-center gap-2 rounded-md gap-4 p-1"
+          onPress={handlePress}
+        >
+          <Avatar
+            alt={item.grocery_items?.name ?? ""}
+            className="size-12 rounded-md"
+          >
+            <AvatarImage
+              source={{ uri: item.grocery_items?.image_url ?? undefined }}
+            />
             <ColoredFallback
               id={item.id}
               text={item.grocery_items?.name?.charAt(0) ?? "I"}
+              className="size-12 rounded-md"
             />
           </Avatar>
           <View className="space-y-1 flex-1">
-            <Text className="text-base font-medium">
-              {item.grocery_items?.name ?? ""}
-            </Text>
+            <View className="flex-row items-center gap-2">
+              <Text className="text-base font-medium">
+                {item.grocery_items?.name ?? ""}
+              </Text>
+              {item.grocery_items?.is_global && (
+                <Icon as={Globe} className="size-4 text-blue-500" />
+              )}
+            </View>
 
             <Text className="text-sm text-muted-foreground line-clamp-1">
               {item.profiles?.display_name ?? "Unknown"} added{" "}
@@ -71,7 +90,7 @@ const PantryItem = ({
               {item.quantity}x
             </Text>
           )}
-        </View>
+        </Pressable>
       </ContextMenuTrigger>
       <ContextMenuContent>
         <ContextMenuItem

@@ -19,7 +19,7 @@ import { Tables } from "@/lib/database.types";
 import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
 import * as Haptics from "expo-haptics";
-import { ShoppingCartIcon, Trash } from "lucide-react-native";
+import { Globe, ShoppingCartIcon, Trash } from "lucide-react-native";
 import { useRef } from "react";
 import { Image, Pressable, View } from "react-native";
 import { default as Swipeable } from "react-native-gesture-handler/ReanimatedSwipeable";
@@ -77,7 +77,7 @@ const ListItem = ({
   const foodGroup = formatFoodGroup(item.grocery_items?.food_groups);
 
   return (
-    <View className="flex-1 bg-red-500 rounded-md">
+    <View className="flex-1 bg-destructive rounded-md">
       <Swipeable
         overshootFriction={4}
         onSwipeableOpenStartDrag={handleDragStart}
@@ -112,40 +112,43 @@ const ListItem = ({
         }}
       >
         <Pressable
-          className="flex-row items-center justify-between p-2 rounded-md bg-card"
+          className="flex-row items-center gap-3 px-4 py-2 rounded-md bg-background"
           onPress={handleCompleteChange}
         >
-          <View className="flex-row items-center gap-2">
-            <AnimatedCheckbox checked={item.checked} />
-            <View className="flex-row items-center gap-2 justify-between flex-1">
-              <View>
+          <AnimatedCheckbox checked={item.checked} />
+          <View className="flex-row items-center gap-2 justify-between flex-1">
+            <View>
+              <View className="flex-row items-center gap-2">
                 <Text>{item.grocery_items?.name ?? ""}</Text>
-                {(item.grocery_items?.brand || foodGroup) && (
-                  <Text className="text-sm text-muted-foreground">
-                    {[item.grocery_items?.brand, foodGroup]
-                      .filter(Boolean)
-                      .join(" | ")}
-                  </Text>
+                {item.grocery_items?.is_global && (
+                  <Icon as={Globe} className="size-4 text-blue-500" />
                 )}
               </View>
-              {item.grocery_items?.quantity && (
-                <Text>
-                  {item.grocery_items.quantity}
-                  {item.grocery_items.quantity_unit
-                    ? ` ${item.grocery_items.quantity_unit}`
-                    : ""}
+              {(item.grocery_items?.brand || foodGroup) && (
+                <Text className="text-sm text-muted-foreground">
+                  {[item.grocery_items?.brand, foodGroup]
+                    .filter(Boolean)
+                    .join(" | ")}
                 </Text>
               )}
             </View>
-            {item.grocery_items?.image_url && (
-              <View className="size-8 rounded-md overflow-hidden items-center justify-center">
-                <Image
-                  source={{ uri: item.grocery_items.image_url }}
-                  className="size-full"
-                />
-              </View>
+            {item.grocery_items?.quantity && (
+              <Text>
+                {item.grocery_items.quantity}
+                {item.grocery_items.quantity_unit
+                  ? ` ${item.grocery_items.quantity_unit}`
+                  : ""}
+              </Text>
             )}
           </View>
+          {item.grocery_items?.image_url && (
+            <View className="size-8 rounded-md overflow-hidden items-center justify-center">
+              <Image
+                source={{ uri: item.grocery_items.image_url }}
+                className="size-full"
+              />
+            </View>
+          )}
         </Pressable>
       </Swipeable>
     </View>
