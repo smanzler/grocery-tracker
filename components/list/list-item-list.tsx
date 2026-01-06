@@ -21,7 +21,7 @@ import { useHouseholdStore } from "@/stores/household-store";
 import * as Haptics from "expo-haptics";
 import { ShoppingCartIcon, Trash } from "lucide-react-native";
 import { useRef } from "react";
-import { Pressable, View } from "react-native";
+import { Image, Pressable, View } from "react-native";
 import { default as Swipeable } from "react-native-gesture-handler/ReanimatedSwipeable";
 import Animated, {
   useAnimatedStyle,
@@ -33,7 +33,7 @@ import { AnimatedCheckbox } from "./animated-checkbox";
 const ListItem = ({
   item,
 }: {
-  item: Tables<"list_items"> & { grocery_items: { name: string | null } };
+  item: Tables<"list_items"> & { grocery_items: Tables<"grocery_items"> };
 }) => {
   const { mutate: updateListItem, isPending } = useUpdateListItem(
     item.household_id ?? ""
@@ -62,6 +62,19 @@ const ListItem = ({
       checked: !item.checked,
     });
   };
+
+  const formatFoodGroup = (foodGroup: string | null | undefined): string => {
+    if (!foodGroup) return "";
+
+    const [, rawValue] = foodGroup.split(":", 2);
+    const value = (rawValue ?? foodGroup).trim();
+
+    if (!value) return "";
+
+    return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+  };
+
+  const foodGroup = formatFoodGroup(item.grocery_items?.food_groups);
 
   return (
     <View className="flex-1 bg-red-500 rounded-md">
@@ -104,7 +117,34 @@ const ListItem = ({
         >
           <View className="flex-row items-center gap-2">
             <AnimatedCheckbox checked={item.checked} />
-            <Text>{item.grocery_items?.name ?? ""}</Text>
+            <View className="flex-row items-center gap-2 justify-between flex-1">
+              <View>
+                <Text>{item.grocery_items?.name ?? ""}</Text>
+                {(item.grocery_items?.brand || foodGroup) && (
+                  <Text className="text-sm text-muted-foreground">
+                    {[item.grocery_items?.brand, foodGroup]
+                      .filter(Boolean)
+                      .join(" | ")}
+                  </Text>
+                )}
+              </View>
+              {item.grocery_items?.quantity && (
+                <Text>
+                  {item.grocery_items.quantity}
+                  {item.grocery_items.quantity_unit
+                    ? ` ${item.grocery_items.quantity_unit}`
+                    : ""}
+                </Text>
+              )}
+            </View>
+            {item.grocery_items?.image_url && (
+              <View className="size-8 rounded-md overflow-hidden items-center justify-center">
+                <Image
+                  source={{ uri: item.grocery_items.image_url }}
+                  className="size-full"
+                />
+              </View>
+            )}
           </View>
         </Pressable>
       </Swipeable>

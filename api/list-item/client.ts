@@ -5,7 +5,7 @@ export const getListItems = async (householdId?: string) => {
   if (!householdId) throw new Error("Household ID is required");
   const { data, error } = await supabase
     .from("list_items")
-    .select("*, grocery_items(name)")
+    .select("*, grocery_items(*)")
     .eq("household_id", householdId);
   if (error) throw error;
   return data;
