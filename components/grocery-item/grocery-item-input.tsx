@@ -14,24 +14,31 @@ import { useHouseholdStore } from "@/stores/household-store";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
-import { MoreVertical, PlusIcon, X } from "lucide-react-native";
+import {
+  ChevronDown,
+  Keyboard,
+  Plus,
+  ScanBarcode,
+  X,
+} from "lucide-react-native";
 import { useRef, useState } from "react";
 import { Pressable, TextInput, View } from "react-native";
 import { useReanimatedKeyboardAnimation } from "react-native-keyboard-controller";
 import Animated, {
   FadeIn,
   FadeOut,
+  LinearTransition,
   useAnimatedStyle,
 } from "react-native-reanimated";
 import CheckoutButton from "../list/checkout-button";
-import {
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuItemIcon,
-  DropdownMenuItemTitle,
-  DropdownMenuRoot,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+
+const animationProps = {
+  layout: LinearTransition.duration(200),
+  entering: FadeIn.duration(200).delay(100),
+  exiting: FadeOut.duration(150),
+};
+
+const AnimatedInput = Animated.createAnimatedComponent(Input);
 
 export default function GroceryItemInput() {
   const [isFocused, setIsFocused] = useState(false);
@@ -120,15 +127,16 @@ export default function GroceryItemInput() {
   return (
     <>
       <View className="relative">
+        <View className="justify-center items-center">
+          <CheckoutButton />
+        </View>
+
         {showOverlay && (
-          <Animated.View
-            entering={FadeIn.duration(200)}
-            exiting={FadeOut.duration(150)}
-            className="absolute bottom-full left-0 right-0 bg-card border-border mx-4 rounded-lg border shadow-lg"
-          >
+          <View className="bg-card border-border mx-4 rounded-lg border shadow-lg mt-4">
             {showLoading ? (
-              <View className="flex-1 items-center justify-center px-4 py-3">
+              <View className="flex-row items-center justify-center px-4 py-3">
                 <Spinner />
+                <Text></Text>
               </View>
             ) : (
               showGroceryItems &&
@@ -147,14 +155,14 @@ export default function GroceryItemInput() {
                 </Pressable>
               ))
             )}
-          </Animated.View>
+          </View>
         )}
 
         <View className="bg-background p-4 flex-row items-center gap-2">
           <View className="flex-1 relative">
-            <Input
+            <AnimatedInput
               ref={inputRef}
-              className="pr-10"
+              className={cn("rounded-full", isSearching && "pr-10")}
               placeholder="Add to your grocery list..."
               value={search}
               onChangeText={setSearch}
@@ -164,8 +172,9 @@ export default function GroceryItemInput() {
                 e.preventDefault();
                 handleSubmit(search);
               }}
+              {...animationProps}
             />
-            {!!search && (
+            {isSearching && (
               <Pressable
                 className="absolute right-0 top-0 bottom-0 justify-center p-2"
                 onPress={() => {
@@ -177,46 +186,55 @@ export default function GroceryItemInput() {
               </Pressable>
             )}
           </View>
-          {isSubmitting || showLoading ? (
-            <Button
-              variant="outline"
-              size="icon"
-              className="rounded-full"
-              disabled
+          {isFocused && (
+            <Animated.View
+              className="flex-row items-center gap-2"
+              {...animationProps}
             >
-              <Spinner />
-            </Button>
-          ) : isSearching ? (
-            <Button
-              variant="outline"
-              size="icon"
-              className="rounded-full"
-              onPress={(e) => {
-                e.preventDefault();
-                handleSubmit(search);
-              }}
-            >
-              <Icon as={PlusIcon} />
-            </Button>
-          ) : (
-            <DropdownMenuRoot>
-              <DropdownMenuTrigger>
-                <Button variant="outline" size="icon" className="rounded-full">
-                  <Icon as={MoreVertical} />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem
-                  key="scan-barcode"
-                  onSelect={handleScanBarcode}
-                >
-                  <DropdownMenuItemTitle>Scan barcode</DropdownMenuItemTitle>
-                  <DropdownMenuItemIcon ios={{ name: "barcode.viewfinder" }} />
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenuRoot>
+              <Button
+                onPress={() => {
+                  handleSubmit(search);
+                }}
+                size="icon"
+                className="rounded-full"
+                disabled={isSubmitting || !isSearching}
+              >
+                {isSubmitting ? (
+                  <Spinner className="text-secondary" />
+                ) : (
+                  <Icon as={Plus} className="text-secondary" />
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="rounded-full relative"
+                onPress={() => inputRef.current?.blur()}
+              >
+                <View className="absolute right-0 left-0 top-2.25 items-center justify-center">
+                  <Icon as={Keyboard} className="size-4" />
+                </View>
+                <View className="absolute right-0 left-0 bottom-0.5 items-center">
+                  <Icon as={ChevronDown} className="size-4" />
+                </View>
+              </Button>
+            </Animated.View>
           )}
-          <CheckoutButton />
+          {!isFocused && (
+            <Animated.View
+              {...animationProps}
+              className="flex-row items-center gap-2"
+            >
+              <Button
+                variant="outline"
+                onPress={handleScanBarcode}
+                size="icon"
+                className="rounded-full"
+              >
+                <Icon as={ScanBarcode} />
+              </Button>
+            </Animated.View>
+          )}
         </View>
       </View>
 

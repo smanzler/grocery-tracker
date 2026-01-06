@@ -1,8 +1,14 @@
 import { useCheckoutListItems } from "@/api/list-item/mutations";
 import { useListItems } from "@/api/list-item/queries";
+import { cn } from "@/lib/utils";
 import CustomHaptics from "@/modules/custom-haptics";
 import { useHouseholdStore } from "@/stores/household-store";
 import { ShoppingCartIcon } from "lucide-react-native";
+import Animated, {
+  AnimatedProps,
+  FadeIn,
+  FadeOut,
+} from "react-native-reanimated";
 import { useUniwind } from "uniwind";
 import {
   AlertDialog,
@@ -14,12 +20,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
-import { Button } from "../ui/button";
+import { Button, ButtonProps } from "../ui/button";
 import { Icon } from "../ui/icon";
 import { Spinner } from "../ui/spinner";
 import { Text } from "../ui/text";
 
-export default function CheckoutButton() {
+const AnimatedButton = Animated.createAnimatedComponent(Button);
+
+export default function CheckoutButton({
+  className,
+  ...props
+}: Omit<AnimatedProps<ButtonProps>, "children" | "key">) {
   const { theme } = useUniwind();
   const { householdId } = useHouseholdStore();
 
@@ -39,13 +50,16 @@ export default function CheckoutButton() {
     await checkoutListItems();
   };
 
+  if (!hasCheckedItems) return null;
+
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button
-          size="icon"
-          className="rounded-full"
-          disabled={isLoading || !hasCheckedItems}
+        <AnimatedButton
+          className={cn("rounded-full size-15", className)}
+          disabled={isLoading}
+          entering={FadeIn.duration(200)}
+          exiting={FadeOut.duration(150)}
         >
           {isLoading ? (
             <Spinner color={theme === "dark" ? "black" : "white"} />
@@ -53,10 +67,10 @@ export default function CheckoutButton() {
             <Icon
               as={ShoppingCartIcon}
               color={theme === "dark" ? "black" : "white"}
-              className="size-4"
+              className="size-6"
             />
           )}
-        </Button>
+        </AnimatedButton>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogTitle className="text-center">Checkout</AlertDialogTitle>
