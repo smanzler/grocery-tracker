@@ -40,27 +40,27 @@ const GroceryItem = ({ item }: { item: Tables<"grocery_items"> }) => {
           className="size-12 rounded-md"
         />
       </Avatar>
-      <View className="flex-row items-center gap-2 justify-between flex-1">
-        <View>
-          <View className="flex-row items-center gap-2">
-            <Text>{item.name ?? ""}</Text>
-            {item.is_global && (
-              <Icon as={Globe} className="size-4 text-blue-500" />
-            )}
-          </View>
-          {(item.brand || foodGroup) && (
-            <Text className="text-sm text-muted-foreground">
-              {[item.brand, foodGroup].filter(Boolean).join(" | ")}
-            </Text>
+      <View className="flex-1">
+        <View className="flex-row items-center gap-2">
+          <Text className="flex-shrink text-ellipsis line-clamp-2">
+            {item.name ?? ""}
+          </Text>
+          {item.is_global && (
+            <Icon as={Globe} className="size-4 text-blue-500" />
           )}
         </View>
-        {item.quantity && (
-          <Text>
-            {item.quantity}
-            {item.quantity_unit ? ` ${item.quantity_unit}` : ""}
+        {(item.brand || foodGroup) && (
+          <Text className="text-sm text-muted-foreground line-clamp-2">
+            {[item.brand, foodGroup].filter(Boolean).join(" | ")}
           </Text>
         )}
       </View>
+      {item.quantity && (
+        <Text>
+          {item.quantity}
+          {item.quantity_unit ? ` ${item.quantity_unit}` : ""}
+        </Text>
+      )}
     </Pressable>
   );
 };

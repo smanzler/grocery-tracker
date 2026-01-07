@@ -9,7 +9,7 @@ export function KBAScrollView({
 }: KeyboardAwareScrollViewProps) {
   return (
     <KeyboardAwareScrollView
-      contentContainerClassName="gap-6"
+      contentContainerClassName="gap-6 items-center"
       className="p-4"
       contentInsetAdjustmentBehavior="automatic"
       bottomOffset={64}

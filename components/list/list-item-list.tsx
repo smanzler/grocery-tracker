@@ -115,31 +115,31 @@ const ListItem = ({
           onPress={handleCompleteChange}
         >
           <AnimatedCheckbox checked={item.checked} />
-          <View className="flex-row items-center gap-2 justify-between flex-1">
-            <View>
-              <View className="flex-row items-center gap-2">
-                <Text>{item.grocery_items?.name ?? ""}</Text>
-                {item.grocery_items?.is_global && (
-                  <Icon as={Globe} className="size-4 text-blue-500" />
-                )}
-              </View>
-              {(item.grocery_items?.brand || foodGroup) && (
-                <Text className="text-sm text-muted-foreground">
-                  {[item.grocery_items?.brand, foodGroup]
-                    .filter(Boolean)
-                    .join(" | ")}
-                </Text>
+          <View className="flex-1">
+            <View className="flex-row items-center gap-2">
+              <Text className="flex-shrink text-ellipsis line-clamp-2">
+                {item.grocery_items?.name ?? ""}
+              </Text>
+              {item.grocery_items?.is_global && (
+                <Icon as={Globe} className="size-4 text-blue-500" />
               )}
             </View>
-            {item.grocery_items?.quantity && (
-              <Text>
-                {item.grocery_items.quantity}
-                {item.grocery_items.quantity_unit
-                  ? ` ${item.grocery_items.quantity_unit}`
-                  : ""}
+            {(item.grocery_items?.brand || foodGroup) && (
+              <Text className="text-sm text-muted-foreground line-clamp-2">
+                {[item.grocery_items?.brand, foodGroup]
+                  .filter(Boolean)
+                  .join(" | ")}
               </Text>
             )}
           </View>
+          {item.grocery_items?.quantity && (
+            <Text>
+              {item.grocery_items.quantity}
+              {item.grocery_items.quantity_unit
+                ? ` ${item.grocery_items.quantity_unit}`
+                : ""}
+            </Text>
+          )}
           {item.grocery_items?.image_url && (
             <View className="size-8 rounded-md overflow-hidden items-center justify-center">
               <Image

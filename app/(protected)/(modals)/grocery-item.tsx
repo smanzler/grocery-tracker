@@ -200,9 +200,9 @@ function GroceryItemContent({
           <View className="h-12" />
         )}
         <View className="relative flex-1 bg-background p-4 min-h-48">
-          <View className="flex-row items-center justify-between">
-            <View className="flex-row items-center gap-2">
-              <Text variant="h1" className="text-left">
+          <View className="flex-row items-center">
+            <View className="flex-row items-center gap-2 flex-1">
+              <Text variant="h1" className="text-left flex-shrink">
                 {groceryItem.name}
               </Text>
               {groceryItem.is_global && (

@@ -81,7 +81,7 @@ const PantryItem = ({
             </Avatar>
             <View className="space-y-1 flex-1">
               <View className="flex-row items-center gap-2">
-                <Text className="text-base font-medium">
+                <Text className="text-base font-medium flex-shrink text-ellipsis line-clamp-2">
                   {item.grocery_items?.name ?? ""}
                 </Text>
                 {item.grocery_items?.is_global && (
