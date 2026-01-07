@@ -1,3 +1,4 @@
+import { useDeleteGroceryItem } from "@/api/grocery-item/mutations";
 import { useGroceryItem } from "@/api/grocery-item/queries";
 import { useCreateListItem } from "@/api/list-item/mutations";
 import { useInsertPantryItem } from "@/api/pantry/mutations";
@@ -46,11 +47,14 @@ function GroceryItemContent({
   const scrollOffset = useScrollOffset(scrollRef);
   const { user } = useAuthStore();
   const { householdId } = useHouseholdStore();
+  const { targetId } = useLocalSearchParams<{ targetId?: string }>();
 
   const { mutateAsync: addToShoppingList, isPending: isAddingToShoppingList } =
     useCreateListItem(householdId ?? "");
   const { mutateAsync: addToPantry, isPending: isAddingToPantry } =
     useInsertPantryItem(householdId ?? "");
+  const { mutateAsync: deleteGroceryItem, isPending: isDeletingGroceryItem } =
+    useDeleteGroceryItem();
 
   const IMAGE_HEIGHT = groceryItem.image_url ? 300 : 100;
 
@@ -129,8 +133,38 @@ function GroceryItemContent({
   };
 
   const handleDelete = () => {
-    console.log("delete");
+    Alert.alert(
+      "Delete",
+      "Are you sure you want to delete this grocery item?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Delete", style: "destructive", onPress: handleDeletePress },
+      ]
+    );
   };
+
+  const handleDeletePress = async () => {
+    if (!householdId || !user) return;
+
+    await deleteGroceryItem(groceryItem.id);
+
+    router.back();
+
+    Alert.alert("Success", "Grocery item deleted successfully");
+  };
+
+  const handleMerge = () => {
+    router.back();
+    setTimeout(() => {
+      router.push({
+        pathname: "/(protected)/(modals)/select-grocery-item",
+        params: { sourceId: groceryItem.id },
+      });
+    }, 0);
+  };
+
+  const isLoading =
+    isAddingToShoppingList || isAddingToPantry || isDeletingGroceryItem;
 
   return (
     <>
@@ -176,8 +210,8 @@ function GroceryItemContent({
               )}
             </View>
             <DropdownMenuRoot>
-              <DropdownMenuTrigger disabled={isAddingToShoppingList}>
-                {isAddingToShoppingList ? (
+              <DropdownMenuTrigger disabled={isLoading}>
+                {isLoading ? (
                   <Spinner />
                 ) : (
                   <Icon
@@ -210,6 +244,10 @@ function GroceryItemContent({
                     <DropdownMenuItem key="edit" onSelect={handleEdit}>
                       <DropdownMenuItemTitle>Edit</DropdownMenuItemTitle>
                       <DropdownMenuItemIcon ios={{ name: "pencil" }} />
+                    </DropdownMenuItem>
+                    <DropdownMenuItem key="merge" onSelect={handleMerge}>
+                      <DropdownMenuItemTitle>Merge</DropdownMenuItemTitle>
+                      <DropdownMenuItemIcon ios={{ name: "merge" }} />
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       key="delete"

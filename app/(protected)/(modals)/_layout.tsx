@@ -70,6 +70,12 @@ export default function ModalsLayout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="select-grocery-item"
+        options={{
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }
