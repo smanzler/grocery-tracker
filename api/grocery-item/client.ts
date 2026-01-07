@@ -3,7 +3,6 @@ import { supabase } from "@/lib/supabase";
 import { UseGroceryItemsProps } from "./queries";
 
 export const getGroceryItems = async (filters?: UseGroceryItemsProps) => {
-  console.log("refetching grocery items", filters);
   const { search, limit } = filters ?? {};
   const query = supabase.from("grocery_items").select("*");
 

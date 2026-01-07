@@ -36,7 +36,6 @@ export const updateHousehold = async (
     .eq("id", household.id)
     .select()
     .single();
-  console.log(data, error);
   if (error) throw error;
   return data;
 };
