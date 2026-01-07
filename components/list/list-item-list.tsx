@@ -22,13 +22,17 @@ import { useHouseholdStore } from "@/stores/household-store";
 import * as Haptics from "expo-haptics";
 import { Globe, ShoppingCartIcon, Trash } from "lucide-react-native";
 import { useRef } from "react";
-import { Image, Pressable, RefreshControl, View } from "react-native";
+import { Image, Pressable, View } from "react-native";
 import { default as Swipeable } from "react-native-gesture-handler/ReanimatedSwipeable";
 import Animated, {
+  FadeIn,
+  FadeOut,
+  LinearTransition,
   useAnimatedStyle,
   useDerivedValue,
   withTiming,
 } from "react-native-reanimated";
+import RefetchControl from "../refetch-control";
 import { AnimatedCheckbox } from "./animated-checkbox";
 
 const ListItem = ({
@@ -67,7 +71,12 @@ const ListItem = ({
   const foodGroup = formatFoodGroup(item.grocery_items?.food_groups);
 
   return (
-    <View className="bg-destructive rounded-md">
+    <Animated.View
+      className="bg-destructive rounded-md"
+      layout={LinearTransition.duration(200)}
+      entering={FadeIn.duration(200)}
+      exiting={FadeOut.duration(200)}
+    >
       <Swipeable
         overshootFriction={4}
         onSwipeableOpenStartDrag={handleDragStart}
@@ -141,15 +150,13 @@ const ListItem = ({
           )}
         </Pressable>
       </Swipeable>
-    </View>
+    </Animated.View>
   );
 };
 
 export default function ListItemList() {
   const { householdId } = useHouseholdStore();
-  const { data, isLoading, isRefetching, refetch } = useListItems(
-    householdId ?? undefined
-  );
+  const { data, isLoading, refetch } = useListItems(householdId ?? undefined);
   const { user } = useAuthStore();
 
   if (isLoading || !user || !householdId) {
@@ -163,13 +170,7 @@ export default function ListItemList() {
   return (
     <BScrollView
       keyboardDismissMode="on-drag"
-      refreshControl={
-        <RefreshControl
-          refreshing={isRefetching}
-          onRefresh={refetch}
-          title="Refresh"
-        />
-      }
+      refreshControl={<RefetchControl refetch={refetch} />}
     >
       {!data || data.length === 0 ? (
         <Empty>

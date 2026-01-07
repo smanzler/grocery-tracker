@@ -1,4 +1,14 @@
 import { useGroceryItem } from "@/api/grocery-item/queries";
+import { useCreateListItem } from "@/api/list-item/mutations";
+import {
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuItemIcon,
+  DropdownMenuItemTitle,
+  DropdownMenuRoot,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Empty,
   EmptyContent,
@@ -10,11 +20,15 @@ import {
 import { Icon } from "@/components/ui/icon";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
+import { Tables } from "@/lib/database.types";
+import { formatFoodGroup } from "@/lib/utils";
+import { useAuthStore } from "@/stores/auth-store";
+import { useHouseholdStore } from "@/stores/household-store";
+import { Header } from "@react-navigation/elements";
 import { ImageBackground } from "expo-image";
-import { LinearGradient } from "expo-linear-gradient";
-import { useLocalSearchParams } from "expo-router";
-import { ShoppingBasketIcon } from "lucide-react-native";
-import { View } from "react-native";
+import { router, Stack, useLocalSearchParams } from "expo-router";
+import { Globe, MoreVertical, ShoppingBasketIcon } from "lucide-react-native";
+import { Alert, View } from "react-native";
 import Animated, {
   interpolate,
   useAnimatedRef,
@@ -22,13 +36,20 @@ import Animated, {
   useScrollOffset,
 } from "react-native-reanimated";
 
-const IMAGE_HEIGHT = 300;
-
-export default function GroceryItem() {
-  const { id } = useLocalSearchParams();
-
+function GroceryItemContent({
+  groceryItem,
+}: {
+  groceryItem: Tables<"grocery_items">;
+}) {
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const scrollOffset = useScrollOffset(scrollRef);
+  const { user } = useAuthStore();
+  const { householdId } = useHouseholdStore();
+
+  const { mutateAsync: addToShoppingList, isPending: isAddingToShoppingList } =
+    useCreateListItem(householdId ?? "");
+
+  const IMAGE_HEIGHT = groceryItem.image_url ? 300 : 100;
 
   const imageContainerStyle = useAnimatedStyle(() => ({
     transform: [
@@ -48,6 +69,177 @@ export default function GroceryItem() {
       },
     ],
   }));
+
+  const headerStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(
+      scrollOffset.value,
+      [IMAGE_HEIGHT / 1.5, IMAGE_HEIGHT],
+      [0, 1]
+    ),
+  }));
+
+  const foodGroup = formatFoodGroup(groceryItem.food_groups);
+
+  const handleAddToShoppingList = async () => {
+    if (!householdId || !user) return;
+
+    await addToShoppingList({
+      grocery_item_id: groceryItem.id,
+      household_id: householdId,
+      quantity: 1,
+      user_id: user.id,
+    });
+
+    router.back();
+
+    setTimeout(() => {
+      router.replace("/(protected)/(tabs)");
+    }, 0);
+
+    Alert.alert("Item added to shopping list");
+  };
+
+  const handleAddToPantry = () => {
+    console.log("add to pantry");
+  };
+
+  const handleShare = () => {
+    console.log("share");
+  };
+
+  const handleCopy = () => {
+    console.log("copy");
+  };
+
+  const handleEdit = () => {
+    console.log("edit");
+  };
+
+  const handleDelete = () => {
+    console.log("delete");
+  };
+
+  return (
+    <>
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          header: () => (
+            <Animated.View
+              style={headerStyle}
+              className="absolute top-0 left-0 right-0"
+            >
+              <Header title={groceryItem.name ?? ""} />
+            </Animated.View>
+          ),
+        }}
+      />
+      <Animated.ScrollView
+        ref={scrollRef}
+        contentInsetAdjustmentBehavior="automatic"
+      >
+        {groceryItem.image_url ? (
+          <Animated.View
+            style={[imageContainerStyle, { height: IMAGE_HEIGHT }]}
+            className="w-full overflow-hidden items-center justify-center bg-muted"
+          >
+            <ImageBackground
+              source={groceryItem.image_url}
+              contentFit="cover"
+              style={{ width: "100%", height: "100%" }}
+            />
+          </Animated.View>
+        ) : (
+          <View className="h-12" />
+        )}
+        <View className="relative flex-1 bg-background p-4 min-h-48">
+          <View className="flex-row items-center justify-between">
+            <View className="flex-row items-center gap-2">
+              <Text variant="h1" className="text-left">
+                {groceryItem.name}
+              </Text>
+              {groceryItem.is_global && (
+                <Icon as={Globe} className="size-6 text-blue-500" />
+              )}
+            </View>
+            <DropdownMenuRoot>
+              <DropdownMenuTrigger disabled={isAddingToShoppingList}>
+                {isAddingToShoppingList ? (
+                  <Spinner />
+                ) : (
+                  <Icon
+                    as={MoreVertical}
+                    className="size-6 text-muted-foreground"
+                  />
+                )}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuGroup>
+                  <DropdownMenuItem
+                    key="add-to-shopping-list"
+                    onSelect={handleAddToShoppingList}
+                  >
+                    <DropdownMenuItemTitle>
+                      Add to Grocery List
+                    </DropdownMenuItemTitle>
+                    <DropdownMenuItemIcon ios={{ name: "scroll" }} />
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    key="add-to-pantry"
+                    onSelect={handleAddToPantry}
+                  >
+                    <DropdownMenuItemTitle>Add to Pantry</DropdownMenuItemTitle>
+                    <DropdownMenuItemIcon ios={{ name: "refrigerator" }} />
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuGroup>
+                  <DropdownMenuItem key="share" onSelect={handleShare}>
+                    <DropdownMenuItemTitle>Share</DropdownMenuItemTitle>
+                    <DropdownMenuItemIcon
+                      ios={{ name: "square.and.arrow.up" }}
+                    />
+                  </DropdownMenuItem>
+                  <DropdownMenuItem key="copy" onSelect={handleCopy}>
+                    <DropdownMenuItemTitle>Copy</DropdownMenuItemTitle>
+                    <DropdownMenuItemIcon ios={{ name: "square.on.square" }} />
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                {!groceryItem.is_global && user?.id === groceryItem.user_id && (
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem key="edit" onSelect={handleEdit}>
+                      <DropdownMenuItemTitle>Edit</DropdownMenuItemTitle>
+                      <DropdownMenuItemIcon ios={{ name: "pencil" }} />
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      key="delete"
+                      destructive
+                      onSelect={handleDelete}
+                    >
+                      <DropdownMenuItemTitle>Delete</DropdownMenuItemTitle>
+                      <DropdownMenuItemIcon ios={{ name: "trash" }} />
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenuRoot>
+          </View>
+          <Text variant="lead">
+            {[groceryItem.brand, foodGroup].filter(Boolean).join(" | ")}
+          </Text>
+          {groceryItem.quantity && (
+            <Text variant="lead">
+              {groceryItem.quantity}
+              {groceryItem.quantity_unit ? ` ${groceryItem.quantity_unit}` : ""}
+            </Text>
+          )}
+        </View>
+      </Animated.ScrollView>
+    </>
+  );
+}
+
+export default function GroceryItem() {
+  const { id } = useLocalSearchParams();
 
   const { data: groceryItem, isLoading } = useGroceryItem(
     typeof id === "string" ? id : undefined
@@ -79,31 +271,5 @@ export default function GroceryItem() {
     );
   }
 
-  console.log(groceryItem.image_url);
-
-  return (
-    <Animated.ScrollView ref={scrollRef}>
-      {groceryItem.image_url && (
-        <Animated.View
-          style={[imageContainerStyle, { height: IMAGE_HEIGHT }]}
-          className="w-full overflow-hidden items-center justify-center bg-muted"
-        >
-          <ImageBackground
-            source={groceryItem.image_url}
-            contentFit="cover"
-            style={{ width: "100%", height: "100%" }}
-          />
-        </Animated.View>
-      )}
-      <View className="relative flex-1 bg-background h-2000">
-        <View className="absolute bottom-full left-0 right-0 p-4">
-          <Text>{groceryItem.name}</Text>
-          <LinearGradient
-            colors={["#4c669f", "#3b5998", "#192f6a"]}
-            className="absolute bottom-full left-0 right-0 p-4"
-          ></LinearGradient>
-        </View>
-      </View>
-    </Animated.ScrollView>
-  );
+  return <GroceryItemContent groceryItem={groceryItem} />;
 }

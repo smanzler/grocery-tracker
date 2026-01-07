@@ -16,7 +16,13 @@ import { Tables } from "@/lib/database.types";
 import { useHouseholdStore } from "@/stores/household-store";
 import { formatDistanceToNow } from "date-fns";
 import { Globe, RefrigeratorIcon } from "lucide-react-native";
-import { Pressable, RefreshControl, View } from "react-native";
+import { Pressable, View } from "react-native";
+import Animated, {
+  FadeIn,
+  FadeOut,
+  LinearTransition,
+} from "react-native-reanimated";
+import RefetchControl from "../refetch-control";
 import { Avatar, AvatarImage, ColoredFallback } from "../ui/avatar";
 import {
   ContextMenuContent,
@@ -51,46 +57,52 @@ const PantryItem = ({
   return (
     <ContextMenuRoot key={item.id}>
       <ContextMenuTrigger>
-        <Pressable
-          className="flex-row items-center gap-2 rounded-md gap-4 p-1"
-          onPress={handlePress}
+        <Animated.View
+          layout={LinearTransition.duration(200)}
+          entering={FadeIn.duration(200)}
+          exiting={FadeOut.duration(200)}
         >
-          <Avatar
-            alt={item.grocery_items?.name ?? ""}
-            className="size-12 rounded-md"
+          <Pressable
+            className="flex-row items-center gap-2 rounded-md gap-4 p-1"
+            onPress={handlePress}
           >
-            <AvatarImage
-              source={{ uri: item.grocery_items?.image_url ?? undefined }}
-            />
-            <ColoredFallback
-              id={item.id}
-              text={item.grocery_items?.name?.charAt(0) ?? "I"}
+            <Avatar
+              alt={item.grocery_items?.name ?? ""}
               className="size-12 rounded-md"
-            />
-          </Avatar>
-          <View className="space-y-1 flex-1">
-            <View className="flex-row items-center gap-2">
-              <Text className="text-base font-medium">
-                {item.grocery_items?.name ?? ""}
-              </Text>
-              {item.grocery_items?.is_global && (
-                <Icon as={Globe} className="size-4 text-blue-500" />
-              )}
-            </View>
+            >
+              <AvatarImage
+                source={{ uri: item.grocery_items?.image_url ?? undefined }}
+              />
+              <ColoredFallback
+                id={item.id}
+                text={item.grocery_items?.name?.charAt(0) ?? "I"}
+                className="size-12 rounded-md"
+              />
+            </Avatar>
+            <View className="space-y-1 flex-1">
+              <View className="flex-row items-center gap-2">
+                <Text className="text-base font-medium">
+                  {item.grocery_items?.name ?? ""}
+                </Text>
+                {item.grocery_items?.is_global && (
+                  <Icon as={Globe} className="size-4 text-blue-500" />
+                )}
+              </View>
 
-            <Text className="text-sm text-muted-foreground line-clamp-1">
-              {item.profiles?.display_name ?? "Unknown"} added{" "}
-              {formatDistanceToNow(item.created_at)} ago
-            </Text>
-          </View>
-          {isPending ? (
-            <Spinner />
-          ) : (
-            <Text className="text-sm text-muted-foreground">
-              {item.quantity}x
-            </Text>
-          )}
-        </Pressable>
+              <Text className="text-sm text-muted-foreground line-clamp-1">
+                {item.profiles?.display_name ?? "Unknown"} added{" "}
+                {formatDistanceToNow(item.created_at)} ago
+              </Text>
+            </View>
+            {isPending ? (
+              <Spinner />
+            ) : (
+              <Text className="text-sm text-muted-foreground">
+                {item.quantity}x
+              </Text>
+            )}
+          </Pressable>
+        </Animated.View>
       </ContextMenuTrigger>
       <ContextMenuContent>
         <ContextMenuItem
@@ -108,9 +120,7 @@ const PantryItem = ({
 
 export default function PantryList() {
   const { householdId } = useHouseholdStore();
-  const { data, isLoading, isRefetching, refetch } = usePantryItems(
-    householdId ?? undefined
-  );
+  const { data, isLoading, refetch } = usePantryItems(householdId ?? undefined);
 
   if (isLoading) {
     return (
@@ -121,15 +131,7 @@ export default function PantryList() {
   }
 
   return (
-    <BScrollView
-      refreshControl={
-        <RefreshControl
-          refreshing={isRefetching}
-          onRefresh={refetch}
-          title="Refresh"
-        />
-      }
-    >
+    <BScrollView refreshControl={<RefetchControl refetch={refetch} />}>
       {!data || data.length === 0 ? (
         <Empty>
           <EmptyContent>
