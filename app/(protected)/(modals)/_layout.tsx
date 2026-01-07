@@ -56,14 +56,18 @@ export default function ModalsLayout() {
         name="add-list-item-barcode"
         options={{
           headerShown: false,
-          animation: "none",
         }}
       />
       <Stack.Screen
         name="grocery-item"
         options={{
           headerShown: false,
-          animation: "none",
+        }}
+      />
+      <Stack.Screen
+        name="edit-grocery-item"
+        options={{
+          headerShown: false,
         }}
       />
     </Stack>

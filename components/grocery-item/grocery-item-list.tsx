@@ -19,7 +19,10 @@ import RefetchControl from "../refetch-control";
 
 const GroceryItem = ({ item }: { item: Tables<"grocery_items"> }) => {
   const handlePress = () => {
-    router.push(`/(protected)/(modals)/grocery-item?id=${item.id}`);
+    router.push({
+      pathname: "/(protected)/(modals)/grocery-item",
+      params: { id: item.id },
+    });
   };
 
   const foodGroup = formatFoodGroup(item.food_groups);

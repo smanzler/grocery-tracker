@@ -1,5 +1,6 @@
 import { useGroceryItem } from "@/api/grocery-item/queries";
 import { useCreateListItem } from "@/api/list-item/mutations";
+import { useInsertPantryItem } from "@/api/pantry/mutations";
 import {
   DropdownMenuContent,
   DropdownMenuGroup,
@@ -48,6 +49,8 @@ function GroceryItemContent({
 
   const { mutateAsync: addToShoppingList, isPending: isAddingToShoppingList } =
     useCreateListItem(householdId ?? "");
+  const { mutateAsync: addToPantry, isPending: isAddingToPantry } =
+    useInsertPantryItem(householdId ?? "");
 
   const IMAGE_HEIGHT = groceryItem.image_url ? 300 : 100;
 
@@ -99,20 +102,30 @@ function GroceryItemContent({
     Alert.alert("Item added to shopping list");
   };
 
-  const handleAddToPantry = () => {
-    console.log("add to pantry");
-  };
+  const handleAddToPantry = async () => {
+    if (!householdId || !user) return;
 
-  const handleShare = () => {
-    console.log("share");
-  };
+    await addToPantry({
+      grocery_item_id: groceryItem.id,
+      household_id: householdId,
+      quantity: 1,
+      user_id: user.id,
+    });
 
-  const handleCopy = () => {
-    console.log("copy");
+    router.back();
+
+    setTimeout(() => {
+      router.replace("/(protected)/(tabs)/pantry");
+    }, 0);
+
+    Alert.alert("Item added to pantry");
   };
 
   const handleEdit = () => {
-    console.log("edit");
+    router.push({
+      pathname: "/(protected)/(modals)/edit-grocery-item",
+      params: { id: groceryItem.id },
+    });
   };
 
   const handleDelete = () => {
@@ -190,18 +203,6 @@ function GroceryItemContent({
                   >
                     <DropdownMenuItemTitle>Add to Pantry</DropdownMenuItemTitle>
                     <DropdownMenuItemIcon ios={{ name: "refrigerator" }} />
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuGroup>
-                  <DropdownMenuItem key="share" onSelect={handleShare}>
-                    <DropdownMenuItemTitle>Share</DropdownMenuItemTitle>
-                    <DropdownMenuItemIcon
-                      ios={{ name: "square.and.arrow.up" }}
-                    />
-                  </DropdownMenuItem>
-                  <DropdownMenuItem key="copy" onSelect={handleCopy}>
-                    <DropdownMenuItemTitle>Copy</DropdownMenuItemTitle>
-                    <DropdownMenuItemIcon ios={{ name: "square.on.square" }} />
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 {!groceryItem.is_global && user?.id === groceryItem.user_id && (

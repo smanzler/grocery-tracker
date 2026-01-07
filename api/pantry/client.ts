@@ -1,3 +1,4 @@
+import { TablesInsert } from "@/lib/database.types";
 import { supabase } from "@/lib/supabase";
 
 export const getPantryItems = async (householdId: string) => {
@@ -10,16 +11,30 @@ export const getPantryItems = async (householdId: string) => {
 };
 
 export const removePantryItem = async (itemId: string) => {
-  const { data, error } = await supabase.rpc("remove_pantry_item", {
-    p_item_id: itemId,
-  });
+  const { data, error } = await supabase
+    .from("pantry_items")
+    .delete()
+    .eq("id", itemId);
   if (error) throw error;
   return data;
 };
 
 export const emptyPantry = async (householdId: string) => {
-  const { error } = await supabase.rpc("empty_pantry", {
-    p_household_id: householdId,
-  });
+  const { error } = await supabase
+    .from("pantry_items")
+    .delete()
+    .eq("household_id", householdId);
   if (error) throw error;
+};
+
+export const insertPantryItem = async (
+  pantryItem: TablesInsert<"pantry_items">
+) => {
+  const { data, error } = await supabase
+    .from("pantry_items")
+    .insert(pantryItem)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
 };
