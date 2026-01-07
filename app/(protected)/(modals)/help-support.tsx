@@ -18,7 +18,7 @@ import * as Linking from "expo-linking";
 import { Mail } from "lucide-react-native";
 import { Pressable, View } from "react-native";
 
-const SUPPORT_EMAIL = "support@example.com";
+const SUPPORT_EMAIL = "simanzler@gmail.com";
 
 type FAQItem = {
   question: string;
