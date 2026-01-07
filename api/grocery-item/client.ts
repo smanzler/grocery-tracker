@@ -19,6 +19,16 @@ export const getGroceryItems = async (filters?: UseGroceryItemsProps) => {
   return data;
 };
 
+export const getGroceryItem = async (id: string) => {
+  const { data, error } = await supabase
+    .from("grocery_items")
+    .select("*")
+    .eq("id", id)
+    .single();
+  if (error) throw error;
+  return data;
+};
+
 export const createGroceryItem = async (
   groceryItem: TablesInsert<"grocery_items">
 ) => {

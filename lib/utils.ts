@@ -33,3 +33,14 @@ export function uuidToHex(id: string): string {
   }
   return USER_COLORS[Math.abs(hash) % USER_COLORS.length];
 }
+
+export function formatFoodGroup(foodGroup: string | null | undefined): string {
+  if (!foodGroup) return "";
+
+  const [, rawValue] = foodGroup.split(":", 2);
+  const value = (rawValue ?? foodGroup).trim();
+
+  if (!value) return "";
+
+  return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+}

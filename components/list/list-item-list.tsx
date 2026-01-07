@@ -16,12 +16,13 @@ import { Icon } from "@/components/ui/icon";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { Tables } from "@/lib/database.types";
+import { formatFoodGroup } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
 import * as Haptics from "expo-haptics";
 import { Globe, ShoppingCartIcon, Trash } from "lucide-react-native";
 import { useRef } from "react";
-import { Image, Pressable, View } from "react-native";
+import { Image, Pressable, RefreshControl, View } from "react-native";
 import { default as Swipeable } from "react-native-gesture-handler/ReanimatedSwipeable";
 import Animated, {
   useAnimatedStyle,
@@ -63,21 +64,10 @@ const ListItem = ({
     });
   };
 
-  const formatFoodGroup = (foodGroup: string | null | undefined): string => {
-    if (!foodGroup) return "";
-
-    const [, rawValue] = foodGroup.split(":", 2);
-    const value = (rawValue ?? foodGroup).trim();
-
-    if (!value) return "";
-
-    return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
-  };
-
   const foodGroup = formatFoodGroup(item.grocery_items?.food_groups);
 
   return (
-    <View className="flex-1 bg-destructive rounded-md">
+    <View className="bg-destructive rounded-md">
       <Swipeable
         overshootFriction={4}
         onSwipeableOpenStartDrag={handleDragStart}
@@ -157,7 +147,9 @@ const ListItem = ({
 
 export default function ListItemList() {
   const { householdId } = useHouseholdStore();
-  const { data, isLoading } = useListItems(householdId ?? undefined);
+  const { data, isLoading, isRefetching, refetch } = useListItems(
+    householdId ?? undefined
+  );
   const { user } = useAuthStore();
 
   if (isLoading || !user || !householdId) {
@@ -168,36 +160,41 @@ export default function ListItemList() {
     );
   }
 
-  if (!data || data.length === 0) {
-    return (
-      <Empty>
-        <EmptyContent className="max-w-[300px]">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <Icon as={ShoppingCartIcon} />
-            </EmptyMedia>
-            <EmptyTitle>No items in list</EmptyTitle>
-            <EmptyDescription>
-              You don't have any items in your grocery list yet. Add items to
-              your list to get started.
-            </EmptyDescription>
-          </EmptyHeader>
-        </EmptyContent>
-      </Empty>
-    );
-  }
-
-  const sortedData = [...data].sort((a, b) => {
-    if (new Date(a.created_at) < new Date(b.created_at)) return 1;
-    if (new Date(a.created_at) > new Date(b.created_at)) return -1;
-    return 0;
-  });
-
   return (
-    <BScrollView keyboardDismissMode="on-drag">
-      {sortedData.map((item) => (
-        <ListItem key={item.id} item={item} />
-      ))}
+    <BScrollView
+      keyboardDismissMode="on-drag"
+      refreshControl={
+        <RefreshControl
+          refreshing={isRefetching}
+          onRefresh={refetch}
+          title="Refresh"
+        />
+      }
+    >
+      {!data || data.length === 0 ? (
+        <Empty>
+          <EmptyContent className="max-w-[300px]">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <Icon as={ShoppingCartIcon} />
+              </EmptyMedia>
+              <EmptyTitle>No items in list</EmptyTitle>
+              <EmptyDescription>
+                You don't have any items in your grocery list yet. Add items to
+                your list to get started.
+              </EmptyDescription>
+            </EmptyHeader>
+          </EmptyContent>
+        </Empty>
+      ) : (
+        [...data]
+          .sort((a, b) => {
+            if (new Date(a.created_at) < new Date(b.created_at)) return 1;
+            if (new Date(a.created_at) > new Date(b.created_at)) return -1;
+            return 0;
+          })
+          .map((item) => <ListItem key={item.id} item={item} />)
+      )}
     </BScrollView>
   );
 }

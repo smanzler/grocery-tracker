@@ -16,7 +16,7 @@ import { Tables } from "@/lib/database.types";
 import { useHouseholdStore } from "@/stores/household-store";
 import { formatDistanceToNow } from "date-fns";
 import { Globe, RefrigeratorIcon } from "lucide-react-native";
-import { Pressable, View } from "react-native";
+import { Pressable, RefreshControl, View } from "react-native";
 import { Avatar, AvatarImage, ColoredFallback } from "../ui/avatar";
 import {
   ContextMenuContent,
@@ -108,7 +108,10 @@ const PantryItem = ({
 
 export default function PantryList() {
   const { householdId } = useHouseholdStore();
-  const { data, isLoading } = usePantryItems(householdId ?? undefined);
+  const { data, isLoading, isRefetching, refetch } = usePantryItems(
+    householdId ?? undefined
+  );
+
   if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center">
@@ -117,30 +120,34 @@ export default function PantryList() {
     );
   }
 
-  if (!data || data.length === 0) {
-    return (
-      <Empty>
-        <EmptyContent>
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <Icon as={RefrigeratorIcon} />
-            </EmptyMedia>
-            <EmptyTitle>No items in pantry</EmptyTitle>
-            <EmptyDescription>
-              You don't have any items in your pantry yet. Checkout of your
-              grocery list to add items to your pantry.
-            </EmptyDescription>
-          </EmptyHeader>
-        </EmptyContent>
-      </Empty>
-    );
-  }
-
   return (
-    <BScrollView>
-      {data.map((item) => (
-        <PantryItem key={item.id} item={item} />
-      ))}
+    <BScrollView
+      refreshControl={
+        <RefreshControl
+          refreshing={isRefetching}
+          onRefresh={refetch}
+          title="Refresh"
+        />
+      }
+    >
+      {!data || data.length === 0 ? (
+        <Empty>
+          <EmptyContent>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <Icon as={RefrigeratorIcon} />
+              </EmptyMedia>
+              <EmptyTitle>No items in pantry</EmptyTitle>
+              <EmptyDescription>
+                You don't have any items in your pantry yet. Checkout of your
+                grocery list to add items to your pantry.
+              </EmptyDescription>
+            </EmptyHeader>
+          </EmptyContent>
+        </Empty>
+      ) : (
+        data.map((item) => <PantryItem key={item.id} item={item} />)
+      )}
     </BScrollView>
   );
 }

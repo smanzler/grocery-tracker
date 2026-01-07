@@ -59,6 +59,13 @@ export default function ModalsLayout() {
           animation: "none",
         }}
       />
+      <Stack.Screen
+        name="grocery-item"
+        options={{
+          headerShown: false,
+          animation: "none",
+        }}
+      />
     </Stack>
   );
 }
