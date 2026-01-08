@@ -33,6 +33,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import RefetchControl from "../refetch-control";
+import { Avatar, ColoredFallback } from "../ui/avatar";
 import { AnimatedCheckbox } from "./animated-checkbox";
 
 const ListItem = ({
@@ -115,6 +116,32 @@ const ListItem = ({
           onPress={handleCompleteChange}
         >
           <AnimatedCheckbox checked={item.checked} />
+          <View className="relative">
+            {item.grocery_items?.image_url ? (
+              <View className="size-10 rounded-md overflow-hidden items-center justify-center">
+                <Image
+                  source={{ uri: item.grocery_items.image_url }}
+                  className="size-full"
+                />
+              </View>
+            ) : (
+              <Avatar
+                alt={item.grocery_items?.name ?? ""}
+                className="size-10 rounded-md"
+              >
+                <ColoredFallback
+                  id={item.grocery_items.id}
+                  text={item.grocery_items.name?.charAt(0) ?? "I"}
+                  className="size-10 rounded-md"
+                />
+              </Avatar>
+            )}
+            {item.quantity && item.quantity > 1 && (
+              <View className="absolute -bottom-1 -right-1 size-5 bg-background rounded-full border items-center justify-center">
+                <Text className="text-xs text-foreground">{item.quantity}</Text>
+              </View>
+            )}
+          </View>
           <View className="flex-1">
             <View className="flex-row items-center gap-2">
               <Text className="flex-shrink text-ellipsis line-clamp-2">
@@ -139,14 +166,6 @@ const ListItem = ({
                 ? ` ${item.grocery_items.quantity_unit}`
                 : ""}
             </Text>
-          )}
-          {item.grocery_items?.image_url && (
-            <View className="size-8 rounded-md overflow-hidden items-center justify-center">
-              <Image
-                source={{ uri: item.grocery_items.image_url }}
-                className="size-full"
-              />
-            </View>
           )}
         </Pressable>
       </Swipeable>

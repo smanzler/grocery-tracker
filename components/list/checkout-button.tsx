@@ -72,7 +72,7 @@ export default function CheckoutButton({
           )}
         </AnimatedButton>
       </AlertDialogTrigger>
-      <AlertDialogContent>
+      <AlertDialogContent className="max-w-xs">
         <AlertDialogTitle className="text-center">Checkout</AlertDialogTitle>
         <AlertDialogDescription className="text-center">
           Are you sure you want to checkout? This will move all checked items to
@@ -83,6 +83,7 @@ export default function CheckoutButton({
             <Text className="text-center">Cancel</Text>
           </AlertDialogCancel>
           <AlertDialogAction className="flex-1" onPress={checkout}>
+            <Icon as={ShoppingCartIcon} className="text-secondary" />
             <Text className="text-center">Checkout</Text>
           </AlertDialogAction>
         </AlertDialogFooter>

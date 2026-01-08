@@ -1,6 +1,7 @@
 import { useDeleteGroceryItem } from "@/api/grocery-item/mutations";
 import { useGroceryItem } from "@/api/grocery-item/queries";
 import { useCreateListItem } from "@/api/list-item/mutations";
+import { usePantryEvents } from "@/api/pantry/events/queries";
 import { useInsertPantryItem } from "@/api/pantry/mutations";
 import {
   DropdownMenuContent,
@@ -27,9 +28,19 @@ import { formatFoodGroup } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
 import { Header } from "@react-navigation/elements";
+import { format } from "date-fns";
 import { ImageBackground } from "expo-image";
 import { router, Stack, useLocalSearchParams } from "expo-router";
-import { Globe, MoreVertical, ShoppingBasketIcon } from "lucide-react-native";
+import {
+  ArrowDownToLine,
+  Globe,
+  Home,
+  MoreVertical,
+  Plus,
+  RefreshCw,
+  ShoppingBasketIcon,
+  Trash2,
+} from "lucide-react-native";
 import { Alert, View } from "react-native";
 import Animated, {
   interpolate,
@@ -47,7 +58,8 @@ function GroceryItemContent({
   const scrollOffset = useScrollOffset(scrollRef);
   const { user } = useAuthStore();
   const { householdId } = useHouseholdStore();
-  const { targetId } = useLocalSearchParams<{ targetId?: string }>();
+
+  const { data: history } = usePantryEvents(householdId ?? "", groceryItem.id);
 
   const { mutateAsync: addToShoppingList, isPending: isAddingToShoppingList } =
     useCreateListItem(householdId ?? "");
@@ -199,16 +211,11 @@ function GroceryItemContent({
         ) : (
           <View className="h-12" />
         )}
-        <View className="relative flex-1 bg-background p-4 min-h-48">
-          <View className="flex-row items-center">
-            <View className="flex-row items-center gap-2 flex-1">
-              <Text variant="h1" className="text-left flex-shrink">
-                {groceryItem.name}
-              </Text>
-              {groceryItem.is_global && (
-                <Icon as={Globe} className="size-6 text-blue-500" />
-              )}
-            </View>
+        <View className="relative flex-1 bg-background p-4">
+          <View className="flex-row items-start gap-2 mb-1">
+            <Text variant="h1" className="text-left flex-shrink flex-1">
+              {groceryItem.name}
+            </Text>
             <DropdownMenuRoot>
               <DropdownMenuTrigger disabled={isLoading}>
                 {isLoading ? (
@@ -262,6 +269,23 @@ function GroceryItemContent({
               </DropdownMenuContent>
             </DropdownMenuRoot>
           </View>
+          <View className="flex-row items-center gap-2 mb-2">
+            {groceryItem.is_global ? (
+              <>
+                <Icon as={Globe} className="size-5 text-blue-500" />
+                <Text variant="lead" className="text-blue-500">
+                  Global
+                </Text>
+              </>
+            ) : (
+              <>
+                <Icon as={Home} className="size-5 text-muted-foreground" />
+                <Text variant="lead" className="text-muted-foreground">
+                  Household
+                </Text>
+              </>
+            )}
+          </View>
           <Text variant="lead">
             {[groceryItem.brand, foodGroup].filter(Boolean).join(" | ")}
           </Text>
@@ -270,6 +294,76 @@ function GroceryItemContent({
               {groceryItem.quantity}
               {groceryItem.quantity_unit ? ` ${groceryItem.quantity_unit}` : ""}
             </Text>
+          )}
+        </View>
+
+        <View className="p-4">
+          <Text variant="h3" className="mb-3">
+            History
+          </Text>
+          {!history || history.length === 0 ? (
+            <Empty>
+              <EmptyContent>
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <Icon as={ShoppingBasketIcon} />
+                  </EmptyMedia>
+                  <EmptyTitle>No history found</EmptyTitle>
+                  <EmptyDescription>
+                    Your household has not added this item to the pantry yet.
+                  </EmptyDescription>
+                </EmptyHeader>
+              </EmptyContent>
+            </Empty>
+          ) : (
+            <View className="gap-2">
+              {history.map((item) => {
+                const eventConfig = {
+                  add: {
+                    icon: Plus,
+                    label: "Added to pantry",
+                    color: "text-green-500",
+                  },
+                  restock: {
+                    icon: RefreshCw,
+                    label: "Restocked",
+                    color: "text-blue-500",
+                  },
+                  consume: {
+                    icon: ArrowDownToLine,
+                    label: "Consumed",
+                    color: "text-orange-500",
+                  },
+                  remove: {
+                    icon: Trash2,
+                    label: "Removed from pantry",
+                    color: "text-destructive",
+                  },
+                }[item.event] || {
+                  icon: ShoppingBasketIcon,
+                  label: item.event,
+                  color: "text-muted-foreground",
+                };
+
+                return (
+                  <View
+                    key={item.id}
+                    className="flex-row items-center justify-between py-2 px-3 bg-muted rounded-lg"
+                  >
+                    <View className="flex-row items-center gap-3 flex-1">
+                      <Icon
+                        as={eventConfig.icon}
+                        className={`size-4 ${eventConfig.color}`}
+                      />
+                      <Text className="font-medium">{eventConfig.label}</Text>
+                    </View>
+                    <Text className="text-sm text-muted-foreground">
+                      {format(new Date(item.created_at), "MMM d, yyyy hh:mm a")}
+                    </Text>
+                  </View>
+                );
+              })}
+            </View>
           )}
         </View>
       </Animated.ScrollView>
