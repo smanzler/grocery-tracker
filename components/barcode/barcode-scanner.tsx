@@ -27,6 +27,10 @@ export default function BarcodeScanner({
   const [permission, requestPermission] = useCameraPermissions();
   const { theme } = useUniwind();
 
+  const handleOpenSettings = () => {
+    Linking.openSettings();
+  };
+
   const handleBarcodeScanned = async ({
     data: barcode,
   }: BarcodeScanningResult) => {
@@ -69,21 +73,6 @@ export default function BarcodeScanner({
     router.back();
   };
 
-  const handleRequestPermission = async () => {
-    if (!permission || !permission.canAskAgain) {
-      Linking.openSettings();
-      return;
-    }
-
-    const { status } = await requestPermission();
-
-    if (status === "granted") {
-      return;
-    }
-
-    Linking.openSettings();
-  };
-
   if (!permission) {
     return (
       <View className="flex-1 items-center justify-center">
@@ -100,11 +89,18 @@ export default function BarcodeScanner({
         </EmptyMedia>
         <EmptyTitle>Camera permission required</EmptyTitle>
         <EmptyDescription>
-          We need your permission to show the camera
+          We need your permission to show the camera to scan barcodes for
+          grocery items.
         </EmptyDescription>
-        <Button variant="outline" onPress={handleRequestPermission}>
-          <Text>Grant permission</Text>
-        </Button>
+        {!permission || !permission.canAskAgain ? (
+          <Button variant="outline" onPress={handleOpenSettings}>
+            <Text>Open settings</Text>
+          </Button>
+        ) : (
+          <Button variant="outline" onPress={requestPermission}>
+            <Text>Request permission</Text>
+          </Button>
+        )}
       </Empty>
     );
   }

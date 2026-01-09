@@ -210,7 +210,7 @@ export type Database = {
           grocery_item_id: string
           household_id: string
           id: string
-          quantity: number | null
+          quantity: number
           user_id: string
         }
         Insert: {
@@ -219,7 +219,7 @@ export type Database = {
           grocery_item_id: string
           household_id: string
           id?: string
-          quantity?: number | null
+          quantity?: number
           user_id: string
         }
         Update: {
@@ -228,7 +228,7 @@ export type Database = {
           grocery_item_id?: string
           household_id?: string
           id?: string
-          quantity?: number | null
+          quantity?: number
           user_id?: string
         }
         Relationships: [
@@ -255,44 +255,92 @@ export type Database = {
           },
         ]
       }
-      pantry_events: {
+      pantry_batches: {
         Row: {
           created_at: string
-          event: Database["public"]["Enums"]["pantry_event_type"]
-          grocery_item_id: string | null
-          household_id: string | null
+          expires_at: string | null
+          grocery_item_id: string
+          household_id: string
           id: string
+          initial_quantity: number
+          remaining_quantity: number
           user_id: string | null
         }
         Insert: {
           created_at?: string
-          event: Database["public"]["Enums"]["pantry_event_type"]
-          grocery_item_id?: string | null
-          household_id?: string | null
+          expires_at?: string | null
+          grocery_item_id: string
+          household_id: string
           id?: string
+          initial_quantity?: number
+          remaining_quantity?: number
           user_id?: string | null
         }
         Update: {
           created_at?: string
-          event?: Database["public"]["Enums"]["pantry_event_type"]
-          grocery_item_id?: string | null
-          household_id?: string | null
+          expires_at?: string | null
+          grocery_item_id?: string
+          household_id?: string
           id?: string
+          initial_quantity?: number
+          remaining_quantity?: number
           user_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "pantry_events_grocery_item_id_fkey"
+            foreignKeyName: "pantry_batches_grocery_item_id_fkey"
             columns: ["grocery_item_id"]
             isOneToOne: false
             referencedRelation: "grocery_items"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "pantry_events_household_id_fkey"
+            foreignKeyName: "pantry_batches_household_id_fkey"
             columns: ["household_id"]
             isOneToOne: false
             referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pantry_batches_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pantry_events: {
+        Row: {
+          batch_id: string | null
+          created_at: string
+          event: Database["public"]["Enums"]["pantry_event_type"]
+          id: string
+          quantity: number
+          user_id: string | null
+        }
+        Insert: {
+          batch_id?: string | null
+          created_at?: string
+          event: Database["public"]["Enums"]["pantry_event_type"]
+          id?: string
+          quantity?: number
+          user_id?: string | null
+        }
+        Update: {
+          batch_id?: string | null
+          created_at?: string
+          event?: Database["public"]["Enums"]["pantry_event_type"]
+          id?: string
+          quantity?: number
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pantry_events_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "pantry_batches"
             referencedColumns: ["id"]
           },
           {
@@ -306,28 +354,22 @@ export type Database = {
       }
       pantry_items: {
         Row: {
-          created_at: string
           grocery_item_id: string
           household_id: string
           id: string
-          quantity: number | null
-          user_id: string
+          total_quantity: number
         }
         Insert: {
-          created_at?: string
           grocery_item_id: string
           household_id: string
           id?: string
-          quantity?: number | null
-          user_id: string
+          total_quantity?: number
         }
         Update: {
-          created_at?: string
           grocery_item_id?: string
           household_id?: string
           id?: string
-          quantity?: number | null
-          user_id?: string
+          total_quantity?: number
         }
         Relationships: [
           {
@@ -342,13 +384,6 @@ export type Database = {
             columns: ["household_id"]
             isOneToOne: false
             referencedRelation: "households"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "pantry_items_user_id_fkey1"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -386,9 +421,21 @@ export type Database = {
         Args: { p_email: string; p_household_id: string }
         Returns: string
       }
+      add_pantry_batches: {
+        Args: { p_household_id: string; p_items: Json }
+        Returns: undefined
+      }
       checkout_list_items: {
         Args: { p_household_id: string }
-        Returns: boolean
+        Returns: undefined
+      }
+      consume_pantry_item: {
+        Args: {
+          p_grocery_item_id: string
+          p_household_id: string
+          p_quantity: number
+        }
+        Returns: undefined
       }
       create_household: { Args: { p_name: string }; Returns: string }
       create_household_invite: {
@@ -422,7 +469,7 @@ export type Database = {
       }
     }
     Enums: {
-      pantry_event_type: "add" | "restock" | "consume" | "remove"
+      pantry_event_type: "consume" | "add" | "expire"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -553,7 +600,7 @@ export const Constants = {
   },
   public: {
     Enums: {
-      pantry_event_type: ["add", "restock", "consume", "remove"],
+      pantry_event_type: ["consume", "add", "expire"],
     },
   },
 } as const

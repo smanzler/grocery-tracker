@@ -3,15 +3,20 @@ import { supabase } from "@/lib/supabase";
 export const getPantryItems = async (householdId: string) => {
   const { data, error } = await supabase
     .from("pantry_items")
-    .select("*, grocery_items(*), profiles(display_name)")
+    .select("*, grocery_items(*)")
     .eq("household_id", householdId);
   if (error) throw error;
   return data;
 };
 
-export const consumePantryItem = async (itemId: string, quantity: number) => {
+export const consumePantryItem = async (
+  householdId: string,
+  itemId: string,
+  quantity: number
+) => {
   const { data, error } = await supabase.rpc("consume_pantry_item", {
-    p_item_id: itemId,
+    p_household_id: householdId,
+    p_grocery_item_id: itemId,
     p_quantity: quantity,
   });
   if (error) throw error;
@@ -27,14 +32,12 @@ export const emptyPantry = async (householdId: string) => {
 };
 
 export const addPantryItem = async (
-  itemId: string,
-  quantity: number,
-  expiresAt?: string
+  householdId: string,
+  items: { grocery_item_id: string; quantity: number }[]
 ) => {
-  const { data, error } = await supabase.rpc("add_pantry_item", {
-    p_item_id: itemId,
-    p_quantity: quantity,
-    p_expires_at: expiresAt,
+  const { data, error } = await supabase.rpc("add_pantry_batches", {
+    p_household_id: householdId,
+    p_items: items,
   });
   if (error) throw error;
   return data;

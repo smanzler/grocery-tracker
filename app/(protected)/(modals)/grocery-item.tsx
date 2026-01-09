@@ -37,7 +37,6 @@ import {
   Home,
   MoreVertical,
   Plus,
-  RefreshCw,
   ShoppingBasketIcon,
   Trash2,
 } from "lucide-react-native";
@@ -122,8 +121,8 @@ function GroceryItemContent({
     if (!householdId || !user) return;
 
     await addToPantry({
-      itemId: groceryItem.id,
-      quantity: 1,
+      householdId,
+      items: [{ grocery_item_id: groceryItem.id, quantity: 1 }],
     });
 
     router.back();
@@ -322,19 +321,14 @@ function GroceryItemContent({
                     label: "Added to pantry",
                     color: "text-green-500",
                   },
-                  restock: {
-                    icon: RefreshCw,
-                    label: "Restocked",
-                    color: "text-blue-500",
-                  },
                   consume: {
                     icon: ArrowDownToLine,
                     label: "Consumed",
                     color: "text-orange-500",
                   },
-                  remove: {
+                  expire: {
                     icon: Trash2,
-                    label: "Removed from pantry",
+                    label: "Expired",
                     color: "text-destructive",
                   },
                 }[item.event] || {

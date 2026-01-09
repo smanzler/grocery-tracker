@@ -4,8 +4,15 @@ import { addPantryItem, consumePantryItem, emptyPantry } from "./client";
 
 export const useConsumePantryItem = (householdId: string) => {
   return useMutation({
-    mutationFn: ({ itemId, quantity }: { itemId: string; quantity: number }) =>
-      consumePantryItem(itemId, quantity),
+    mutationFn: ({
+      householdId,
+      itemId,
+      quantity,
+    }: {
+      householdId: string;
+      itemId: string;
+      quantity: number;
+    }) => consumePantryItem(householdId, itemId, quantity),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["pantry-items", householdId],
@@ -28,14 +35,12 @@ export const useEmptyPantry = (householdId: string) => {
 export const useAddPantryItem = (householdId: string) => {
   return useMutation({
     mutationFn: ({
-      itemId,
-      quantity,
-      expiresAt,
+      householdId,
+      items,
     }: {
-      itemId: string;
-      quantity: number;
-      expiresAt?: string;
-    }) => addPantryItem(itemId, quantity, expiresAt),
+      householdId: string;
+      items: { grocery_item_id: string; quantity: number }[];
+    }) => addPantryItem(householdId, items),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["pantry-items", householdId],

@@ -14,7 +14,6 @@ import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { Tables } from "@/lib/database.types";
 import { useHouseholdStore } from "@/stores/household-store";
-import { formatDistanceToNow } from "date-fns";
 import { Globe, RefrigeratorIcon } from "lucide-react-native";
 import { Pressable, View } from "react-native";
 import Animated, {
@@ -38,7 +37,6 @@ const PantryItem = ({
 }: {
   item: Tables<"pantry_items"> & {
     grocery_items: Tables<"grocery_items">;
-    profiles: { display_name: string | null };
   };
 }) => {
   const { householdId } = useHouseholdStore();
@@ -47,7 +45,11 @@ const PantryItem = ({
   );
 
   const handleConsume = async (itemId: string) => {
-    await consumePantryItem({ itemId, quantity: 1 });
+    await consumePantryItem({
+      householdId: householdId ?? "",
+      itemId,
+      quantity: 1,
+    });
   };
 
   const handlePress = () => {
@@ -90,17 +92,12 @@ const PantryItem = ({
               <Text className="text-base font-medium flex-shrink text-ellipsis line-clamp-2">
                 {item.grocery_items?.name ?? ""}
               </Text>
-
-              <Text className="text-sm text-muted-foreground line-clamp-1">
-                {item.profiles?.display_name ?? "Unknown"} added{" "}
-                {formatDistanceToNow(item.created_at)} ago
-              </Text>
             </View>
             {isPending ? (
               <Spinner />
             ) : (
               <Text className="text-sm text-muted-foreground">
-                {item.quantity}x
+                {item.total_quantity}x
               </Text>
             )}
           </Pressable>
@@ -110,7 +107,7 @@ const PantryItem = ({
         <ContextMenuItem
           key="consume"
           destructive
-          onSelect={() => handleConsume(item.id)}
+          onSelect={() => handleConsume(item.grocery_item_id)}
         >
           <ContextMenuItemTitle>Consume</ContextMenuItemTitle>
           <ContextMenuItemIcon ios={{ name: "minus" }} />
