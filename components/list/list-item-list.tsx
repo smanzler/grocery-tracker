@@ -16,12 +16,18 @@ import { Icon } from "@/components/ui/icon";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { Tables } from "@/lib/database.types";
-import { formatFoodGroup } from "@/lib/utils";
+import { cn, formatFoodGroup } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
 import * as Haptics from "expo-haptics";
-import { Check, Globe, ShoppingCartIcon, Trash } from "lucide-react-native";
-import { useRef } from "react";
+import {
+  Globe,
+  ShoppingBasket,
+  ShoppingCartIcon,
+  Trash,
+  X,
+} from "lucide-react-native";
+import { useEffect, useRef, useState } from "react";
 import { Image, Pressable, View } from "react-native";
 import {
   default as Swipeable,
@@ -61,6 +67,15 @@ const ListItem = ({
 
   const OVERSHOOT_THRESHOLD = 150;
 
+  const [checkedState, setCheckedState] = useState(item.checked);
+  const pendingNewStateRef = useRef<boolean | null>(null);
+
+  useEffect(() => {
+    if (pendingNewStateRef.current === null) {
+      setCheckedState(item.checked);
+    }
+  }, [item.checked]);
+
   const handleDragStart = () => {
     isDraggingRef.current = true;
     overshootingLeftRef.current = false;
@@ -74,16 +89,27 @@ const ListItem = ({
   };
 
   const handleCompleteChangeAction = () => {
+    const newCheckedState = !item.checked;
+    pendingNewStateRef.current = newCheckedState;
+
     updateListItem({
       id: item.id,
-      checked: !item.checked,
+      checked: newCheckedState,
     });
+
     swipeableRef.current?.close();
   };
 
   const handleDeleteAction = () => {
     swipeableRef.current?.close();
     deleteListItem(item.id);
+  };
+
+  const handleSwipeableClose = () => {
+    if (pendingNewStateRef.current !== null) {
+      setCheckedState(pendingNewStateRef.current);
+      pendingNewStateRef.current = null;
+    }
   };
 
   const handleSwipeableWillOpen = (direction: "left" | "right") => {
@@ -117,9 +143,13 @@ const ListItem = ({
 
   const handleCompleteChange = () => {
     if (isPending || isDraggingRef.current) return;
+
+    const newCheckedState = !item.checked;
+    setCheckedState(newCheckedState);
+
     updateListItem({
       id: item.id,
-      checked: !item.checked,
+      checked: newCheckedState,
     });
   };
 
@@ -138,6 +168,7 @@ const ListItem = ({
         onSwipeableOpenStartDrag={handleDragStart}
         onSwipeableWillClose={handleDragEnd}
         onSwipeableWillOpen={handleSwipeableWillOpen}
+        onSwipeableClose={handleSwipeableClose}
         renderLeftActions={(_, translation) => {
           const opacity = useDerivedValue(() => {
             return withTiming(translation.value > 50 ? 1 : 0, {
@@ -173,11 +204,18 @@ const ListItem = ({
               style={{ width: OVERSHOOT_THRESHOLD }}
             >
               <Animated.View
-                className="absolute top-0 left-0 h-full items-center justify-center bg-green-500"
+                className={cn(
+                  "absolute top-0 left-0 h-full items-center justify-center",
+                  checkedState ? "bg-neutral-300" : "bg-green-500"
+                )}
                 style={backgroundStyle}
               >
                 <Animated.View style={iconStyle}>
-                  <Icon as={Check} color="white" className="size-5" />
+                  <Icon
+                    as={checkedState ? X : ShoppingBasket}
+                    color="white"
+                    className="size-5"
+                  />
                 </Animated.View>
               </Animated.View>
             </Pressable>
