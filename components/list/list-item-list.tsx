@@ -1,4 +1,5 @@
 import {
+  useAddListItem,
   useRemoveListItem,
   useToggleListItemChecked,
 } from "@/api/list-item/mutations";
@@ -15,14 +16,16 @@ import {
 import { Icon } from "@/components/ui/icon";
 import { Spinner } from "@/components/ui/spinner";
 import { Tables } from "@/lib/database.types";
-import { formatFoodGroup } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
 import * as Haptics from "expo-haptics";
+import { router } from "expo-router";
 import {
+  Ellipsis,
+  Minus,
+  Plus,
   ShoppingBasket,
   ShoppingCartIcon,
-  Trash,
   X,
 } from "lucide-react-native";
 import { useEffect, useRef } from "react";
@@ -42,8 +45,18 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { scheduleOnRN } from "react-native-worklets";
+import { useCSSVariable } from "uniwind";
 import { ListItem as ListItemComponent } from "../list-item";
 import RefetchControl from "../refetch-control";
+import { Button } from "../ui/button";
+import {
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuItemIcon,
+  DropdownMenuItemTitle,
+  DropdownMenuRoot,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 import { Text } from "../ui/text";
 import { AnimatedCheckbox } from "./animated-checkbox";
 
@@ -55,15 +68,24 @@ const ListItem = ({
   const { mutate: toggleListItemChecked, isPending } = useToggleListItemChecked(
     item.household_id ?? ""
   );
-  const { mutate: removeListItem } = useRemoveListItem(item.household_id ?? "");
+
+  const { mutate: removeListItem, isPending: isRemovingItem } =
+    useRemoveListItem(item.household_id ?? "");
+
+  const { mutate: addListItem, isPending: isAddingItem } = useAddListItem(
+    item.household_id ?? ""
+  );
+
+  const [muted, green500] = useCSSVariable([
+    "--color-muted",
+    "--color-green-500",
+  ]);
 
   const swipeableRef = useRef<SwipeableMethods>(null);
 
   const isDraggingRef = useRef(false);
   const overshootingLeftRef = useRef(false);
-  const overshootingRightRef = useRef(false);
   const hasTriggeredLeftHaptic = useSharedValue(false);
-  const hasTriggeredRightHaptic = useSharedValue(false);
 
   const OVERSHOOT_THRESHOLD = 150;
 
@@ -76,9 +98,7 @@ const ListItem = ({
   const handleDragStart = () => {
     isDraggingRef.current = true;
     overshootingLeftRef.current = false;
-    overshootingRightRef.current = false;
     hasTriggeredLeftHaptic.value = false;
-    hasTriggeredRightHaptic.value = false;
   };
 
   const handleDragEnd = () => {
@@ -96,22 +116,9 @@ const ListItem = ({
     swipeableRef.current?.close();
   };
 
-  const handleDeleteAction = () => {
-    if (!item.household_id || !item.grocery_item_id) return;
-
-    swipeableRef.current?.close();
-    removeListItem({
-      householdId: item.household_id,
-      groceryItemId: item.grocery_item_id,
-      quantity: item.total_quantity,
-    });
-  };
-
   const handleSwipeableWillOpen = (direction: "left" | "right") => {
     if (direction === "right" && overshootingLeftRef.current) {
       handleCompleteChangeAction();
-    } else if (direction === "left" && overshootingRightRef.current) {
-      handleDeleteAction();
     }
   };
 
@@ -119,25 +126,8 @@ const ListItem = ({
     overshootingLeftRef.current = value;
   };
 
-  const updateOvershootRight = (value: boolean) => {
-    overshootingRightRef.current = value;
-  };
-
   const triggerLeftHaptic = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-  };
-
-  const triggerRightHaptic = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-  };
-
-  const handleDelete = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
-    removeListItem({
-      householdId: item.household_id ?? "",
-      groceryItemId: item.grocery_item_id ?? "",
-      quantity: item.total_quantity ?? 0,
-    });
   };
 
   const handleCompleteChange = () => {
@@ -151,7 +141,34 @@ const ListItem = ({
     });
   };
 
-  const foodGroup = formatFoodGroup(item.grocery_items?.food_groups);
+  const handleSubtractQuantity = () => {
+    if (!item.household_id || !item.grocery_item_id) return;
+
+    removeListItem({
+      householdId: item.household_id,
+      groceryItemId: item.grocery_item_id,
+      quantity: 1,
+    });
+  };
+
+  const handleAddQuantity = () => {
+    if (!item.household_id || !item.grocery_item_id) return;
+
+    addListItem({
+      householdId: item.household_id,
+      groceryItemId: item.grocery_item_id,
+      quantity: 1,
+    });
+  };
+
+  const handleViewItem = () => {
+    if (!item.household_id || !item.grocery_item_id) return;
+
+    router.push({
+      pathname: "/(protected)/(modals)/grocery-item",
+      params: { id: item.grocery_item_id },
+    });
+  };
 
   return (
     <Animated.View
@@ -186,7 +203,10 @@ const ListItem = ({
             const backgroundColor = interpolateColor(
               animatedChecked.value,
               [0, 1],
-              ["#22c55e", "#d4d4d8"]
+              [
+                (green500 as string) || "#22c55e",
+                (muted as string) || "#d4d4d8",
+              ]
             );
 
             return {
@@ -201,6 +221,18 @@ const ListItem = ({
             };
           });
 
+          const whiteIconStyle = useAnimatedStyle(() => {
+            return {
+              opacity: withTiming(1 - animatedChecked.value, { duration: 300 }),
+            };
+          });
+
+          const blackIconStyle = useAnimatedStyle(() => {
+            return {
+              opacity: withTiming(animatedChecked.value, { duration: 300 }),
+            };
+          });
+
           return (
             <Pressable
               onPress={handleCompleteChangeAction}
@@ -212,11 +244,23 @@ const ListItem = ({
                 style={backgroundStyle}
               >
                 <Animated.View style={iconStyle}>
-                  <Icon
-                    as={item.checked ? X : ShoppingBasket}
-                    color="white"
-                    className="size-5"
-                  />
+                  <View className="relative">
+                    <Animated.View style={whiteIconStyle}>
+                      <Icon
+                        as={ShoppingBasket}
+                        className="size-5"
+                        color="#ffffff"
+                      />
+                    </Animated.View>
+                    <Animated.View
+                      style={[
+                        blackIconStyle,
+                        { position: "absolute", top: 0, left: 0 },
+                      ]}
+                    >
+                      <Icon as={X} className="size-5" color="#000000" />
+                    </Animated.View>
+                  </View>
                 </Animated.View>
               </Animated.View>
             </Pressable>
@@ -230,15 +274,6 @@ const ListItem = ({
           });
 
           const backgroundStyle = useAnimatedStyle(() => {
-            const isOvershoot = -translation.value > OVERSHOOT_THRESHOLD;
-
-            if (isOvershoot && !hasTriggeredRightHaptic.value) {
-              hasTriggeredRightHaptic.value = true;
-              scheduleOnRN(triggerRightHaptic);
-            }
-
-            scheduleOnRN(updateOvershootRight, isOvershoot);
-
             return {
               width: -translation.value + 8,
             };
@@ -251,24 +286,33 @@ const ListItem = ({
           });
 
           return (
-            <Pressable
-              onPress={handleDelete}
-              className="relative h-full"
-              style={{ width: OVERSHOOT_THRESHOLD }}
-            >
-              <Animated.View
-                className="absolute top-0 right-0 h-full items-center justify-center bg-destructive"
-                style={backgroundStyle}
-              >
-                <Animated.View style={iconStyle}>
-                  <Icon as={Trash} color="white" className="size-5" />
-                </Animated.View>
-              </Animated.View>
-            </Pressable>
+            <DropdownMenuRoot>
+              <DropdownMenuTrigger>
+                <Pressable className="relative h-full w-[80px]">
+                  <Animated.View
+                    className="absolute top-0 right-0 h-full items-center justify-center bg-muted"
+                    style={backgroundStyle}
+                  >
+                    <Animated.View style={iconStyle}>
+                      <Icon as={Ellipsis} className="size-5" />
+                    </Animated.View>
+                  </Animated.View>
+                </Pressable>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem key="view-item" onSelect={handleViewItem}>
+                  <DropdownMenuItemTitle>View Item</DropdownMenuItemTitle>
+                  <DropdownMenuItemIcon ios={{ name: "eye" }} />
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenuRoot>
           );
         }}
       >
-        <View className="flex-row items-center gap-3 px-4 rounded-md bg-background">
+        <Pressable
+          className="flex-row items-center gap-3 px-4 rounded-md bg-background"
+          onPress={handleCompleteChange}
+        >
           <AnimatedCheckbox checked={item.checked} />
           <ListItemComponent
             item={{
@@ -280,12 +324,26 @@ const ListItem = ({
             }}
             handlePress={handleCompleteChange}
             renderRight={() => (
-              <Text className="text-sm text-muted-foreground">
-                {item.total_quantity}
-              </Text>
+              <View className="flex-row items-center justify-center gap-2">
+                <Button
+                  variant="outline"
+                  className="rounded-full size-7 px-0"
+                  onPress={handleSubtractQuantity}
+                >
+                  <Icon as={Minus} className="size-4" />
+                </Button>
+                <Text>{item.total_quantity}</Text>
+                <Button
+                  variant="outline"
+                  className="rounded-full size-7 px-0"
+                  onPress={handleAddQuantity}
+                >
+                  <Icon as={Plus} className="size-4" />
+                </Button>
+              </View>
             )}
           />
-        </View>
+        </Pressable>
       </Swipeable>
     </Animated.View>
   );

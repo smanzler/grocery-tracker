@@ -14,14 +14,14 @@ interface Item {
 
 interface ListItemProps {
   item: Item;
-  handlePress: () => void;
+  handlePress?: () => void;
   renderRight?: () => React.ReactNode;
 }
 
 export const ListItem = ({ item, handlePress, renderRight }: ListItemProps) => {
   return (
     <Pressable
-      className="flex-row items-center gap-2 rounded-md gap-4 p-1 flex-1"
+      className="flex-row items-center rounded-md gap-3 p-1 flex-1"
       onPress={handlePress}
     >
       <View className="relative">
