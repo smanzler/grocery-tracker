@@ -251,7 +251,9 @@ function GroceryItemContent({
                     </DropdownMenuItem>
                     <DropdownMenuItem key="merge" onSelect={handleMerge}>
                       <DropdownMenuItemTitle>Merge</DropdownMenuItemTitle>
-                      <DropdownMenuItemIcon ios={{ name: "merge" }} />
+                      <DropdownMenuItemIcon
+                        ios={{ name: "arrow.trianglehead.merge" }}
+                      />
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       key="delete"

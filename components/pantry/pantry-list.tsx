@@ -32,13 +32,7 @@ import {
   ContextMenuTrigger,
 } from "../ui/context-menu";
 
-const PantryItem = ({
-  item,
-}: {
-  item: Tables<"pantry_items"> & {
-    grocery_items: Tables<"grocery_items">;
-  };
-}) => {
+const PantryItem = ({ item }: { item: Tables<"pantry_items"> }) => {
   const { householdId } = useHouseholdStore();
   const { mutateAsync: consumePantryItem, isPending } = useConsumePantryItem(
     householdId ?? ""
@@ -56,8 +50,9 @@ const PantryItem = ({
     console.log("pressed");
   };
 
+  console.log(item);
   return (
-    <ContextMenuRoot key={item.id}>
+    <ContextMenuRoot>
       <ContextMenuTrigger>
         <Animated.View
           layout={LinearTransition.duration(200)}
@@ -69,20 +64,15 @@ const PantryItem = ({
             onPress={handlePress}
           >
             <View className="relative">
-              <Avatar
-                alt={item.grocery_items?.name ?? ""}
-                className="size-12 rounded-md"
-              >
-                <AvatarImage
-                  source={{ uri: item.grocery_items?.image_url ?? undefined }}
-                />
+              <Avatar alt={item.name ?? ""} className="size-12 rounded-md">
+                <AvatarImage source={{ uri: item.image_url ?? undefined }} />
                 <ColoredFallback
-                  id={item.id}
-                  text={item.grocery_items?.name?.charAt(0) ?? "I"}
+                  id={item.grocery_item_id ?? ""}
+                  text={item.name?.charAt(0) ?? "I"}
                   className="size-12 rounded-md"
                 />
               </Avatar>
-              {item.grocery_items?.is_global && (
+              {item.is_global && (
                 <View className="absolute -bottom-1.5 -right-1.5 size-5 bg-blue-500 rounded-full border border-white items-center justify-center">
                   <Icon as={Globe} className="size-3 text-white" />
                 </View>
@@ -90,7 +80,10 @@ const PantryItem = ({
             </View>
             <View className="space-y-1 flex-1">
               <Text className="text-base font-medium flex-shrink text-ellipsis line-clamp-2">
-                {item.grocery_items?.name ?? ""}
+                {item.name ?? ""}
+              </Text>
+              <Text className="text-sm text-muted-foreground">
+                {item.brand ?? ""}
               </Text>
             </View>
             {isPending ? (
@@ -107,7 +100,7 @@ const PantryItem = ({
         <ContextMenuItem
           key="consume"
           destructive
-          onSelect={() => handleConsume(item.grocery_item_id)}
+          onSelect={() => handleConsume(item.grocery_item_id ?? "")}
         >
           <ContextMenuItemTitle>Consume</ContextMenuItemTitle>
           <ContextMenuItemIcon ios={{ name: "minus" }} />
@@ -147,7 +140,9 @@ export default function PantryList() {
           </EmptyContent>
         </Empty>
       ) : (
-        data.map((item) => <PantryItem key={item.id} item={item} />)
+        data.map((item, index) => (
+          <PantryItem key={item.grocery_item_id ?? index} item={item} />
+        ))
       )}
     </BScrollView>
   );

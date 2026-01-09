@@ -352,42 +352,6 @@ export type Database = {
           },
         ]
       }
-      pantry_items: {
-        Row: {
-          grocery_item_id: string
-          household_id: string
-          id: string
-          total_quantity: number
-        }
-        Insert: {
-          grocery_item_id: string
-          household_id: string
-          id?: string
-          total_quantity?: number
-        }
-        Update: {
-          grocery_item_id?: string
-          household_id?: string
-          id?: string
-          total_quantity?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "pantry_items_grocery_item_id_fkey"
-            columns: ["grocery_item_id"]
-            isOneToOne: false
-            referencedRelation: "grocery_items"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "pantry_items_household_id_fkey"
-            columns: ["household_id"]
-            isOneToOne: false
-            referencedRelation: "households"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       profiles: {
         Row: {
           created_at: string
@@ -414,7 +378,36 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      pantry_items: {
+        Row: {
+          brand: string | null
+          grocery_item_id: string | null
+          household_id: string | null
+          image_url: string | null
+          is_global: boolean | null
+          name: string | null
+          next_expiration: string | null
+          quantity: number | null
+          quantity_unit: string | null
+          total_quantity: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pantry_batches_grocery_item_id_fkey"
+            columns: ["grocery_item_id"]
+            isOneToOne: false
+            referencedRelation: "grocery_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pantry_batches_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       add_household_user: {

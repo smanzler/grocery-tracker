@@ -131,14 +131,6 @@ values (
 )
 on conflict do nothing;
 
-insert into pantry_items (household_id, grocery_item_id, total_quantity)
-values (
-    '11111111-1111-1111-1111-111111111111',
-    '11111111-1111-1111-1111-111111111111',
-    1
-)
-on conflict do nothing;
-
 insert into pantry_events (batch_id, user_id, event, quantity)
 values (
     '11111111-1111-1111-1111-111111111111',

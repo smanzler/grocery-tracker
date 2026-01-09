@@ -1,5 +1,6 @@
 import { useUpdateGroceryItem } from "@/api/grocery-item/mutations";
 import { useGroceryItem } from "@/api/grocery-item/queries";
+import { KBAScrollView } from "@/components/scroll/kba-scroll-view";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -23,7 +24,7 @@ import { router, Stack, useLocalSearchParams } from "expo-router";
 import { ShoppingBasketIcon } from "lucide-react-native";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, ScrollView, View } from "react-native";
+import { Alert, View } from "react-native";
 
 type GroceryItemFormData = {
   name: string;
@@ -82,7 +83,13 @@ export default function EditGroceryItem() {
   if (isLoading) {
     return (
       <>
-        <Stack.Screen options={{ title: "Edit Item" }} />
+        <Stack.Screen
+          options={{
+            title: "Edit Item",
+            headerShown: true,
+            headerLargeTitleEnabled: true,
+          }}
+        />
         <View className="flex-1 items-center justify-center">
           <Spinner />
         </View>
@@ -93,7 +100,13 @@ export default function EditGroceryItem() {
   if (!groceryItem) {
     return (
       <>
-        <Stack.Screen options={{ title: "Edit Item" }} />
+        <Stack.Screen
+          options={{
+            title: "Edit Item",
+            headerShown: true,
+            headerLargeTitleEnabled: true,
+          }}
+        />
         <Empty>
           <EmptyContent>
             <EmptyHeader>
@@ -113,11 +126,14 @@ export default function EditGroceryItem() {
 
   return (
     <>
-      <Stack.Screen options={{ title: "Edit Item" }} />
-      <ScrollView
-        className="flex-1 bg-background"
-        contentContainerClassName="p-4"
-      >
+      <Stack.Screen
+        options={{
+          title: groceryItem.name ?? "",
+          headerShown: true,
+          headerLargeTitleEnabled: true,
+        }}
+      />
+      <KBAScrollView>
         <FieldGroup>
           <Field className="gap-1.5">
             <FieldLabel htmlFor="name">Name</FieldLabel>
@@ -210,7 +226,7 @@ export default function EditGroceryItem() {
             )}
           </Button>
         </FieldGroup>
-      </ScrollView>
+      </KBAScrollView>
     </>
   );
 }
