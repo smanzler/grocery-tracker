@@ -42,7 +42,12 @@ const GroceryItem = ({ item }: { item: Tables<"grocery_items"> }) => {
           id: item.id,
           name: item.name,
           image_url: item.image_url,
-          subtitle: [item.brand, `${item.quantity} ${item.quantity_unit}`]
+          subtitle: [
+            item.brand,
+            item.quantity && item.quantity_unit
+              ? `${item.quantity} ${item.quantity_unit}`
+              : undefined,
+          ]
             .filter(Boolean)
             .join(" | "),
           is_global: item.is_global,
