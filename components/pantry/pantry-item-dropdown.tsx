@@ -54,6 +54,9 @@ export function PantryItemDropdown({ itemId }: { itemId: string }) {
         return (
           <Animated.View
             key={batch.id}
+            entering={FadeInUp.duration(200)}
+            exiting={FadeOutUp.duration(200)}
+            layout={LinearTransition.duration(200)}
             className="py-3 px-4 border-t border-border"
           >
             <View className="mb-2">
