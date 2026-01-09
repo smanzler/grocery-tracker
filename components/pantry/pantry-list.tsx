@@ -1,3 +1,4 @@
+import { useAddListItem } from "@/api/list-item/mutations";
 import { useConsumePantryItem } from "@/api/pantry/mutations";
 import { usePantryItems } from "@/api/pantry/queries";
 import { BScrollView } from "@/components/scroll/b-scroll-view";
@@ -11,33 +12,37 @@ import {
 } from "@/components/ui/empty";
 import { Icon } from "@/components/ui/icon";
 import { Spinner } from "@/components/ui/spinner";
-import { Text } from "@/components/ui/text";
 import { Tables } from "@/lib/database.types";
+import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
-import { Globe, RefrigeratorIcon } from "lucide-react-native";
-import { Pressable, View } from "react-native";
+import { router } from "expo-router";
+import { MoreVertical, RefrigeratorIcon } from "lucide-react-native";
+import { Alert, View } from "react-native";
 import Animated, {
   FadeIn,
   FadeOut,
   LinearTransition,
 } from "react-native-reanimated";
+import { ListItem } from "../list-item";
 import RefetchControl from "../refetch-control";
-import { Avatar, AvatarImage, ColoredFallback } from "../ui/avatar";
+import { Button } from "../ui/button";
 import {
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuItemIcon,
-  ContextMenuItemTitle,
-  ContextMenuRoot,
-  ContextMenuTrigger,
-} from "../ui/context-menu";
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuItemIcon,
+  DropdownMenuItemTitle,
+  DropdownMenuRoot,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 const PantryItem = ({ item }: { item: Tables<"pantry_items"> }) => {
   const { householdId } = useHouseholdStore();
   const { mutateAsync: consumePantryItem, isPending } = useConsumePantryItem(
     householdId ?? ""
   );
-
+  const { mutateAsync: addListItem, isPending: isAddingListItem } =
+    useAddListItem(householdId ?? "");
+  const { user } = useAuthStore();
   const handleConsume = async (itemId: string) => {
     await consumePantryItem({
       householdId: householdId ?? "",
@@ -47,66 +52,84 @@ const PantryItem = ({ item }: { item: Tables<"pantry_items"> }) => {
   };
 
   const handlePress = () => {
-    console.log("pressed");
+    handleViewItem(item.grocery_item_id ?? "");
   };
 
-  console.log(item);
+  const handleAddToGroceryList = async (itemId: string) => {
+    if (!householdId || !user) return;
+    await addListItem({
+      householdId,
+      groceryItemId: itemId,
+      quantity: 1,
+    });
+
+    Alert.alert("Item added to grocery list");
+  };
+
+  const handleViewItem = (itemId: string) => {
+    router.push({
+      pathname: "/(protected)/(modals)/grocery-item",
+      params: { id: itemId },
+    });
+  };
+
   return (
-    <ContextMenuRoot>
-      <ContextMenuTrigger>
-        <Animated.View
-          layout={LinearTransition.duration(200)}
-          entering={FadeIn.duration(200)}
-          exiting={FadeOut.duration(200)}
-        >
-          <Pressable
-            className="flex-row items-center gap-2 rounded-md gap-4 p-1"
-            onPress={handlePress}
-          >
-            <View className="relative">
-              <Avatar alt={item.name ?? ""} className="size-12 rounded-md">
-                <AvatarImage source={{ uri: item.image_url ?? undefined }} />
-                <ColoredFallback
-                  id={item.grocery_item_id ?? ""}
-                  text={item.name?.charAt(0) ?? "I"}
-                  className="size-12 rounded-md"
-                />
-              </Avatar>
-              {item.is_global && (
-                <View className="absolute -bottom-1.5 -right-1.5 size-5 bg-blue-500 rounded-full border border-white items-center justify-center">
-                  <Icon as={Globe} className="size-3 text-white" />
-                </View>
-              )}
-            </View>
-            <View className="space-y-1 flex-1">
-              <Text className="text-base font-medium flex-shrink text-ellipsis line-clamp-2">
-                {item.name ?? ""}
-              </Text>
-              <Text className="text-sm text-muted-foreground">
-                {item.brand ?? ""}
-              </Text>
-            </View>
-            {isPending ? (
-              <Spinner />
-            ) : (
-              <Text className="text-sm text-muted-foreground">
-                {item.total_quantity}x
-              </Text>
-            )}
-          </Pressable>
-        </Animated.View>
-      </ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuItem
-          key="consume"
-          destructive
-          onSelect={() => handleConsume(item.grocery_item_id ?? "")}
-        >
-          <ContextMenuItemTitle>Consume</ContextMenuItemTitle>
-          <ContextMenuItemIcon ios={{ name: "minus" }} />
-        </ContextMenuItem>
-      </ContextMenuContent>
-    </ContextMenuRoot>
+    <Animated.View
+      layout={LinearTransition.duration(200)}
+      entering={FadeIn.duration(200)}
+      exiting={FadeOut.duration(200)}
+    >
+      <ListItem
+        item={{
+          id: item.grocery_item_id,
+          name: item.name,
+          image_url: item.image_url,
+          subtitle: `${item.total_quantity} total`,
+          is_global: item.is_global,
+        }}
+        handlePress={handlePress}
+        renderRight={() =>
+          isPending ? (
+            <Spinner />
+          ) : (
+            <DropdownMenuRoot>
+              <DropdownMenuTrigger>
+                <Button variant="outline" className="rounded-full" size="icon">
+                  <Icon as={MoreVertical} className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem
+                  key="consume"
+                  onSelect={() => handleConsume(item.grocery_item_id ?? "")}
+                >
+                  <DropdownMenuItemTitle>Consume</DropdownMenuItemTitle>
+                  <DropdownMenuItemIcon ios={{ name: "minus" }} />
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  key="add-to-grocery-list"
+                  onSelect={() =>
+                    handleAddToGroceryList(item.grocery_item_id ?? "")
+                  }
+                >
+                  <DropdownMenuItemTitle>
+                    Add to Grocery List
+                  </DropdownMenuItemTitle>
+                  <DropdownMenuItemIcon ios={{ name: "scroll" }} />
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  key="view-item"
+                  onSelect={() => handleViewItem(item.grocery_item_id ?? "")}
+                >
+                  <DropdownMenuItemTitle>View Item</DropdownMenuItemTitle>
+                  <DropdownMenuItemIcon ios={{ name: "eye" }} />
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenuRoot>
+          )
+        }
+      />
+    </Animated.View>
   );
 };
 

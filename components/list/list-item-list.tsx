@@ -1,6 +1,6 @@
 import {
-  useDeleteListItem,
-  useUpdateListItem,
+  useRemoveListItem,
+  useToggleListItemChecked,
 } from "@/api/list-item/mutations";
 import { useListItems } from "@/api/list-item/queries";
 import { BScrollView } from "@/components/scroll/b-scroll-view";
@@ -14,21 +14,19 @@ import {
 } from "@/components/ui/empty";
 import { Icon } from "@/components/ui/icon";
 import { Spinner } from "@/components/ui/spinner";
-import { Text } from "@/components/ui/text";
 import { Tables } from "@/lib/database.types";
-import { cn, formatFoodGroup } from "@/lib/utils";
+import { formatFoodGroup } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
 import * as Haptics from "expo-haptics";
 import {
-  Globe,
   ShoppingBasket,
   ShoppingCartIcon,
   Trash,
   X,
 } from "lucide-react-native";
-import { useEffect, useRef, useState } from "react";
-import { Image, Pressable, View } from "react-native";
+import { useEffect, useRef } from "react";
+import { Pressable, View } from "react-native";
 import {
   default as Swipeable,
   SwipeableMethods,
@@ -36,6 +34,7 @@ import {
 import Animated, {
   FadeIn,
   FadeOut,
+  interpolateColor,
   LinearTransition,
   useAnimatedStyle,
   useDerivedValue,
@@ -43,8 +42,9 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { scheduleOnRN } from "react-native-worklets";
+import { ListItem as ListItemComponent } from "../list-item";
 import RefetchControl from "../refetch-control";
-import { Avatar, ColoredFallback } from "../ui/avatar";
+import { Text } from "../ui/text";
 import { AnimatedCheckbox } from "./animated-checkbox";
 
 const ListItem = ({
@@ -52,10 +52,10 @@ const ListItem = ({
 }: {
   item: Tables<"list_items"> & { grocery_items: Tables<"grocery_items"> };
 }) => {
-  const { mutate: updateListItem, isPending } = useUpdateListItem(
+  const { mutate: toggleListItemChecked, isPending } = useToggleListItemChecked(
     item.household_id ?? ""
   );
-  const { mutate: deleteListItem } = useDeleteListItem(item.household_id ?? "");
+  const { mutate: removeListItem } = useRemoveListItem(item.household_id ?? "");
 
   const swipeableRef = useRef<SwipeableMethods>(null);
 
@@ -67,14 +67,11 @@ const ListItem = ({
 
   const OVERSHOOT_THRESHOLD = 150;
 
-  const [checkedState, setCheckedState] = useState(item.checked);
-  const pendingNewStateRef = useRef<boolean | null>(null);
+  const animatedChecked = useSharedValue(item.checked ? 1 : 0);
 
   useEffect(() => {
-    if (pendingNewStateRef.current === null) {
-      setCheckedState(item.checked);
-    }
-  }, [item.checked]);
+    animatedChecked.value = withTiming(item.checked ? 1 : 0, { duration: 300 });
+  }, [item.checked, animatedChecked]);
 
   const handleDragStart = () => {
     isDraggingRef.current = true;
@@ -89,27 +86,25 @@ const ListItem = ({
   };
 
   const handleCompleteChangeAction = () => {
-    const newCheckedState = !item.checked;
-    pendingNewStateRef.current = newCheckedState;
+    if (!item.household_id || !item.grocery_item_id) return;
 
-    updateListItem({
-      id: item.id,
-      checked: newCheckedState,
+    toggleListItemChecked({
+      householdId: item.household_id ?? "",
+      groceryItemId: item.grocery_item_id ?? "",
     });
 
     swipeableRef.current?.close();
   };
 
   const handleDeleteAction = () => {
-    swipeableRef.current?.close();
-    deleteListItem(item.id);
-  };
+    if (!item.household_id || !item.grocery_item_id) return;
 
-  const handleSwipeableClose = () => {
-    if (pendingNewStateRef.current !== null) {
-      setCheckedState(pendingNewStateRef.current);
-      pendingNewStateRef.current = null;
-    }
+    swipeableRef.current?.close();
+    removeListItem({
+      householdId: item.household_id,
+      groceryItemId: item.grocery_item_id,
+      quantity: item.total_quantity,
+    });
   };
 
   const handleSwipeableWillOpen = (direction: "left" | "right") => {
@@ -138,18 +133,21 @@ const ListItem = ({
 
   const handleDelete = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
-    deleteListItem(item.id);
+    removeListItem({
+      householdId: item.household_id ?? "",
+      groceryItemId: item.grocery_item_id ?? "",
+      quantity: item.total_quantity ?? 0,
+    });
   };
 
   const handleCompleteChange = () => {
     if (isPending || isDraggingRef.current) return;
 
-    const newCheckedState = !item.checked;
-    setCheckedState(newCheckedState);
+    if (!item.household_id || !item.grocery_item_id) return;
 
-    updateListItem({
-      id: item.id,
-      checked: newCheckedState,
+    toggleListItemChecked({
+      householdId: item.household_id,
+      groceryItemId: item.grocery_item_id,
     });
   };
 
@@ -168,7 +166,6 @@ const ListItem = ({
         onSwipeableOpenStartDrag={handleDragStart}
         onSwipeableWillClose={handleDragEnd}
         onSwipeableWillOpen={handleSwipeableWillOpen}
-        onSwipeableClose={handleSwipeableClose}
         renderLeftActions={(_, translation) => {
           const opacity = useDerivedValue(() => {
             return withTiming(translation.value > 50 ? 1 : 0, {
@@ -186,8 +183,15 @@ const ListItem = ({
 
             scheduleOnRN(updateOvershootLeft, isOvershoot);
 
+            const backgroundColor = interpolateColor(
+              animatedChecked.value,
+              [0, 1],
+              ["#22c55e", "#d4d4d8"]
+            );
+
             return {
               width: translation.value + 8,
+              backgroundColor,
             };
           });
 
@@ -204,15 +208,12 @@ const ListItem = ({
               style={{ width: OVERSHOOT_THRESHOLD }}
             >
               <Animated.View
-                className={cn(
-                  "absolute top-0 left-0 h-full items-center justify-center",
-                  checkedState ? "bg-neutral-300" : "bg-green-500"
-                )}
+                className="absolute top-0 left-0 h-full items-center justify-center"
                 style={backgroundStyle}
               >
                 <Animated.View style={iconStyle}>
                   <Icon
-                    as={checkedState ? X : ShoppingBasket}
+                    as={item.checked ? X : ShoppingBasket}
                     color="white"
                     className="size-5"
                   />
@@ -267,63 +268,24 @@ const ListItem = ({
           );
         }}
       >
-        <Pressable
-          className="flex-row items-center gap-3 px-4 py-2 rounded-md bg-background"
-          onPress={handleCompleteChange}
-        >
+        <View className="flex-row items-center gap-3 px-4 rounded-md bg-background">
           <AnimatedCheckbox checked={item.checked} />
-          <View className="relative">
-            {item.grocery_items?.image_url ? (
-              <View className="size-10 rounded-md overflow-hidden items-center justify-center">
-                <Image
-                  source={{ uri: item.grocery_items.image_url }}
-                  className="size-full"
-                />
-              </View>
-            ) : (
-              <Avatar
-                alt={item.grocery_items?.name ?? ""}
-                className="size-10 rounded-md"
-              >
-                <ColoredFallback
-                  id={item.grocery_items.id}
-                  text={item.grocery_items.name?.charAt(0) ?? "I"}
-                  className="size-10 rounded-md"
-                />
-              </Avatar>
-            )}
-            {item.quantity && item.quantity > 1 && (
-              <View className="absolute -top-1.5 -right-1.5 size-5 bg-background rounded-full border items-center justify-center">
-                <Text className="text-xs text-foreground">{item.quantity}</Text>
-              </View>
-            )}
-            {item.grocery_items?.is_global && (
-              <View className="absolute -bottom-1.5 -right-1.5 size-5 bg-blue-500 rounded-full border border-white items-center justify-center">
-                <Icon as={Globe} className="size-3 text-white" />
-              </View>
-            )}
-          </View>
-          <View className="flex-1">
-            <Text className="flex-shrink text-ellipsis line-clamp-2">
-              {item.grocery_items?.name ?? ""}
-            </Text>
-            {(item.grocery_items?.brand || foodGroup) && (
-              <Text className="text-sm text-muted-foreground line-clamp-2">
-                {[item.grocery_items?.brand, foodGroup]
-                  .filter(Boolean)
-                  .join(" | ")}
+          <ListItemComponent
+            item={{
+              id: item.grocery_item_id,
+              name: item.grocery_items.name,
+              image_url: item.grocery_items.image_url,
+              subtitle: item.grocery_items.brand,
+              is_global: item.grocery_items.is_global,
+            }}
+            handlePress={handleCompleteChange}
+            renderRight={() => (
+              <Text className="text-sm text-muted-foreground">
+                {item.total_quantity}
               </Text>
             )}
-          </View>
-          {item.grocery_items?.quantity && (
-            <Text>
-              {item.grocery_items.quantity}
-              {item.grocery_items.quantity_unit
-                ? ` ${item.grocery_items.quantity_unit}`
-                : ""}
-            </Text>
-          )}
-        </Pressable>
+          />
+        </View>
       </Swipeable>
     </Animated.View>
   );

@@ -1,4 +1,3 @@
-import { TablesInsert, TablesUpdate } from "@/lib/database.types";
 import { supabase } from "@/lib/supabase";
 
 export const getListItems = async (householdId?: string) => {
@@ -11,20 +10,16 @@ export const getListItems = async (householdId?: string) => {
   return data;
 };
 
-export const createListItem = async (listItem: TablesInsert<"list_items">) => {
-  const { data, error } = await supabase.from("list_items").insert(listItem);
-  if (error) throw error;
-  return data;
-};
-
-export const updateListItem = async (listItem: TablesUpdate<"list_items">) => {
-  if (!listItem.id) throw new Error("List item ID is required");
-  const { data, error } = await supabase
-    .from("list_items")
-    .update(listItem)
-    .eq("id", listItem.id)
-    .select()
-    .single();
+export const addListItem = async (
+  householdId: string,
+  groceryItemId: string,
+  quantity: number
+) => {
+  const { data, error } = await supabase.rpc("add_list_item", {
+    p_household_id: householdId,
+    p_grocery_item_id: groceryItemId,
+    p_quantity: quantity,
+  });
   if (error) throw error;
   return data;
 };
@@ -37,10 +32,26 @@ export const checkoutListItems = async (householdId: string) => {
   return data;
 };
 
-export const deleteListItem = async (listItemId: string) => {
-  const { error } = await supabase
-    .from("list_items")
-    .delete()
-    .eq("id", listItemId);
+export const removeListItem = async (
+  householdId: string,
+  groceryItemId: string,
+  quantity: number
+) => {
+  const { error } = await supabase.rpc("remove_list_item", {
+    p_household_id: householdId,
+    p_grocery_item_id: groceryItemId,
+    p_quantity: quantity,
+  });
+  if (error) throw error;
+};
+
+export const toggleListItemChecked = async (
+  householdId: string,
+  groceryItemId: string
+) => {
+  const { error } = await supabase.rpc("toggle_list_item_checked", {
+    p_household_id: householdId,
+    p_grocery_item_id: groceryItemId,
+  });
   if (error) throw error;
 };

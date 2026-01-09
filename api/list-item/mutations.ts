@@ -1,51 +1,60 @@
-import { Tables, TablesInsert, TablesUpdate } from "@/lib/database.types";
+import { Tables } from "@/lib/database.types";
 import {
   optimisticRollback,
   optimisticUpdate,
   queryClient,
-  updateWithServerResponse,
 } from "@/lib/query-client";
 import { useMutation } from "@tanstack/react-query";
 import {
+  addListItem,
   checkoutListItems,
-  createListItem,
-  deleteListItem,
-  updateListItem,
+  removeListItem,
+  toggleListItemChecked,
 } from "./client";
 
-export const useCreateListItem = (householdId: string) => {
+export const useAddListItem = (householdId: string) => {
   return useMutation({
-    mutationFn: (listItem: TablesInsert<"list_items">) =>
-      createListItem(listItem),
+    mutationFn: ({
+      householdId,
+      groceryItemId,
+      quantity,
+    }: {
+      householdId: string;
+      groceryItemId: string;
+      quantity: number;
+    }) => addListItem(householdId, groceryItemId, quantity),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["list-items", householdId] });
     },
   });
 };
 
-export const useUpdateListItem = (householdId: string) => {
+export const useToggleListItemChecked = (householdId: string) => {
   const queryKey = ["list-items", householdId];
 
   return useMutation({
-    mutationFn: (listItem: TablesUpdate<"list_items">) =>
-      updateListItem(listItem),
+    mutationFn: ({
+      householdId,
+      groceryItemId,
+    }: {
+      householdId: string;
+      groceryItemId: string;
+    }) => toggleListItemChecked(householdId, groceryItemId),
     onMutate: optimisticUpdate<
       Tables<"list_items">[],
-      TablesUpdate<"list_items">
+      { householdId: string; groceryItemId: string }
     >({
       queryKey,
-      updater: (old, listItem) =>
-        old.map((item) =>
-          item.id === listItem.id ? { ...item, ...listItem } : item
-        ),
-    }),
-    onSuccess: updateWithServerResponse<
-      Tables<"list_items">[],
-      Tables<"list_items">,
-      TablesUpdate<"list_items">
-    >({
-      queryKey,
-      matcher: (item, variables) => item.id === variables.id,
+      updater: (old, variables) =>
+        old.map((item) => {
+          if (item.grocery_item_id === variables.groceryItemId) {
+            return {
+              ...item,
+              checked: !item.checked,
+            };
+          }
+          return item;
+        }),
     }),
     onError: optimisticRollback<Tables<"list_items">[]>(queryKey),
   });
@@ -71,20 +80,21 @@ export const useCheckoutListItems = (householdId: string) => {
   });
 };
 
-export const useDeleteListItem = (householdId: string) => {
+export const useRemoveListItem = (householdId: string) => {
   return useMutation({
-    mutationFn: (listItemId: string) => deleteListItem(listItemId),
-    onMutate: optimisticUpdate<Tables<"list_items">[], string>({
-      queryKey: ["list-items", householdId],
-      updater: (old, listItemId) =>
-        old.filter((item) => item.id !== listItemId),
-    }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["list-items", householdId] });
-    },
-    onError: optimisticRollback<Tables<"list_items">[]>([
-      "list-items",
+    mutationFn: ({
       householdId,
-    ]),
+      groceryItemId,
+      quantity,
+    }: {
+      householdId: string;
+      groceryItemId: string;
+      quantity: number;
+    }) => removeListItem(householdId, groceryItemId, quantity),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["list-items", householdId],
+      });
+    },
   });
 };

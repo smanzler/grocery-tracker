@@ -1,17 +1,5 @@
-import { useDeleteGroceryItem } from "@/api/grocery-item/mutations";
 import { useGroceryItem } from "@/api/grocery-item/queries";
-import { useCreateListItem } from "@/api/list-item/mutations";
 import { usePantryEvents } from "@/api/pantry/events/queries";
-import { useAddPantryItem } from "@/api/pantry/mutations";
-import {
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuItemIcon,
-  DropdownMenuItemTitle,
-  DropdownMenuRoot,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Empty,
   EmptyContent,
@@ -25,22 +13,20 @@ import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { Tables } from "@/lib/database.types";
 import { formatFoodGroup } from "@/lib/utils";
-import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
 import { Header } from "@react-navigation/elements";
 import { format } from "date-fns";
 import { ImageBackground } from "expo-image";
-import { router, Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams } from "expo-router";
 import {
   ArrowDownToLine,
   Globe,
   Home,
-  MoreVertical,
   Plus,
   ShoppingBasketIcon,
   Trash2,
 } from "lucide-react-native";
-import { Alert, View } from "react-native";
+import { View } from "react-native";
 import Animated, {
   interpolate,
   useAnimatedRef,
@@ -55,17 +41,9 @@ function GroceryItemContent({
 }) {
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const scrollOffset = useScrollOffset(scrollRef);
-  const { user } = useAuthStore();
   const { householdId } = useHouseholdStore();
 
   const { data: history } = usePantryEvents(householdId ?? "", groceryItem.id);
-
-  const { mutateAsync: addToShoppingList, isPending: isAddingToShoppingList } =
-    useCreateListItem(householdId ?? "");
-  const { mutateAsync: addToPantry, isPending: isAddingToPantry } =
-    useAddPantryItem(householdId ?? "");
-  const { mutateAsync: deleteGroceryItem, isPending: isDeletingGroceryItem } =
-    useDeleteGroceryItem();
 
   const IMAGE_HEIGHT = groceryItem.image_url ? 300 : 100;
 
@@ -97,83 +75,6 @@ function GroceryItemContent({
   }));
 
   const foodGroup = formatFoodGroup(groceryItem.food_groups);
-
-  const handleAddToShoppingList = async () => {
-    if (!householdId || !user) return;
-
-    await addToShoppingList({
-      grocery_item_id: groceryItem.id,
-      household_id: householdId,
-      quantity: 1,
-      user_id: user.id,
-    });
-
-    router.back();
-
-    setTimeout(() => {
-      router.replace("/(protected)/(tabs)");
-    }, 0);
-
-    Alert.alert("Item added to shopping list");
-  };
-
-  const handleAddToPantry = async () => {
-    if (!householdId || !user) return;
-
-    await addToPantry({
-      householdId,
-      items: [{ grocery_item_id: groceryItem.id, quantity: 1 }],
-    });
-
-    router.back();
-
-    setTimeout(() => {
-      router.replace("/(protected)/(tabs)/pantry");
-    }, 0);
-
-    Alert.alert("Item added to pantry");
-  };
-
-  const handleEdit = () => {
-    router.push({
-      pathname: "/(protected)/(modals)/edit-grocery-item",
-      params: { id: groceryItem.id },
-    });
-  };
-
-  const handleDelete = () => {
-    Alert.alert(
-      "Delete",
-      "Are you sure you want to delete this grocery item?",
-      [
-        { text: "Cancel", style: "cancel" },
-        { text: "Delete", style: "destructive", onPress: handleDeletePress },
-      ]
-    );
-  };
-
-  const handleDeletePress = async () => {
-    if (!householdId || !user) return;
-
-    await deleteGroceryItem(groceryItem.id);
-
-    router.back();
-
-    Alert.alert("Success", "Grocery item deleted successfully");
-  };
-
-  const handleMerge = () => {
-    router.back();
-    setTimeout(() => {
-      router.push({
-        pathname: "/(protected)/(modals)/select-grocery-item",
-        params: { sourceId: groceryItem.id },
-      });
-    }, 0);
-  };
-
-  const isLoading =
-    isAddingToShoppingList || isAddingToPantry || isDeletingGroceryItem;
 
   return (
     <>
@@ -209,65 +110,9 @@ function GroceryItemContent({
           <View className="h-12" />
         )}
         <View className="relative flex-1 bg-background p-4">
-          <View className="flex-row items-start gap-2 mb-1">
-            <Text variant="h1" className="text-left flex-shrink flex-1">
-              {groceryItem.name}
-            </Text>
-            <DropdownMenuRoot>
-              <DropdownMenuTrigger disabled={isLoading}>
-                {isLoading ? (
-                  <Spinner />
-                ) : (
-                  <Icon
-                    as={MoreVertical}
-                    className="size-6 text-muted-foreground"
-                  />
-                )}
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuGroup>
-                  <DropdownMenuItem
-                    key="add-to-shopping-list"
-                    onSelect={handleAddToShoppingList}
-                  >
-                    <DropdownMenuItemTitle>
-                      Add to Grocery List
-                    </DropdownMenuItemTitle>
-                    <DropdownMenuItemIcon ios={{ name: "scroll" }} />
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    key="add-to-pantry"
-                    onSelect={handleAddToPantry}
-                  >
-                    <DropdownMenuItemTitle>Add to Pantry</DropdownMenuItemTitle>
-                    <DropdownMenuItemIcon ios={{ name: "refrigerator" }} />
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                {!groceryItem.is_global && user?.id === groceryItem.user_id && (
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem key="edit" onSelect={handleEdit}>
-                      <DropdownMenuItemTitle>Edit</DropdownMenuItemTitle>
-                      <DropdownMenuItemIcon ios={{ name: "pencil" }} />
-                    </DropdownMenuItem>
-                    <DropdownMenuItem key="merge" onSelect={handleMerge}>
-                      <DropdownMenuItemTitle>Merge</DropdownMenuItemTitle>
-                      <DropdownMenuItemIcon
-                        ios={{ name: "arrow.trianglehead.merge" }}
-                      />
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      key="delete"
-                      destructive
-                      onSelect={handleDelete}
-                    >
-                      <DropdownMenuItemTitle>Delete</DropdownMenuItemTitle>
-                      <DropdownMenuItemIcon ios={{ name: "trash" }} />
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenuRoot>
-          </View>
+          <Text variant="h1" className="text-left mb-1">
+            {groceryItem.name}
+          </Text>
           <View className="flex-row items-center gap-2 mb-2">
             {groceryItem.is_global ? (
               <>

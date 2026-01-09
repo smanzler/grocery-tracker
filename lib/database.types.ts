@@ -210,7 +210,7 @@ export type Database = {
           grocery_item_id: string
           household_id: string
           id: string
-          quantity: number
+          total_quantity: number
           user_id: string
         }
         Insert: {
@@ -219,7 +219,7 @@ export type Database = {
           grocery_item_id: string
           household_id: string
           id?: string
-          quantity?: number
+          total_quantity?: number
           user_id: string
         }
         Update: {
@@ -228,7 +228,7 @@ export type Database = {
           grocery_item_id?: string
           household_id?: string
           id?: string
-          quantity?: number
+          total_quantity?: number
           user_id?: string
         }
         Relationships: [
@@ -414,6 +414,14 @@ export type Database = {
         Args: { p_email: string; p_household_id: string }
         Returns: string
       }
+      add_list_item: {
+        Args: {
+          p_grocery_item_id: string
+          p_household_id: string
+          p_quantity: number
+        }
+        Returns: undefined
+      }
       add_pantry_batches: {
         Args: { p_household_id: string; p_items: Json }
         Returns: undefined
@@ -459,6 +467,18 @@ export type Database = {
       redeem_household_invite: {
         Args: { p_invite_token: string; p_user_id: string }
         Returns: string
+      }
+      remove_list_item: {
+        Args: {
+          p_grocery_item_id: string
+          p_household_id: string
+          p_quantity: number
+        }
+        Returns: undefined
+      }
+      toggle_list_item_checked: {
+        Args: { p_grocery_item_id: string; p_household_id: string }
+        Returns: boolean
       }
     }
     Enums: {

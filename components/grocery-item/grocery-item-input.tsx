@@ -1,6 +1,6 @@
 import { useCreateGroceryItem } from "@/api/grocery-item/mutations";
 import { useGroceryItems } from "@/api/grocery-item/queries";
-import { useCreateListItem } from "@/api/list-item/mutations";
+import { useAddListItem } from "@/api/list-item/mutations";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
@@ -60,15 +60,16 @@ export default function GroceryItemInput() {
 
   const { mutateAsync: createGroceryItem, isPending: isCreatingGroceryItem } =
     useCreateGroceryItem();
-  const { mutate: createListItem, isPending: isCreatingListItem } =
-    useCreateListItem(householdId ?? "");
+  const { mutate: addListItem, isPending: isAddingListItem } = useAddListItem(
+    householdId ?? ""
+  );
 
   const isDebouncing = search !== debouncedSearch;
   const isSearching = search.length > 0;
   const showLoading = (isDebouncing || isLoading) && isSearching;
   const showGroceryItems = groceryItems && groceryItems.length > 0;
 
-  const isSubmitting = isCreatingGroceryItem || isCreatingListItem;
+  const isSubmitting = isCreatingGroceryItem || isAddingListItem;
 
   const showOverlay =
     (showLoading || showGroceryItems) &&
@@ -94,11 +95,10 @@ export default function GroceryItemInput() {
 
     if (!groceryItem) return;
 
-    createListItem({
-      grocery_item_id: groceryItem.id,
-      household_id: householdId,
+    addListItem({
+      householdId,
+      groceryItemId: groceryItem.id,
       quantity: 1,
-      user_id: user.id,
     });
 
     setSearch("");
@@ -109,11 +109,10 @@ export default function GroceryItemInput() {
     if (!householdId || !user) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
 
-    createListItem({
-      grocery_item_id: item.id,
-      household_id: householdId,
+    addListItem({
+      householdId,
+      groceryItemId: item.id,
       quantity: 1,
-      user_id: user.id,
     });
 
     setSearch("");
