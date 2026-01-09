@@ -112,7 +112,7 @@ export const GroceryItemDropdown = ({
           </DropdownMenuItem>
           <DropdownMenuItem key="add-to-pantry" onSelect={handleAddToPantry}>
             <DropdownMenuItemTitle>Add to Pantry</DropdownMenuItemTitle>
-            <DropdownMenuItemIcon ios={{ name: "refrigerator" }} />
+            <DropdownMenuItemIcon ios={{ name: "fork.knife" }} />
           </DropdownMenuItem>
         </DropdownMenuGroup>
         {!item.is_global && user?.id === item.user_id && (
