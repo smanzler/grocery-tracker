@@ -131,4 +131,45 @@ end;
 $function$
 ;
 
+CREATE OR REPLACE FUNCTION public.checkout_list_items(p_household_id uuid)
+ RETURNS void
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$declare
+  v_user_id uuid := auth.uid();
+  v_items jsonb;
+begin
+  if v_user_id is null then
+    raise exception 'Unauthorized';
+  end if;
+
+  if not is_household_user(p_household_id) then
+    raise exception 'Unauthorized';
+  end if;
+
+  select jsonb_agg(
+    jsonb_build_object(
+      'grocery_item_id', grocery_item_id,
+      'quantity', total_quantity,
+      'expires_at', null
+    )
+  )
+  into v_items
+  from list_items li
+  where li.household_id = p_household_id
+    and li.checked = true;
+
+  if v_items is null then
+    raise exception 'Items are empty';
+  end if;
+
+  perform add_pantry_batches(p_household_id, v_items);
+
+  delete from list_items li
+  where li.household_id = p_household_id
+    and li.checked = true;
+end$function$
+;
+
 

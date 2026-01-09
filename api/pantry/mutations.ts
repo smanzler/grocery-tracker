@@ -13,9 +13,12 @@ export const useConsumePantryItem = (householdId: string) => {
       itemId: string;
       quantity: number;
     }) => consumePantryItem(householdId, itemId, quantity),
-    onSuccess: () => {
+    onSuccess: (itemId: string) => {
       queryClient.invalidateQueries({
         queryKey: ["pantry-items", householdId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["pantry-batches", { householdId, itemId }],
       });
     },
   });

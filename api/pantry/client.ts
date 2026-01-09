@@ -14,13 +14,13 @@ export const consumePantryItem = async (
   itemId: string,
   quantity: number
 ) => {
-  const { data, error } = await supabase.rpc("consume_pantry_item", {
+  const { error } = await supabase.rpc("consume_pantry_item", {
     p_household_id: householdId,
     p_grocery_item_id: itemId,
     p_quantity: quantity,
   });
   if (error) throw error;
-  return data;
+  return itemId;
 };
 
 export const emptyPantry = async (householdId: string) => {

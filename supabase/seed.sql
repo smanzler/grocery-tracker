@@ -111,7 +111,7 @@ values (
 )
 on conflict do nothing;
 
-insert into list_items (household_id, user_id, grocery_item_id, quantity)
+insert into list_items (household_id, user_id, grocery_item_id, total_quantity)
 values (
     '11111111-1111-1111-1111-111111111111',
     '11111111-1111-1111-1111-111111111111',

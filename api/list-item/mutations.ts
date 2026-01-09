@@ -76,6 +76,9 @@ export const useCheckoutListItems = (householdId: string) => {
       queryClient.invalidateQueries({
         queryKey: ["pantry-items", householdId],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["pantry-batches"],
+      });
     },
   });
 };
