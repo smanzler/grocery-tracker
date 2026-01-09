@@ -60,6 +60,7 @@ const HouseholdListItem = ({
             <ColoredFallback
               id={household.id}
               text={household.name?.charAt(0) || "H"}
+              className="size-20 rounded-lg"
             />
           </Avatar>
           <View className="flex-1">

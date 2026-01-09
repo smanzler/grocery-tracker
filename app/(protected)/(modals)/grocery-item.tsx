@@ -2,7 +2,7 @@ import { useDeleteGroceryItem } from "@/api/grocery-item/mutations";
 import { useGroceryItem } from "@/api/grocery-item/queries";
 import { useCreateListItem } from "@/api/list-item/mutations";
 import { usePantryEvents } from "@/api/pantry/events/queries";
-import { useInsertPantryItem } from "@/api/pantry/mutations";
+import { useAddPantryItem } from "@/api/pantry/mutations";
 import {
   DropdownMenuContent,
   DropdownMenuGroup,
@@ -64,7 +64,7 @@ function GroceryItemContent({
   const { mutateAsync: addToShoppingList, isPending: isAddingToShoppingList } =
     useCreateListItem(householdId ?? "");
   const { mutateAsync: addToPantry, isPending: isAddingToPantry } =
-    useInsertPantryItem(householdId ?? "");
+    useAddPantryItem(householdId ?? "");
   const { mutateAsync: deleteGroceryItem, isPending: isDeletingGroceryItem } =
     useDeleteGroceryItem();
 
@@ -122,10 +122,8 @@ function GroceryItemContent({
     if (!householdId || !user) return;
 
     await addToPantry({
-      grocery_item_id: groceryItem.id,
-      household_id: householdId,
+      itemId: groceryItem.id,
       quantity: 1,
-      user_id: user.id,
     });
 
     router.back();

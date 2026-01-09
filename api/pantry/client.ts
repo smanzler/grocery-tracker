@@ -1,4 +1,3 @@
-import { TablesInsert } from "@/lib/database.types";
 import { supabase } from "@/lib/supabase";
 
 export const getPantryItems = async (householdId: string) => {
@@ -10,11 +9,11 @@ export const getPantryItems = async (householdId: string) => {
   return data;
 };
 
-export const removePantryItem = async (itemId: string) => {
-  const { data, error } = await supabase
-    .from("pantry_items")
-    .delete()
-    .eq("id", itemId);
+export const consumePantryItem = async (itemId: string, quantity: number) => {
+  const { data, error } = await supabase.rpc("consume_pantry_item", {
+    p_item_id: itemId,
+    p_quantity: quantity,
+  });
   if (error) throw error;
   return data;
 };
@@ -27,14 +26,16 @@ export const emptyPantry = async (householdId: string) => {
   if (error) throw error;
 };
 
-export const insertPantryItem = async (
-  pantryItem: TablesInsert<"pantry_items">
+export const addPantryItem = async (
+  itemId: string,
+  quantity: number,
+  expiresAt?: string
 ) => {
-  const { data, error } = await supabase
-    .from("pantry_items")
-    .insert(pantryItem)
-    .select()
-    .single();
+  const { data, error } = await supabase.rpc("add_pantry_item", {
+    p_item_id: itemId,
+    p_quantity: quantity,
+    p_expires_at: expiresAt,
+  });
   if (error) throw error;
   return data;
 };

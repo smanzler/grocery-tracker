@@ -1,4 +1,4 @@
-import { useRemovePantryItem } from "@/api/pantry/mutations";
+import { useConsumePantryItem } from "@/api/pantry/mutations";
 import { usePantryItems } from "@/api/pantry/queries";
 import { BScrollView } from "@/components/scroll/b-scroll-view";
 import {
@@ -42,12 +42,12 @@ const PantryItem = ({
   };
 }) => {
   const { householdId } = useHouseholdStore();
-  const { mutateAsync: removePantryItem, isPending } = useRemovePantryItem(
+  const { mutateAsync: consumePantryItem, isPending } = useConsumePantryItem(
     householdId ?? ""
   );
 
-  const handleRemove = async (itemId: string) => {
-    await removePantryItem(itemId);
+  const handleConsume = async (itemId: string) => {
+    await consumePantryItem({ itemId, quantity: 1 });
   };
 
   const handlePress = () => {
@@ -66,28 +66,30 @@ const PantryItem = ({
             className="flex-row items-center gap-2 rounded-md gap-4 p-1"
             onPress={handlePress}
           >
-            <Avatar
-              alt={item.grocery_items?.name ?? ""}
-              className="size-12 rounded-md"
-            >
-              <AvatarImage
-                source={{ uri: item.grocery_items?.image_url ?? undefined }}
-              />
-              <ColoredFallback
-                id={item.id}
-                text={item.grocery_items?.name?.charAt(0) ?? "I"}
+            <View className="relative">
+              <Avatar
+                alt={item.grocery_items?.name ?? ""}
                 className="size-12 rounded-md"
-              />
-            </Avatar>
+              >
+                <AvatarImage
+                  source={{ uri: item.grocery_items?.image_url ?? undefined }}
+                />
+                <ColoredFallback
+                  id={item.id}
+                  text={item.grocery_items?.name?.charAt(0) ?? "I"}
+                  className="size-12 rounded-md"
+                />
+              </Avatar>
+              {item.grocery_items?.is_global && (
+                <View className="absolute -bottom-1.5 -right-1.5 size-5 bg-blue-500 rounded-full border border-white items-center justify-center">
+                  <Icon as={Globe} className="size-3 text-white" />
+                </View>
+              )}
+            </View>
             <View className="space-y-1 flex-1">
-              <View className="flex-row items-center gap-2">
-                <Text className="text-base font-medium flex-shrink text-ellipsis line-clamp-2">
-                  {item.grocery_items?.name ?? ""}
-                </Text>
-                {item.grocery_items?.is_global && (
-                  <Icon as={Globe} className="size-4 text-blue-500" />
-                )}
-              </View>
+              <Text className="text-base font-medium flex-shrink text-ellipsis line-clamp-2">
+                {item.grocery_items?.name ?? ""}
+              </Text>
 
               <Text className="text-sm text-muted-foreground line-clamp-1">
                 {item.profiles?.display_name ?? "Unknown"} added{" "}
@@ -106,12 +108,12 @@ const PantryItem = ({
       </ContextMenuTrigger>
       <ContextMenuContent>
         <ContextMenuItem
-          key="remove"
+          key="consume"
           destructive
-          onSelect={() => handleRemove(item.id)}
+          onSelect={() => handleConsume(item.id)}
         >
-          <ContextMenuItemTitle>Remove from pantry</ContextMenuItemTitle>
-          <ContextMenuItemIcon ios={{ name: "trash" }} />
+          <ContextMenuItemTitle>Consume</ContextMenuItemTitle>
+          <ContextMenuItemIcon ios={{ name: "minus" }} />
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenuRoot>

@@ -1,11 +1,11 @@
-import { TablesInsert } from "@/lib/database.types";
 import { queryClient } from "@/lib/query-client";
 import { useMutation } from "@tanstack/react-query";
-import { emptyPantry, insertPantryItem, removePantryItem } from "./client";
+import { addPantryItem, consumePantryItem, emptyPantry } from "./client";
 
-export const useRemovePantryItem = (householdId: string) => {
+export const useConsumePantryItem = (householdId: string) => {
   return useMutation({
-    mutationFn: (itemId: string) => removePantryItem(itemId),
+    mutationFn: ({ itemId, quantity }: { itemId: string; quantity: number }) =>
+      consumePantryItem(itemId, quantity),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["pantry-items", householdId],
@@ -25,10 +25,17 @@ export const useEmptyPantry = (householdId: string) => {
   });
 };
 
-export const useInsertPantryItem = (householdId: string) => {
+export const useAddPantryItem = (householdId: string) => {
   return useMutation({
-    mutationFn: (pantryItem: TablesInsert<"pantry_items">) =>
-      insertPantryItem(pantryItem),
+    mutationFn: ({
+      itemId,
+      quantity,
+      expiresAt,
+    }: {
+      itemId: string;
+      quantity: number;
+      expiresAt?: string;
+    }) => addPantryItem(itemId, quantity, expiresAt),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["pantry-items", householdId],
