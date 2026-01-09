@@ -13,11 +13,12 @@ import { Icon } from "@/components/ui/icon";
 import { Spinner } from "@/components/ui/spinner";
 import { Tables } from "@/lib/database.types";
 import { useHouseholdStore } from "@/stores/household-store";
+import { useToast } from "@/stores/toast-store";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import { ScrollText, ShoppingBasketIcon } from "lucide-react-native";
 import { useRef } from "react";
-import { Alert, Pressable, View } from "react-native";
+import { Pressable, View } from "react-native";
 import Swipeable, {
   SwipeableMethods,
 } from "react-native-gesture-handler/ReanimatedSwipeable";
@@ -40,6 +41,7 @@ const GroceryItem = ({ item }: { item: Tables<"grocery_items"> }) => {
   const { mutate: addListItem, isPending: isAddingListItem } = useAddListItem(
     householdId ?? ""
   );
+  const setToast = useToast();
 
   const swipeableRef = useRef<SwipeableMethods>(null);
 
@@ -71,7 +73,7 @@ const GroceryItem = ({ item }: { item: Tables<"grocery_items"> }) => {
 
     swipeableRef.current?.close();
 
-    Alert.alert("Item added to shopping list");
+    setToast("success", "Item added to shopping list");
   };
 
   const triggerLeftHaptic = () => {

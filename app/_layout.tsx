@@ -1,3 +1,4 @@
+import { Toast } from "@/components/toast";
 import "@/global.css";
 
 import { queryClient } from "@/lib/query-client";
@@ -29,6 +30,7 @@ export default function RootLayout() {
             <StatusBar style={theme === "dark" ? "light" : "dark"} />
             <RootLayoutNav />
             <PortalHost />
+            <Toast />
           </QueryClientProvider>
         </ThemeProvider>
       </KeyboardProvider>

@@ -4,6 +4,7 @@ import { useAddPantryItem } from "@/api/pantry/mutations";
 import { Tables } from "@/lib/database.types";
 import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
+import { useToast } from "@/stores/toast-store";
 import { router } from "expo-router";
 import { MoreVertical } from "lucide-react-native";
 import { Alert } from "react-native";
@@ -26,7 +27,7 @@ export const GroceryItemDropdown = ({
 }) => {
   const { user } = useAuthStore();
   const { householdId } = useHouseholdStore();
-
+  const addToast = useToast();
   const { mutateAsync: addToList, isPending: isAddingToList } = useAddListItem(
     householdId ?? ""
   );
@@ -44,7 +45,7 @@ export const GroceryItemDropdown = ({
       quantity: 1,
     });
 
-    Alert.alert("Item added to shopping list");
+    addToast("success", "Item added to shopping list");
   };
 
   const handleAddToPantry = async () => {
@@ -55,7 +56,7 @@ export const GroceryItemDropdown = ({
       items: [{ grocery_item_id: item.id, quantity: 1 }],
     });
 
-    Alert.alert("Item added to pantry");
+    addToast("success", "Item added to pantry");
   };
 
   const handleEdit = () => {
@@ -81,7 +82,7 @@ export const GroceryItemDropdown = ({
 
     await deleteGroceryItem(item.id);
 
-    Alert.alert("Success", "Grocery item deleted successfully");
+    addToast("success", "Grocery item deleted successfully");
   };
 
   const handleMerge = () => {
