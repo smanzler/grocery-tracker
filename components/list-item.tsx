@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { Globe } from "lucide-react-native";
 import { Pressable, View } from "react-native";
 import { Avatar, AvatarImage, ColoredFallback } from "./ui/avatar";
@@ -16,12 +17,21 @@ interface ListItemProps {
   item: Item;
   handlePress?: () => void;
   renderRight?: () => React.ReactNode;
+  className?: string;
 }
 
-export const ListItem = ({ item, handlePress, renderRight }: ListItemProps) => {
+export const ListItem = ({
+  item,
+  handlePress,
+  renderRight,
+  className,
+}: ListItemProps) => {
   return (
     <Pressable
-      className="flex-row items-center rounded-md gap-3 p-1 flex-1"
+      className={cn(
+        "flex-row items-center rounded-md gap-3 p-1 flex-1",
+        className
+      )}
       onPress={handlePress}
     >
       <View className="relative">

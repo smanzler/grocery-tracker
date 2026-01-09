@@ -44,8 +44,6 @@ export const GroceryItemDropdown = ({
       quantity: 1,
     });
 
-    router.replace("/(protected)/(tabs)");
-
     Alert.alert("Item added to shopping list");
   };
 
@@ -56,8 +54,6 @@ export const GroceryItemDropdown = ({
       householdId,
       items: [{ grocery_item_id: item.id, quantity: 1 }],
     });
-
-    router.replace("/(protected)/(tabs)/pantry");
 
     Alert.alert("Item added to pantry");
   };

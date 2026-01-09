@@ -1,6 +1,6 @@
 import { ProfileButton } from "@/components/auth/profile-button";
 import { Tabs } from "expo-router";
-import { Refrigerator, ScrollText, ShoppingBasket } from "lucide-react-native";
+import { ScrollText, ShoppingBasket, Utensils } from "lucide-react-native";
 
 export default function TabsLayout() {
   return (
@@ -17,7 +17,7 @@ export default function TabsLayout() {
         options={{
           title: "",
           tabBarIcon: ({ color, size }) => (
-            <Refrigerator color={color} size={size} />
+            <Utensils color={color} size={size} />
           ),
           headerTitle: "Pantry",
         }}
