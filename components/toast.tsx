@@ -129,6 +129,7 @@ function ToastItem({ toast, index }: { toast: Toast1; index: number }) {
         right: 0,
         zIndex: 100 - index,
         alignItems: "center",
+        padding: 16,
       }}
     >
       <GestureDetector gesture={panGesture}>
