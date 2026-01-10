@@ -22,6 +22,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { scheduleOnRN } from "react-native-worklets";
+import { Button } from "./ui/button";
 import { Icon } from "./ui/icon";
 import { Text } from "./ui/text";
 
@@ -105,6 +106,12 @@ function ToastItem({ toast, index }: { toast: Toast1; index: number }) {
     opacity: index === 0 ? opacity.value : 1,
   }));
 
+  const handleActionPress = () => {
+    toast.options?.action?.fn();
+
+    dismissToast();
+  };
+
   return (
     <Animated.View
       entering={FadeInUp.duration(300).delay(index * 50)}
@@ -139,6 +146,15 @@ function ToastItem({ toast, index }: { toast: Toast1; index: number }) {
               </Text>
             )}
           </View>
+          {toast.options?.action && (
+            <Button
+              onPress={handleActionPress}
+              variant={toast.options.action.variant}
+              size="sm"
+            >
+              <Text>{toast.options.action.text}</Text>
+            </Button>
+          )}
         </AnimatedPressable>
       </GestureDetector>
     </Animated.View>

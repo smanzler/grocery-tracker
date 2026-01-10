@@ -3,6 +3,7 @@ import { useListItems } from "@/api/list-item/queries";
 import CustomHaptics from "@/modules/custom-haptics";
 import { useHouseholdStore } from "@/stores/household-store";
 import { useToast } from "@/stores/toast-store";
+import { router } from "expo-router";
 import { ShoppingCartIcon } from "lucide-react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useUniwind } from "uniwind";
@@ -32,6 +33,10 @@ export default function CheckoutButton() {
     householdId ?? undefined
   );
 
+  const handleAction = () => {
+    router.replace("/(protected)/(tabs)/pantry");
+  };
+
   const { mutateAsync: checkoutListItems, isPending: isCheckingOut } =
     useCheckoutListItems(householdId ?? "");
 
@@ -43,7 +48,12 @@ export default function CheckoutButton() {
     CustomHaptics.impactAsync(400);
     await checkoutListItems();
 
-    addToast("success", "Items checked out successfully");
+    addToast("success", "Items checked out successfully", {
+      action: {
+        fn: handleAction,
+        text: "View",
+      },
+    });
   };
 
   if (!hasCheckedItems) return null;

@@ -5,6 +5,19 @@ export type ToastType = "success" | "error" | "info" | "warning";
 export type ToastOptions = {
   description?: string;
   duration?: number;
+  action?: {
+    fn: () => void;
+    text: string;
+    variant?:
+      | "outline"
+      | "link"
+      | "default"
+      | "destructive"
+      | "secondary"
+      | "ghost"
+      | null
+      | undefined;
+  };
 };
 
 export type Toast = {
