@@ -3,7 +3,6 @@ import {
   type ToastType,
   useToastStore,
 } from "@/stores/toast-store";
-import { BlurView } from "expo-blur";
 import {
   CircleAlertIcon,
   CircleCheckIcon,
@@ -124,27 +123,22 @@ function ToastItem({ toast, index }: { toast: Toast1; index: number }) {
         <AnimatedPressable
           style={animatedStyle}
           onPress={dismissToast}
-          className="max-w-sm rounded-full overflow-hidden w-full shadow-xl shadow-black/5"
+          className="max-w-sm rounded-full overflow-hidden w-full shadow-xl shadow-black/5 py-4 px-8 w-full flex-row items-center gap-4 bg-card"
         >
-          <BlurView
-            tint="systemUltraThinMaterialLight"
-            className="py-4 px-8 w-full flex-row items-center gap-4"
-          >
-            <Icon
-              as={getIconComponent(toast.type)}
-              className="size-6 text-foreground"
-            />
-            <View className="flex-1">
-              <Text className="text-base text-foreground bold">
-                {toast.message}
+          <Icon
+            as={getIconComponent(toast.type)}
+            className="size-6 text-foreground"
+          />
+          <View className="flex-1">
+            <Text className="text-base text-foreground bold">
+              {toast.message}
+            </Text>
+            {toast.options?.description && (
+              <Text className="text-sm text-muted-foreground line-clamp-2">
+                {toast.options?.description}
               </Text>
-              {toast.options?.description && (
-                <Text className="text-sm text-muted-foreground line-clamp-2">
-                  {toast.options?.description}
-                </Text>
-              )}
-            </View>
-          </BlurView>
+            )}
+          </View>
         </AnimatedPressable>
       </GestureDetector>
     </Animated.View>
