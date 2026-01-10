@@ -15,6 +15,8 @@ import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, Pressable, type TextInput, View } from "react-native";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
+import { Separator } from "../ui/separator";
+import AppleSignInButton from "./apple-sign-in-button";
 
 type SignInFormData = {
   email: string;
@@ -145,12 +147,12 @@ export function SignInForm() {
             </Text>
           </Pressable>
         </View>
-        {/* <View className="flex-row items-center">
+        <View className="flex-row items-center">
           <Separator className="flex-1" />
           <Text className="text-muted-foreground px-4 text-sm">or</Text>
           <Separator className="flex-1" />
         </View>
-        <SocialConnections /> */}
+        <AppleSignInButton />
       </CardContent>
     </Card>
   );
