@@ -17,6 +17,7 @@ import Constants from "expo-constants";
 import * as Linking from "expo-linking";
 import { Mail } from "lucide-react-native";
 import { Pressable, View } from "react-native";
+import Animated, { LinearTransition } from "react-native-reanimated";
 
 const SUPPORT_EMAIL = "simanzler@gmail.com";
 
@@ -84,7 +85,7 @@ export default function HelpSupport() {
         </Accordion>
       </View>
 
-      <View className="gap-4">
+      <Animated.View layout={LinearTransition.duration(200)} className="gap-4">
         <Text variant="h3" className="border-b border-border">
           Contact Support
         </Text>
@@ -97,9 +98,9 @@ export default function HelpSupport() {
             <Icon as={Mail} />
           </Pressable>
         </Field>
-      </View>
+      </Animated.View>
 
-      <View className="gap-4">
+      <Animated.View layout={LinearTransition.duration(200)} className="gap-4">
         <Text variant="h3" className="border-b border-border">
           About
         </Text>
@@ -124,7 +125,7 @@ export default function HelpSupport() {
             </FieldDescription>
           </Field>
         </FieldGroup>
-      </View>
+      </Animated.View>
     </KBAScrollView>
   );
 }

@@ -17,15 +17,18 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
+import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Text } from "@/components/ui/text";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/stores/auth-store";
 import { router } from "expo-router";
+import { Moon, Sun } from "lucide-react-native";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, View } from "react-native";
+import { Uniwind, useUniwind } from "uniwind";
 
 type EmailFormData = {
   email: string;
@@ -41,6 +44,8 @@ export default function AccountSettings() {
   const { user, deleteAccount } = useAuthStore();
   const [isChangingEmail, setIsChangingEmail] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+
+  const { theme } = useUniwind();
 
   const emailForm = useForm<EmailFormData>({
     defaultValues: {
@@ -149,6 +154,10 @@ export default function AccountSettings() {
 
   const handleDeleteAccount = async () => {
     await deleteAccount();
+  };
+
+  const handleChangeTheme = () => {
+    Uniwind.setTheme(theme === "dark" ? "light" : "dark");
   };
 
   if (!user) {
@@ -349,10 +358,22 @@ export default function AccountSettings() {
           Preferences
         </Text>
         <Text variant="muted">App preferences and settings</Text>
-        <Text variant="muted">
-          Preferences and notification settings will be available in a future
-          update.
-        </Text>
+        <FieldGroup>
+          <Field>
+            <FieldLabel>Change theme</FieldLabel>
+            <Button onPress={handleChangeTheme}>
+              <Text>Change Theme</Text>
+              <Icon
+                as={theme === "dark" ? Moon : Sun}
+                className="text-secondary"
+              />
+            </Button>
+
+            <FieldDescription>
+              Change the appearance of the application.
+            </FieldDescription>
+          </Field>
+        </FieldGroup>
       </View>
 
       <View className="gap-4">
@@ -360,30 +381,39 @@ export default function AccountSettings() {
           Danger Zone
         </Text>
 
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="destructive">
-              <Text>Delete Account</Text>
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete Account</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to delete your account? This action cannot
-                be undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>
-                <Text>Cancel</Text>
-              </AlertDialogCancel>
-              <Button onPress={handleDeleteAccount} variant="destructive">
-                <Text>Delete</Text>
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <FieldGroup>
+          <Field>
+            <FieldLabel>Delete Account</FieldLabel>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive">
+                  <Text>Delete Account</Text>
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Account</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to delete your account? This action
+                    cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>
+                    <Text>Cancel</Text>
+                  </AlertDialogCancel>
+                  <Button onPress={handleDeleteAccount} variant="destructive">
+                    <Text>Delete</Text>
+                  </Button>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            <FieldDescription>
+              Delete your account and all it's data. This action is
+              irreversible.
+            </FieldDescription>
+          </Field>
+        </FieldGroup>
       </View>
     </KBAScrollView>
   );

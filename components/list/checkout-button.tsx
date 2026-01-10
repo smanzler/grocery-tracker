@@ -52,7 +52,7 @@ export default function CheckoutButton() {
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger>
+      <AlertDialogTrigger asChild>
         <AnimatedButton
           className="rounded-full"
           style={{ height: 60, width: 60 }}
