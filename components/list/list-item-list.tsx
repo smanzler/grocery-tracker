@@ -26,6 +26,7 @@ import {
   Plus,
   ShoppingBasket,
   ShoppingCartIcon,
+  Trash,
   X,
 } from "lucide-react-native";
 import { useEffect, useRef } from "react";
@@ -65,13 +66,13 @@ const ListItem = ({
 }: {
   item: Tables<"list_items"> & { grocery_items: Tables<"grocery_items"> };
 }) => {
+  const { user } = useAuthStore();
+
   const { mutate: toggleListItemChecked, isPending } = useToggleListItemChecked(
     item.household_id ?? ""
   );
-
   const { mutate: removeListItem, isPending: isRemovingItem } =
     useRemoveListItem(item.household_id ?? "");
-
   const { mutate: addListItem, isPending: isAddingItem } = useAddListItem(
     item.household_id ?? ""
   );
@@ -164,8 +165,31 @@ const ListItem = ({
   const handleViewItem = () => {
     if (!item.household_id || !item.grocery_item_id) return;
 
+    swipeableRef.current?.close();
+
     router.push({
       pathname: "/(protected)/(modals)/grocery-item",
+      params: { id: item.grocery_item_id },
+    });
+  };
+
+  const handleRemove = () => {
+    if (!item.household_id || !item.grocery_item_id) return;
+
+    removeListItem({
+      householdId: item.household_id,
+      groceryItemId: item.grocery_item_id,
+      quantity: item.total_quantity,
+    });
+  };
+
+  const handleEdit = () => {
+    if (!item.household_id || !item.grocery_item_id) return;
+
+    swipeableRef.current?.close();
+
+    router.push({
+      pathname: "/(protected)/(modals)/edit-grocery-item",
       params: { id: item.grocery_item_id },
     });
   };
@@ -267,8 +291,10 @@ const ListItem = ({
           );
         }}
         renderRightActions={(_, translation) => {
+          const BUTTON_WIDTH = 70;
+
           const opacity = useDerivedValue(() => {
-            return withTiming(-translation.value > 50 ? 1 : 0, {
+            return withTiming(-translation.value > BUTTON_WIDTH ? 1 : 0, {
               duration: 200,
             });
           });
@@ -286,26 +312,51 @@ const ListItem = ({
           });
 
           return (
-            <DropdownMenuRoot>
-              <DropdownMenuTrigger>
-                <Pressable className="relative h-full w-[80px]">
-                  <Animated.View
-                    className="absolute top-0 right-0 h-full items-center justify-center bg-muted"
-                    style={backgroundStyle}
-                  >
-                    <Animated.View style={iconStyle}>
-                      <Icon as={Ellipsis} className="size-5" />
-                    </Animated.View>
+            <View className="h-full" style={{ width: BUTTON_WIDTH * 2 }}>
+              <Animated.View
+                style={backgroundStyle}
+                className="absolute top-0 right-0 h-full items-center justify-center flex-row"
+              >
+                <View className="flex-1">
+                  <DropdownMenuRoot>
+                    <DropdownMenuTrigger asChild>
+                      <Pressable className="h-full items-center justify-center bg-muted">
+                        <Animated.View style={iconStyle}>
+                          <Icon as={Ellipsis} className="size-5" />
+                        </Animated.View>
+                      </Pressable>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem
+                        key="view-item"
+                        onSelect={handleViewItem}
+                      >
+                        <DropdownMenuItemTitle>View Item</DropdownMenuItemTitle>
+                        <DropdownMenuItemIcon ios={{ name: "eye" }} />
+                      </DropdownMenuItem>
+                      {user?.id === item.grocery_items.user_id &&
+                        !item.grocery_items.is_global && (
+                          <DropdownMenuItem key="edit" onSelect={handleEdit}>
+                            <DropdownMenuItemTitle>Edit</DropdownMenuItemTitle>
+                            <DropdownMenuItemIcon ios={{ name: "pencil" }} />
+                          </DropdownMenuItem>
+                        )}
+                    </DropdownMenuContent>
+                  </DropdownMenuRoot>
+                </View>
+                <Pressable
+                  onPress={handleRemove}
+                  className="h-full items-center justify-center bg-destructive flex-1"
+                >
+                  <Animated.View style={iconStyle}>
+                    <Icon
+                      as={Trash}
+                      className="size-5 text-destructive-foreground"
+                    />
                   </Animated.View>
                 </Pressable>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem key="view-item" onSelect={handleViewItem}>
-                  <DropdownMenuItemTitle>View Item</DropdownMenuItemTitle>
-                  <DropdownMenuItemIcon ios={{ name: "eye" }} />
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenuRoot>
+              </Animated.View>
+            </View>
           );
         }}
       >
