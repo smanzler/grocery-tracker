@@ -15,10 +15,11 @@ import { Spinner } from "@/components/ui/spinner";
 import { Tables } from "@/lib/database.types";
 import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
+import { useToast } from "@/stores/toast-store";
 import { router } from "expo-router";
 import { MoreVertical, RefrigeratorIcon } from "lucide-react-native";
 import { useState } from "react";
-import { Alert, View } from "react-native";
+import { View } from "react-native";
 import Animated, {
   FadeIn,
   FadeOut,
@@ -39,6 +40,9 @@ import { PantryItemDropdown } from "./pantry-item-dropdown";
 
 const PantryItem = ({ item }: { item: Tables<"pantry_items"> }) => {
   const { householdId } = useHouseholdStore();
+
+  const addToast = useToast();
+
   const { mutateAsync: consumePantryItem, isPending } = useConsumePantryItem(
     householdId ?? ""
   );
@@ -52,6 +56,8 @@ const PantryItem = ({ item }: { item: Tables<"pantry_items"> }) => {
       itemId,
       quantity: 1,
     });
+
+    addToast("success", "Item consumed");
   };
 
   const handlePress = () => {
@@ -66,7 +72,7 @@ const PantryItem = ({ item }: { item: Tables<"pantry_items"> }) => {
       quantity: 1,
     });
 
-    Alert.alert("Item added to grocery list");
+    addToast("success", "Item added to grocery list");
   };
 
   const handleViewItem = (itemId: string) => {
@@ -94,7 +100,7 @@ const PantryItem = ({ item }: { item: Tables<"pantry_items"> }) => {
           }}
           handlePress={handlePress}
           renderRight={() =>
-            isPending ? (
+            isPending || isAddingListItem ? (
               <Spinner />
             ) : (
               <DropdownMenuRoot>
