@@ -383,15 +383,19 @@ const ListItem = ({
               <View className="flex-row items-center justify-center gap-2">
                 <Button
                   variant="outline"
-                  className="rounded-full size-7 px-0"
+                  className="rounded-full"
+                  size="icon"
+                  style={{ height: 28, width: 28 }}
                   onPress={handleSubtractQuantity}
                 >
                   <Icon as={Minus} className="size-4" />
                 </Button>
-                <Text>{item.total_quantity}</Text>
+                <Text className="font-bold">{item.total_quantity}</Text>
                 <Button
                   variant="outline"
-                  className="rounded-full size-7 px-0"
+                  className="rounded-full"
+                  size="icon"
+                  style={{ height: 28, width: 28 }}
                   onPress={handleAddQuantity}
                 >
                   <Icon as={Plus} className="size-4" />
