@@ -48,7 +48,6 @@ const SCALE_FACTOR = 0.05;
 
 function ToastItem({ toast, index }: { toast: Toast1; index: number }) {
   const { removeToast } = useToastStore();
-  const translateX = useSharedValue(0);
   const opacity = useSharedValue(1);
   const scale = useSharedValue(1 - index * SCALE_FACTOR);
   const translateY = useSharedValue(index * STACK_OFFSET);
@@ -78,43 +77,32 @@ function ToastItem({ toast, index }: { toast: Toast1; index: number }) {
 
   const panGesture = Gesture.Pan()
     .onUpdate((event) => {
-      // Only allow horizontal swipe on the top card
-      if (index === 0) {
-        translateX.value = event.translationX;
-        // Fade out as user swipes
-        opacity.value = Math.max(0, 1 - Math.abs(event.translationX) / 200);
+      // Only allow vertical swipe up on the top card
+      if (index === 0 && event.translationY < 0) {
+        translateY.value = index * STACK_OFFSET + event.translationY;
+        // Fade out as user swipes up
+        opacity.value = Math.max(0, 1 - Math.abs(event.translationY) / 150);
       }
     })
     .onEnd((event) => {
       if (index === 0) {
-        // If swiped more than 100px or velocity is high, dismiss
-        if (
-          Math.abs(event.translationX) > 100 ||
-          Math.abs(event.velocityX) > 500
-        ) {
-          // Animate out
-          translateX.value = withTiming(
-            event.translationX > 0 ? 400 : -400,
-            { duration: 200 },
-            () => {
-              scheduleOnRN(dismissToast);
-            }
-          );
+        // If swiped up more than 75px or velocity is high, dismiss
+        if (event.translationY < -75 || event.velocityY < -500) {
+          // Animate out upwards
+          translateY.value = withTiming(-200, { duration: 200 }, () => {
+            scheduleOnRN(dismissToast);
+          });
           opacity.value = withTiming(0, { duration: 200 });
         } else {
-          // Spring back to center
-          translateX.value = withSpring(0);
+          // Spring back to position
+          translateY.value = withSpring(index * STACK_OFFSET);
           opacity.value = withSpring(1);
         }
       }
     });
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: translateX.value },
-      { scale: scale.value },
-      { translateY: translateY.value },
-    ],
+    transform: [{ scale: scale.value }, { translateY: translateY.value }],
     opacity: index === 0 ? opacity.value : 1,
   }));
 
