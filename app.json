@@ -11,7 +11,13 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.sigh10.grocerytracker",
-      "usesAppleSignIn": true
+      "usesAppleSignIn": true,
+      "appleTeamId": "JJN866GRF5",
+      "entitlements": {
+        "com.apple.security.application-groups": [
+          "group.sigh10.grocerytracker"
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -53,7 +59,8 @@
         {
           "photosPermission": "Allow $(PRODUCT_NAME) to access your photos to select images for your profile and grocery items."
         }
-      ]
+      ],
+      "@bacons/apple-targets"
     ],
     "experiments": {
       "typedRoutes": true,
