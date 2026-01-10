@@ -3,7 +3,6 @@ import { useListItems } from "@/api/list-item/queries";
 import CustomHaptics from "@/modules/custom-haptics";
 import { useHouseholdStore } from "@/stores/household-store";
 import { useToast } from "@/stores/toast-store";
-import { router } from "expo-router";
 import { ShoppingCartIcon } from "lucide-react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useUniwind } from "uniwind";
@@ -45,7 +44,6 @@ export default function CheckoutButton() {
     await checkoutListItems();
 
     addToast("success", "Items checked out successfully");
-    router.replace("/(protected)/(tabs)/pantry");
   };
 
   if (!hasCheckedItems) return null;
