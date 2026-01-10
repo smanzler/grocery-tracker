@@ -1,7 +1,15 @@
+import { useHouseholdStore } from "@/stores/household-store";
 import { Stack } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 
 const Layout = () => {
+  const { householdId, selectHousehold } = useHouseholdStore();
+  useEffect(() => {
+    if (householdId) {
+      selectHousehold(null);
+    }
+  }, []);
+
   return (
     <Stack
       screenOptions={{

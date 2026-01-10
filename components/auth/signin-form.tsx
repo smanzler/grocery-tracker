@@ -53,7 +53,7 @@ export function SignInForm() {
     <Card className="border-border/0 sm:border-border shadow-none sm:shadow-sm sm:shadow-black/5 w-full max-w-sm">
       <CardHeader>
         <CardTitle className="text-center text-xl sm:text-left">
-          Sign in to your app
+          Sign in to <Text className="text-xl font-bold">Pantry</Text>
         </CardTitle>
         <CardDescription className="text-center sm:text-left">
           Welcome back! Please sign in to continue
@@ -112,6 +112,7 @@ export function SignInForm() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
                   ref={passwordInputRef}
+                  placeholder="Password"
                   id="password"
                   secureTextEntry
                   value={value}

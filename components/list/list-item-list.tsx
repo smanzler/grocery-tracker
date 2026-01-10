@@ -426,6 +426,7 @@ export default function ListItemList() {
     <BScrollView
       keyboardDismissMode="on-drag"
       refreshControl={<RefetchControl refetch={refetch} />}
+      className="px-1"
     >
       {!data || data.length === 0 ? (
         <Empty>

@@ -17,7 +17,7 @@ export default function AppleSignInButton() {
           : AppleAuthentication.AppleAuthenticationButtonStyle.WHITE
       }
       style={{ width: "100%", height: 40 }}
-      cornerRadius={8}
+      cornerRadius={20}
       onPress={async () => {
         if (loading) return;
 

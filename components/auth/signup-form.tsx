@@ -138,6 +138,7 @@ export function SignUpForm() {
                 <Input
                   ref={passwordInputRef}
                   id="password"
+                  placeholder="Password"
                   secureTextEntry
                   value={value}
                   onChangeText={onChange}
@@ -165,6 +166,7 @@ export function SignUpForm() {
                 <Input
                   ref={confirmPasswordInputRef}
                   id="confirmPassword"
+                  placeholder="Confirm Password"
                   secureTextEntry
                   value={value}
                   onChangeText={onChange}
