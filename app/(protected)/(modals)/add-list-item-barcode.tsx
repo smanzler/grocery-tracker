@@ -5,7 +5,6 @@ import { useAuthStore } from "@/stores/auth-store";
 import { useHouseholdStore } from "@/stores/household-store";
 import { useToast } from "@/stores/toast-store";
 import { router } from "expo-router";
-import { Alert } from "react-native";
 
 export default function AddListItemBarcode() {
   const { householdId } = useHouseholdStore();
@@ -14,7 +13,7 @@ export default function AddListItemBarcode() {
   const addToast = useToast();
 
   const handleScan = async (data: Tables<"grocery_items">) => {
-    if (!householdId || !user) return;
+    if (!householdId || !user) return false;
 
     try {
       await addListItem({
@@ -25,9 +24,10 @@ export default function AddListItemBarcode() {
 
       router.back();
       addToast("success", "Item added to list");
+      return true;
     } catch (error) {
-      Alert.alert("Error", "Failed to add item to list");
-      return;
+      console.error(error);
+      return false;
     }
   };
 
