@@ -46,7 +46,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { scheduleOnRN } from "react-native-worklets";
-import { useCSSVariable } from "uniwind";
+import { useCSSVariable, useUniwind } from "uniwind";
 import { ListItem as ListItemComponent } from "../list-item";
 import RefetchControl from "../refetch-control";
 import { Button } from "../ui/button";
@@ -67,6 +67,7 @@ const ListItem = ({
   item: Tables<"list_items"> & { grocery_items: Tables<"grocery_items"> };
 }) => {
   const { user } = useAuthStore();
+  const { theme } = useUniwind();
 
   const { mutate: toggleListItemChecked, isPending } = useToggleListItemChecked(
     item.household_id ?? ""
@@ -282,7 +283,11 @@ const ListItem = ({
                         { position: "absolute", top: 0, left: 0 },
                       ]}
                     >
-                      <Icon as={X} className="size-5" color="#000000" />
+                      <Icon
+                        as={X}
+                        className="size-5"
+                        color={theme === "dark" ? "#ffffff" : "#000000"}
+                      />
                     </Animated.View>
                   </View>
                 </Animated.View>
