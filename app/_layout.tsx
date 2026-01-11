@@ -1,5 +1,6 @@
 import { Toast } from "@/components/toast";
 import { Spinner } from "@/components/ui/spinner";
+import { Text } from "@/components/ui/text";
 import "@/global.css";
 
 import { queryClient } from "@/lib/query-client";
@@ -51,6 +52,7 @@ function RootLayoutNav() {
     return (
       <View className="flex-1 items-center justify-center">
         <Spinner />
+        <Text>Initializing...</Text>
       </View>
     );
 
