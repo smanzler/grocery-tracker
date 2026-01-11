@@ -141,7 +141,7 @@ function GroceryItemContent({
           )}
         </View>
 
-        <View className="p-4">
+        <View className="p-4 bg-background">
           <Text variant="h3" className="mb-3">
             History
           </Text>
