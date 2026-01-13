@@ -91,6 +91,8 @@ Deno.serve(async (req) => {
       data: { user },
     } = await supabaseClient.auth.getUser(token);
 
+    // TODO: implement generating embedding from product (maybe combo of product name, brand?, food group? not sure yet, could just be name too)
+
     const product = {
       barcode,
       is_global: true,
