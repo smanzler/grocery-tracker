@@ -51,7 +51,7 @@ export default function ProtectedLayout() {
         <Stack.Screen name="(tabs)" options={{ animation: "ios_from_right" }} />
       </Stack.Protected>
 
-      <Stack.Screen name="(modals)" options={{ presentation: "modal" }} />
+      <Stack.Screen name="(modals)" />
     </Stack>
   );
 }

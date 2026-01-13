@@ -2,12 +2,13 @@ import { Stack } from "expo-router";
 
 export default function ModalsLayout() {
   return (
-    <Stack screenOptions={{ presentation: "modal" }}>
+    <Stack>
       <Stack.Screen
         name="create-household"
         options={{
           headerTitle: "Create Household",
           headerLargeTitleEnabled: true,
+          presentation: "modal",
         }}
       />
       <Stack.Screen
@@ -15,6 +16,7 @@ export default function ModalsLayout() {
         options={{
           headerTitle: "Edit Household",
           headerLargeTitleEnabled: true,
+          presentation: "modal",
         }}
       />
       <Stack.Screen
@@ -22,6 +24,7 @@ export default function ModalsLayout() {
         options={{
           headerTitle: "Join Household",
           headerLargeTitleEnabled: true,
+          presentation: "modal",
         }}
       />
       <Stack.Screen
@@ -29,6 +32,7 @@ export default function ModalsLayout() {
         options={{
           headerTitle: "Profile",
           headerLargeTitleEnabled: true,
+          presentation: "modal",
         }}
       />
       <Stack.Screen
@@ -36,6 +40,7 @@ export default function ModalsLayout() {
         options={{
           headerTitle: "Settings",
           headerLargeTitleEnabled: true,
+          presentation: "modal",
         }}
       />
       <Stack.Screen
@@ -43,6 +48,7 @@ export default function ModalsLayout() {
         options={{
           headerTitle: "Help & Support",
           headerLargeTitleEnabled: true,
+          presentation: "modal",
         }}
       />
       <Stack.Screen
@@ -50,6 +56,7 @@ export default function ModalsLayout() {
         options={{
           headerTitle: "Update Password",
           headerLargeTitleEnabled: true,
+          presentation: "modal",
         }}
       />
       <Stack.Screen
@@ -62,6 +69,7 @@ export default function ModalsLayout() {
         name="grocery-item"
         options={{
           headerShown: false,
+          presentation: "modal",
         }}
       />
       <Stack.Screen
@@ -72,6 +80,12 @@ export default function ModalsLayout() {
       />
       <Stack.Screen
         name="select-grocery-item"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="scan-receipt"
         options={{
           headerShown: false,
         }}
