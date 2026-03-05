@@ -1,7 +1,9 @@
 import { cn } from "@/lib/utils";
 import { Globe } from "lucide-react-native";
 import { Pressable, View } from "react-native";
-import { Avatar, AvatarImage, ColoredFallback } from "./ui/avatar";
+import { GroceryIcon } from "./grocery-item/icon/grocery-icon";
+import { GroceryIconKey } from "./grocery-item/icon/registry";
+import { Avatar, AvatarImage } from "./ui/avatar";
 import { Icon } from "./ui/icon";
 import { Text } from "./ui/text";
 
@@ -11,6 +13,7 @@ interface Item {
   image_url?: string | null;
   subtitle?: string | null;
   is_global?: boolean | null;
+  icon_key: GroceryIconKey;
 }
 
 interface ListItemProps {
@@ -37,11 +40,7 @@ export const ListItem = ({
       <View className="relative">
         <Avatar alt={item.name ?? ""} className="size-12 rounded-md">
           <AvatarImage source={{ uri: item.image_url ?? undefined }} />
-          <ColoredFallback
-            id={item.id ?? ""}
-            text={item.name?.charAt(0) ?? "I"}
-            className="size-12 rounded-md"
-          />
+          <GroceryIcon icon={item.icon_key} />
         </Avatar>
         {item.is_global && (
           <View className="absolute -bottom-1 -right-1 size-5 bg-blue-500 rounded-full border border-white items-center justify-center">

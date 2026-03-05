@@ -1,4 +1,4 @@
-import { TablesInsert, TablesUpdate } from "@/lib/database.types";
+import { TablesUpdate } from "@/lib/database.types";
 import { supabase } from "@/lib/supabase";
 import { UseGroceryItemsProps } from "./queries";
 
@@ -22,21 +22,21 @@ export const getGroceryItems = async (filters?: UseGroceryItemsProps) => {
 export const getGroceryItem = async (id: string) => {
   const { data, error } = await supabase
     .from("grocery_items")
-    .select("*")
+    .select("*, icons(name)")
     .eq("id", id)
     .single();
   if (error) throw error;
   return data;
 };
 
-export const createGroceryItem = async (
-  groceryItem: TablesInsert<"grocery_items">
-) => {
-  const { data, error } = await supabase
-    .from("grocery_items")
-    .insert(groceryItem)
-    .select()
-    .single();
+export const createGroceryItem = async (name: string, householdId: string) => {
+  const { data, error } = await supabase.functions.invoke(
+    "create-grocery-item",
+    {
+      body: { name, householdId },
+    }
+  );
+  console.log(data, error);
   if (error) throw error;
   return data;
 };

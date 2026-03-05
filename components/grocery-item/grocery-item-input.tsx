@@ -90,8 +90,7 @@ export default function GroceryItemInput() {
 
     const groceryItem = await createGroceryItem({
       name: trimmedText,
-      user_id: user.id,
-      household_id: householdId,
+      householdId: householdId,
     });
 
     if (!groceryItem) return;

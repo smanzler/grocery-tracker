@@ -1,4 +1,4 @@
-import { TablesInsert, TablesUpdate } from "@/lib/database.types";
+import { TablesUpdate } from "@/lib/database.types";
 import { queryClient } from "@/lib/query-client";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -10,8 +10,13 @@ import {
 
 export const useCreateGroceryItem = () => {
   return useMutation({
-    mutationFn: (groceryItem: TablesInsert<"grocery_items">) =>
-      createGroceryItem(groceryItem),
+    mutationFn: ({
+      name,
+      householdId,
+    }: {
+      name: string;
+      householdId: string;
+    }) => createGroceryItem(name, householdId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["grocery-items"] });
     },

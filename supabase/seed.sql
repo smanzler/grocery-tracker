@@ -148,3 +148,20 @@ values (
     3
 )
 on conflict do nothing;
+
+insert into icons (name, content) values (
+    ('dairy', 'dairy milk cheese yogurt butter cream cottage cheese sour cream'),
+    ('meat', 'meat chicken beef pork turkey lamb fish seafood'),
+    ('produce-fruit', 'fruit fruits apple banana orange berries grapes citrus fresh fruit'),
+    ('produce-vegetable', 'vegetable vegetables lettuce tomato carrot onion potato broccoli fresh produce'),
+    ('bakery', 'bakery bread bagel croissant pastry muffin donut baked goods'),
+    ('beverage', 'beverage drink juice soda coffee tea water beer wine alcohol'),
+    ('pantry-grains', 'grain grains rice pasta cereal oats quinoa flour noodles'),
+    ('snacks', 'snacks chips cookies crackers nuts pretzels popcorn'),
+    ('frozen', 'frozen ice cream frozen food frozen vegetables frozen meals'),
+    ('condiments', 'condiment condiments sauce ketchup mustard mayo dressing marinade'),
+    ('canned', 'canned can soup beans vegetables tuna canned goods'),
+    ('spices', 'spice spices seasoning salt pepper herbs garlic spices'),
+    ('household', 'household cleaning supplies toilet paper paper towels soap detergent')
+)
+on conflict do nothing;
